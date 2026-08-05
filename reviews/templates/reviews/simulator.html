@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block page_title %}Notifications &amp; Alerts{% endblock %}
+{% block head_title %}Notification & Alert Settings | AI Review Booster{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-4xl mx-auto space-y-8">
+
+    <!-- Header -->
+    <div class="border-b border-slate-200 pb-5">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+            Instant Alerts &amp; Negative Feedback Routing
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Configure automated email and SMS dispatch rules to respond immediately when critical customer reviews arrive.
+        </p>
+    </div>
+
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Low Rating Threshold Alert -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+            <div>
+                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                    Negative Review Urgent Alert Trigger
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">
+                    Send immediate notification pushes when a rating falls below your business threshold.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <label class="block text-xs font-semibold text-slate-700">Trigger Threshold</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50 cursor-pointer hover:bg-slate-100 transition">
+                        <input type="radio" name="threshold" value="1_star" class="text-blue-600 focus:ring-blue-500">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-900">1-Star Only</span>
+                            <span class="text-[10px] text-slate-500">Urgent crisis response</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50 cursor-pointer hover:bg-slate-100 transition">
+                        <input type="radio" name="threshold" value="1_2_star" checked class="text-blue-600 focus:ring-blue-500">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-900">1 &amp; 2-Star Reviews</span>
+                            <span class="text-[10px] text-slate-500">Recommended standard</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50 cursor-pointer hover:bg-slate-100 transition">
+                        <input type="radio" name="threshold" value="all" class="text-blue-600 focus:ring-blue-500">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-900">All New Reviews</span>
+                            <span class="text-[10px] text-slate-500">Full activity stream</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100 pt-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Alert Dispatch Emails</label>
+                    <input type="email" name="alert_email" placeholder="manager@genevabistro.ch" value="{{ user.email }}" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-slate-50/50">
+                    <p class="text-[11px] text-slate-400 mt-1">Separate multiple emails with commas.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">SMS Notification Phone (Twilio)</label>
+                    <input type="tel" name="alert_phone" placeholder="+41 79 123 4567" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-slate-50/50">
+                    <p class="text-[11px] text-slate-400 mt-1">E.164 international format required.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Digest Preferences -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Manager Daily Executive Summary
+            </h2>
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="block text-xs font-semibold text-slate-800">Daily Performance Email Digest</span>
+                    <span class="text-[11px] text-slate-500">Receive a daily breakdown of response rate, overall rating shifts, and pending drafts every morning.</span>
+                </div>
+                <input type="checkbox" name="daily_digest" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow transition">
+                Save Alert Preferences
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

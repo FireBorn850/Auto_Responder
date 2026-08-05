@@ -19,6 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')), # <--- Adds /accounts/login/ and /accounts/logout/
-    path('', include('reviews.urls')),
+    path('accounts/', include('allauth.urls')),  # Handles Google OAuth login & callback routes
+    path('', include('reviews.urls')),          # Main dashboard & reviews views
 ]

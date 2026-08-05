@@ -1,94 +1,270 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Review Booster Dashboard</title>
-    <!-- Tailwind CSS CDN for quick modern styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen p-6">
-    <div class="max-w-4xl mx-auto">
-        <!-- Header with User Greeting and Actions -->
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Review Booster & Auto-Responder</h1>
-                <p class="text-sm text-gray-500">
-                    Welcome back, <strong class="text-blue-600">{{ user.username }}</strong>!
-                </p>
-            </div>
-            
-            <div class="flex items-center space-x-3">
-                {% if user.is_staff %}
-                    <a href="/admin/" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm font-medium">
-                        Django Admin
-                    </a>
+{% extends "base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block head_title %}AI Review Booster Dashboard{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl mx-auto space-y-6">
+
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-50 text-emerald-700 border-emerald-200
+            {% elif message.tags == 'warning' %}bg-amber-50 text-amber-700 border-amber-200
+            {% elif message.tags == 'error' %}bg-rose-50 text-rose-700 border-rose-200
+            {% else %}bg-blue-50 text-blue-700 border-blue-200{% endif %}">
+            <span class="flex items-center gap-2">
+                {% if message.tags == 'success' %}<i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation"></i>
+                {% elif message.tags == 'error' %}<i class="fa-solid fa-circle-exclamation"></i>
+                {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+                {{ message }}
+            </span>
+            <button type="button" onclick="this.closest('div.flex').remove()" class="opacity-60 hover:opacity-100 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Clean Page Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Review Booster & Auto-Responder</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                {% if user.is_authenticated %}
+                    Managing automated Google Business Profile responses for <span class="font-semibold text-slate-700">{{ user.username }}</span>.
+                {% else %}
+                    Welcome! Please sign in to manage and automate your business reviews.
                 {% endif %}
-                
-                <form action="{% url 'logout' %}" method="post" class="inline">
-                    {% csrf_token %}
-                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm font-medium transition duration-150">
-                        Logout
-                    </button>
-                </form>
-            </div>
+            </p>
         </div>
 
-        <!-- Review Cards Loop -->
-        <div class="space-y-4">
-            {% for review in reviews %}
-            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <div class="flex justify-between items-center mb-2">
-                    <div>
-                        <span class="font-bold text-lg text-gray-800">{{ review.reviewer_name }}</span>
-                        <span class="text-yellow-500 font-semibold ml-2">{{ review.rating }} ★</span>
-                    </div>
-                    <span class="text-xs px-2.5 py-1 rounded-full font-semibold
-                        {% if review.status == 'posted' %}bg-blue-100 text-blue-800 border border-blue-300
-                        {% elif review.status == 'approved' %}bg-green-100 text-green-800
-                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                        {% if review.status == 'posted' %}
-                            ✓ Posted to Google ({{ review.detected_language|upper }})
-                        {% else %}
-                            {{ review.get_status_display }} ({{ review.detected_language|upper }})
-                        {% endif %}
-                    </span>
-                </div>
+        {% if user.is_authenticated %}
+        <div class="flex items-center gap-2">
+            <button onclick="toggleSyncModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Sync Live Google Reviews</span>
+            </button>
 
-                <!-- Review Content -->
-                <p class="text-gray-600 italic mb-4">"{{ review.comment }}"</p>
+            {% if user.is_staff %}
+            <a href="/admin/" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-user-shield text-slate-400"></i>
+                <span>Admin</span>
+            </a>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 font-medium mr-1">Sign in:</span>
+            <a href="{% url 'google_login' %}" title="Sign in with Google" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition">
+                <i class="fab fa-google text-red-500 text-sm"></i>
+            </a>
+            <a href="{% url 'github_login' %}" title="Sign in with GitHub" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition">
+                <i class="fab fa-github text-slate-800 text-sm"></i>
+            </a>
+            <a href="{% url 'microsoft_login' %}" title="Sign in with Microsoft" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition">
+                <i class="fab fa-microsoft text-blue-600 text-sm"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
 
-                <!-- AI Response Section -->
-                {% if review.ai_draft_reply %}
-                    <form action="{% url 'approve_review' review.id %}" method="POST" class="mt-4">
-                        {% csrf_token %}
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">
-                            AI Draft Response (Editable):
-                        </label>
-                        <textarea name="ai_draft_reply" rows="3" 
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-3 text-gray-700">{{ review.ai_draft_reply }}</textarea>
-                        
-                        <div class="flex space-x-3">
-                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium text-sm">
-                                Approve Response
-                            </button>
-                            <a href="{% url 'generate_draft' review.id %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 font-medium text-sm inline-block">
-                                Regenerate AI Response
-                            </a>
-                        </div>
-                    </form>
-                {% else %}
-                    <a href="{% url 'generate_draft' review.id %}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium text-sm">
-                        ✨ Generate AI Response with Gemini
-                    </a>
-                {% endif %}
+    <!-- Analytics Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">This Month</span>
+                <span class="p-2 bg-slate-50 text-slate-600 rounded-lg"><i class="fa-regular fa-calendar-check text-sm"></i></span>
             </div>
-            {% empty %}
-            <div class="bg-white p-6 rounded-lg text-center text-gray-500">
-                No reviews found for your account. New incoming reviews will appear here automatically!
+            <div class="mt-2 text-3xl font-extrabold text-slate-900">
+                {{ analytics.total_reviews_this_month }}
             </div>
-            {% endfor %}
+            <p class="text-xs text-slate-500 mt-1">New reviews received</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Avg Rating</span>
+                <span class="p-2 bg-amber-50 text-amber-500 rounded-lg"><i class="fa-solid fa-star text-sm"></i></span>
+            </div>
+            <div class="mt-2 text-3xl font-extrabold text-amber-500">
+                {{ analytics.avg_rating }} <span class="text-sm font-normal text-slate-400">/ 5.0</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Across {{ analytics.total_reviews_handled }} reviews</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Time Saved</span>
+                <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i class="fa-solid fa-bolt text-sm"></i></span>
+            </div>
+            <div class="mt-2 text-3xl font-extrabold text-emerald-600">
+                ~{{ analytics.saved_hours }} hrs
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Automated response time</p>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Review Cards Feed -->
+    <div class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">Customer Reviews Feed</h3>
+        {% for review in reviews %}
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex justify-between items-center mb-2">
+                <div>
+                    <span class="font-bold text-base text-slate-900">{{ review.reviewer_name }}</span>
+                    <span class="text-amber-500 font-semibold text-sm ml-2">{{ review.rating }} ★</span>
+                </div>
+                <span class="text-xs px-2.5 py-1 rounded-full font-semibold
+                    {% if review.status == 'posted' %}bg-blue-50 text-blue-700 border border-blue-200
+                    {% elif review.status == 'approved' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                    {% elif review.status == 'flagged' %}bg-rose-50 text-rose-700 border border-rose-200
+                    {% else %}bg-amber-50 text-amber-700 border border-amber-200{% endif %}">
+                    {% if review.status == 'posted' %}
+                    ✓ Posted to Google ({{ review.detected_language|upper }})
+                    {% elif review.status == 'flagged' %}
+                    ⚠ Flagged for Review
+                    {% else %}
+                    {{ review.get_status_display }} ({{ review.detected_language|upper }})
+                    {% endif %}
+                </span>
+            </div>
+
+            <p class="text-xs text-slate-400 font-medium mb-1"><i class="fa-solid fa-store mr-1"></i> {{ review.business_name }}</p>
+            <p class="text-slate-600 italic text-sm mb-4">"{{ review.comment }}"</p>
+
+            {% if review.status == 'flagged' %}
+            <!-- FLAGGED: comment didn't pass the authenticity check -->
+            <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start gap-3">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5"></i>
+                    <div class="space-y-1">
+                        <p class="text-xs font-semibold text-rose-700">This doesn't look like a genuine review.</p>
+                        <p class="text-xs text-rose-600">We skipped an AI-generated reply so nothing gets posted automatically. You can still write a reply by hand, or generate one anyway.</p>
+                    </div>
+                </div>
+                <a href="{% url 'generate_draft' review.id %}?force=1" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium text-xs transition">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Generate AI Response Anyway</span>
+                </a>
+            </div>
+            {% elif review.ai_draft_reply %}
+            <form action="{% url 'approve_review' review.id %}" method="POST" class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                {% csrf_token %}
+                <label class="block text-xs font-semibold text-slate-700 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5 text-blue-600">
+                        <i class="fa-solid fa-sparkles"></i>
+                        <span>AI Draft Response (Editable):</span>
+                    </span>
+                    <button type="button" onclick="copyReplyToClipboard('draft-{{ review.id }}', this)" class="text-slate-500 hover:text-blue-600 text-xs flex items-center gap-1 font-normal transition">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copy Draft</span>
+                    </button>
+                </label>
+
+                <textarea id="draft-{{ review.id }}" name="ai_draft_reply" rows="3" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-800 bg-slate-50/50">{{ review.ai_draft_reply }}</textarea>
+
+                <div class="flex items-center justify-between gap-2 pt-1">
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-xs transition shadow-sm">
+                            Approve Response
+                        </button>
+                        <a href="{% url 'generate_draft' review.id %}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium text-xs transition">
+                            🔄 Regenerate
+                        </a>
+                    </div>
+
+                    <a href="https://business.google.com/" target="_blank" rel="noopener noreferrer" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                        <i class="fa-brands fa-google"></i>
+                        <span>Open Google Business</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+            </form>
+            {% else %}
+            <div class="pt-3 border-t border-slate-100">
+                <a href="{% url 'generate_draft' review.id %}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-xs transition shadow-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Generate AI Response with Gemini</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="bg-white p-8 rounded-2xl text-center text-xs text-slate-400 shadow-sm border border-slate-200 space-y-3">
+            <i class="fa-solid fa-comments text-2xl text-slate-300"></i>
+            <p>No reviews found for your account yet.</p>
+            <button onclick="toggleSyncModal()" class="inline-block bg-blue-50 text-blue-600 font-semibold px-4 py-2 rounded-xl text-xs hover:bg-blue-100 transition">
+                Import Sample Google Reviews
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- SYNC GOOGLE REVIEWS MODAL -->
+<div id="syncModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-brands fa-google text-red-500"></i>
+                <span>Fetch Live Google Reviews</span>
+            </h3>
+            <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form action="{% url 'sync_google_reviews' %}" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Business Name</label>
+                <input type="text" name="business_name" placeholder="e.g. Geneva Bistro or La Merveille" required class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Google Place ID (Optional)</label>
+                <input type="text" name="place_id" placeholder="ChIJN1t_tDe1xkcR..." class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <p class="text-[11px] text-slate-400 mt-1">Leave empty to auto-load sample live customer feedback.</p>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="toggleSyncModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    <span>Import Reviews</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleSyncModal() {
+    const modal = document.getElementById('syncModal');
+    modal.classList.toggle('hidden');
+}
+
+function copyReplyToClipboard(textareaId, buttonEl) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+
+    textarea.select();
+    navigator.clipboard.writeText(textarea.value).then(() => {
+        const originalContent = buttonEl.innerHTML;
+        buttonEl.innerHTML = `<i class="fa-solid fa-check text-emerald-600"></i> <span class="text-emerald-600 font-semibold">Copied!</span>`;
+        setTimeout(() => {
+            buttonEl.innerHTML = originalContent;
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+    });
+}
+</script>
+{% endblock %}

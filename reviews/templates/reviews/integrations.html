@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block page_title %}Platform Integrations{% endblock %}
+{% block head_title %}Platform Integrations | AI Review Booster{% endblock %}
+
+{% block content %}
+...
+<div class="w-full max-w-5xl mx-auto space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+                Platform Integrations
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Manage external review channels and sync live business profile feeds to your workspace.
+            </p>
+        </div>
+        <div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                1 Channel Connected
+            </span>
+        </div>
+    </div>
+
+    <!-- Integrations Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Google Business Profile (Active Channel) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-100">
+                            Primary Integration
+                        </span>
+                        <h2 class="text-lg font-bold text-slate-900 mt-2">Google Business Profile</h2>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                        Active
+                    </span>
+                </div>
+
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Sync reviews in real time, automate Gemini AI draft responses, and publish replies directly to your Google Business Profile listings.
+                </p>
+
+                <!-- Location Status Badge -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Connected Location</span>
+                    <div class="text-xs font-bold text-slate-800 flex items-center justify-between">
+                        <span>Geneva Bistro</span>
+                        <span class="text-[11px] font-medium text-emerald-600">Synced &amp; Live</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
+                <a href="{% url 'socialaccount_connections' %}" class="w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2.5 rounded-xl shadow transition">
+                    Manage OAuth Connection
+                </a>
+            </div>
+        </div>
+
+        <!-- TripAdvisor (Placeholder) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6 opacity-75">
+            <div class="space-y-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200">
+                            Coming Soon
+                        </span>
+                        <h2 class="text-lg font-bold text-slate-900 mt-2">TripAdvisor</h2>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 shrink-0">
+                        In Development
+                    </span>
+                </div>
+
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Aggregate hospitality ratings, food service reviews, and automate traveler response workflows from a centralized interface.
+                </p>
+
+                <div class="bg-slate-50/50 p-3.5 rounded-xl border border-slate-200/50 space-y-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Timeline</span>
+                    <div class="text-xs font-medium text-slate-600">
+                        Q4 Roadmap Release
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+                <button disabled class="w-full text-center bg-slate-100 text-slate-400 font-semibold text-xs py-2.5 rounded-xl cursor-not-allowed">
+                    Integration Unavailable
+                </button>
+            </div>
+        </div>
+
+        <!-- Trustpilot (Placeholder) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6 opacity-75">
+            <div class="space-y-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200">
+                            Coming Soon
+                        </span>
+                        <h2 class="text-lg font-bold text-slate-900 mt-2">Trustpilot</h2>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 shrink-0">
+                        In Development
+                    </span>
+                </div>
+
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Connect consumer service reviews, collect customer service feedback, and publish verified business replies directly.
+                </p>
+
+                <div class="bg-slate-50/50 p-3.5 rounded-xl border border-slate-200/50 space-y-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Timeline</span>
+                    <div class="text-xs font-medium text-slate-600">
+                        Q4 Roadmap Release
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+                <button disabled class="w-full text-center bg-slate-100 text-slate-400 font-semibold text-xs py-2.5 rounded-xl cursor-not-allowed">
+                    Integration Unavailable
+                </button>
+            </div>
+        </div>
+
+        <!-- Webhook API Endpoint -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200">
+                            Custom Integration
+                        </span>
+                        <h2 class="text-lg font-bold text-slate-900 mt-2">Custom Webhook API</h2>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                        Active
+                    </span>
+                </div>
+
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Receive third-party review JSON payloads dynamically to trigger automated AI draft generation.
+                </p>
+
+                <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Webhook Endpoint</span>
+                    <code class="text-[11px] font-mono text-emerald-400 block truncate">
+                        /api/webhook/google-review/
+                    </code>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+                <a href="{% url 'review_simulator' %}" class="block text-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs py-2.5 rounded-xl transition">
+                    Test Webhook Payload
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

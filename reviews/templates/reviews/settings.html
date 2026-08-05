@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block page_title %}AI &amp; Tone Settings{% endblock %}
+{% block head_title %}AI Settings | AI Review Booster{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-5xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-robot text-blue-600"></i>
+                <span>AI Auto-Pilot & Brand Voice Configuration</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Customize how your AI assistant crafts automated replies and manages Google Business Profile reviews.
+            </p>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Engine Active
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Settings Form -->
+    <form action="{% url 'update_settings' %}" method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Section 1: Automation Strategy -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-amber-500"></i>
+                    <span>Automation Mode</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Control when AI responses are published directly to Google versus saved as drafts for review.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Option 1: Positive Only -->
+                <label class="relative flex flex-col p-4 bg-slate-50 border-2 rounded-xl cursor-pointer hover:border-blue-500 transition focus-within:ring-2 focus-within:ring-blue-500
+                    {% if profile.automation_mode == 'positive_only' %}border-blue-600 bg-blue-50/30{% else %}border-slate-200{% endif %}">
+                    <input type="radio" name="automation_mode" value="positive_only" class="sr-only" {% if profile.automation_mode == 'positive_only' %}checked{% endif %}>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-900">Smart Guardrail</span>
+                        <i class="fa-solid fa-shield-halved text-blue-600 text-sm"></i>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-800">Auto-publish 4-5★ Reviews</p>
+                    <p class="text-[11px] text-slate-500 mt-1">1-3 star negative reviews are routed to your inbox as pending drafts for human review.</p>
+                </label>
+
+                <!-- Option 2: Full Auto -->
+                <label class="relative flex flex-col p-4 bg-slate-50 border-2 rounded-xl cursor-pointer hover:border-blue-500 transition focus-within:ring-2 focus-within:ring-blue-500
+                    {% if profile.automation_mode == 'all' %}border-blue-600 bg-blue-50/30{% else %}border-slate-200{% endif %}">
+                    <input type="radio" name="automation_mode" value="all" class="sr-only" {% if profile.automation_mode == 'all' %}checked{% endif %}>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-900">Hands-Free</span>
+                        <i class="fa-solid fa-rocket text-purple-600 text-sm"></i>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-800">Auto-publish ALL Ratings</p>
+                    <p class="text-[11px] text-slate-500 mt-1">100% automated response handling. AI generates and posts replies instantly.</p>
+                </label>
+
+                <!-- Option 3: Manual Approval -->
+                <label class="relative flex flex-col p-4 bg-slate-50 border-2 rounded-xl cursor-pointer hover:border-blue-500 transition focus-within:ring-2 focus-within:ring-blue-500
+                    {% if profile.automation_mode == 'manual' %}border-blue-600 bg-blue-50/30{% else %}border-slate-200{% endif %}">
+                    <input type="radio" name="automation_mode" value="manual" class="sr-only" {% if profile.automation_mode == 'manual' %}checked{% endif %}>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-900">Copilot Mode</span>
+                        <i class="fa-solid fa-user-check text-slate-600 text-sm"></i>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-800">Manual Approval Required</p>
+                    <p class="text-[11px] text-slate-500 mt-1">AI generates draft responses, but nothing is posted until you click Approve.</p>
+                </label>
+            </div>
+        </div>
+
+        <!-- Section 2: Brand Voice Tone -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-600"></i>
+                    <span>Brand Personality & Voice</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Select the overall style and language tone for public responses.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Preset Voice Tone</label>
+                    <select name="brand_tone" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-800 bg-slate-50/50">
+                        <option value="friendly" {% if profile.brand_tone == 'friendly' %}selected{% endif %}>😊 Warm, Welcoming & Friendly</option>
+                        <option value="professional" {% if profile.brand_tone == 'professional' %}selected{% endif %}>💼 Professional, Formal & Polished</option>
+                        <option value="casual" {% if profile.brand_tone == 'casual' %}selected{% endif %}>😎 Casual, Modern & Upbeat</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Standard Response Signature / Sign-off</label>
+                    <input type="text" name="signature" value="{{ profile.signature|default:'' }}" placeholder="e.g. - Marc Rossi, Store Manager" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <p class="text-[11px] text-slate-400 mt-1">Automatically appended to the end of generated responses.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Custom Business Context Instructions -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-brain text-purple-600"></i>
+                    <span>Custom Business Knowledge Base</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Provide key facts for the AI engine so responses include accurate venue information.</p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Special Rules & Context Prompt</label>
+                <textarea name="custom_prompt" rows="4" placeholder="e.g. Always remind unhappy guests that we offer free parking behind the bakery. Mention our signature homemade sourdough bread when customers praise our pastries." class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-800 bg-slate-50/50 leading-relaxed">{{ profile.custom_prompt|default:'' }}</textarea>
+                <div class="flex items-center gap-2 mt-2 text-[11px] text-slate-500">
+                    <i class="fa-solid fa-circle-info text-blue-500"></i>
+                    <span>This context is dynamically fed into Gemini models during response synthesis.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-2">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save AI Configuration</span>
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

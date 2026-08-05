@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-100">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block head_title %}AI Review Booster{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="h-full bg-slate-100 font-sans text-slate-800 antialiased">
+
+    {% if request.user.is_authenticated %}
+
+    <!-- ========================================== -->
+    <!-- 1. PERMANENT LEFT SIDEBAR (DESKTOP)        -->
+    <!-- ========================================== -->
+    <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-30 bg-slate-950 border-r border-slate-800">
+        <!-- Brand / Logo -->
+        <div class="h-16 px-6 bg-slate-900 border-b border-slate-800 flex items-center gap-3">
+            <div
+                class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow">
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <span class="font-bold text-lg text-white tracking-wide">ReviewBooster</span>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+            <a href="{% url 'dashboard' %}"
+                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-900">
+                <i class="fa-solid fa-chart-pie w-5 text-center text-blue-500"></i>
+                <span>Dashboard & Reviews</span>
+            </a>
+
+            <a href="{% url 'ai_settings' %}"
+                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <i class="fa-solid fa-sliders w-5 text-center text-indigo-400"></i>
+                <span>AI & Tone Settings</span>
+            </a>
+
+            <a href="{% url 'qr_booster' %}"
+                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <i class="fa-solid fa-qrcode w-5 text-center text-emerald-400"></i>
+                <span>QR Code Booster</span>
+            </a>
+
+            <a href="{% url 'competitors' %}"
+                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <i class="fa-solid fa-users-viewfinder w-5 text-center text-amber-400"></i>
+                <span>Competitor Insights</span>
+            </a>
+
+            <a href="{% url 'integrations' %}"
+                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <i class="fa-solid fa-plug w-5 text-center text-purple-400"></i>
+                <span>Integrations</span>
+            </a>
+
+            <a href="{% url 'review_simulator' %}"
+                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <i class="fa-solid fa-vial w-5 text-center text-rose-400"></i>
+                <span>Review Simulator</span>
+            </a>
+        </nav>
+
+        <!-- User Profile Footer -->
+        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 truncate">
+                    <div
+                        class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+                        {{ user.username|slice:":2"|upper|default:"U" }}
+                    </div>
+                    <div class="truncate">
+                        <p class="text-xs font-semibold text-slate-200 truncate">{{ user.username }}</p>
+                        <p class="text-[11px] text-slate-400 truncate">{{ user.email }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'account_logout' %}" title="Logout"
+                    class="text-slate-400 hover:text-red-400 p-1.5 transition">
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- 2. MOBILE TOP NAVIGATION & DRAWER          -->
+    <!-- ========================================== -->
+    <div
+        class="md:hidden flex items-center justify-between h-16 px-4 bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <button id="openMobileMenuBtn" class="p-2 text-slate-300 hover:text-white rounded-lg focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <span class="font-bold text-base tracking-wide">ReviewBooster</span>
+            </div>
+        </div>
+        <span
+            class="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            GBP Live
+        </span>
+    </div>
+
+    <!-- Mobile Menu Drawer (Hidden on Desktop) -->
+    <div id="mobileOverlay"
+        class="fixed inset-0 bg-black/60 z-50 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm md:hidden">
+    </div>
+    <aside id="mobileDrawer"
+        class="fixed top-0 left-0 h-full w-64 bg-slate-950 text-slate-200 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col md:hidden">
+        <div class="h-16 px-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+            <span class="font-bold text-white text-sm">Navigation</span>
+            <button id="closeMobileMenuBtn" class="p-2 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <nav class="flex-1 px-4 py-4 space-y-2">
+            <a href="{% url 'dashboard' %}"
+                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Dashboard &
+                Reviews</a>
+            <a href="{% url 'ai_settings' %}"
+                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">AI & Tone
+                Settings</a>
+            <a href="{% url 'qr_booster' %}"
+                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">QR Code
+                Booster</a>
+            <a href="{% url 'competitors' %}"
+                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Team &amp;
+                Access</a>
+            <a href="{% url 'integrations' %}"
+                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Integrations</a>
+            <a href="{% url 'review_simulator' %}"
+                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Notifications
+                &amp; Alerts</a>
+        </nav>
+    </aside>
+
+    {% endif %}
+
+    <!-- ========================================== -->
+    <!-- 3. MAIN WORKSPACE CONTENT (OFFSETS RIGHT)  -->
+    <!-- ========================================== -->
+    <div class="{% if request.user.is_authenticated %}md:pl-64{% endif %} flex flex-col min-h-screen">
+
+        {% if request.user.is_authenticated %}
+        <!-- Desktop Top Header Bar -->
+        <header
+            class="hidden md:flex h-16 bg-white border-b border-slate-200 px-8 items-center justify-between sticky top-0 z-20">
+            <!-- Dynamic Breadcrumb -->
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
+                <span>Workspace</span>
+                <span>/</span>
+                <span class="text-slate-900 font-semibold text-sm">
+                    {% block page_title %}Dashboard{% endblock %}
+                </span>
+            </div>
+
+            <!-- Header Right Controls -->
+            <div class="flex items-center gap-3">
+                <!-- Active Business Name (read-only until multi-location support exists) -->
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200">
+                    <i class="fa-solid fa-store text-slate-400"></i>
+                    <span>{{ request.user.profile.business_name|default:"My Business" }}</span>
+                </div>
+
+                <!-- Live Status Badge -->
+                <span
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Google Business Live
+                </span>
+
+                <div class="h-4 w-px bg-slate-200 mx-1"></div>
+
+                <!-- Help & Documentation Link -->
+                <a href="https://support.google.com/business/" target="_blank" rel="noopener noreferrer"
+                    class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                    title="Help & Documentation">
+                    <i class="fa-regular fa-circle-question text-base"></i>
+                </a>
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- Page Content Container -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+
+    <!-- Mobile Drawer Javascript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const openBtn = document.getElementById("openMobileMenuBtn");
+            const closeBtn = document.getElementById("closeMobileMenuBtn");
+            const drawer = document.getElementById("mobileDrawer");
+            const overlay = document.getElementById("mobileOverlay");
+
+            function openMenu() {
+                if (!drawer || !overlay) return;
+                overlay.classList.remove("hidden");
+                setTimeout(() => {
+                    overlay.classList.remove("opacity-0");
+                    drawer.classList.remove("-translate-x-full");
+                }, 10);
+            }
+
+            function closeMenu() {
+                if (!drawer || !overlay) return;
+                drawer.classList.add("-translate-x-full");
+                overlay.classList.add("opacity-0");
+                setTimeout(() => {
+                    overlay.classList.add("hidden");
+                }, 300);
+            }
+
+            if (openBtn) openBtn.addEventListener("click", openMenu);
+            if (closeBtn) closeBtn.addEventListener("click", closeMenu);
+            if (overlay) overlay.addEventListener("click", closeMenu);
+        });
+    </script>
+
+    {% block extra_body %}{% endblock %}
+</body>
+
+</html>
