@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block head_title %}Sign Out | SwissReply.AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .auth-card {
+        background: var(--ink-2);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
+        padding: 2.5rem 2.5rem 2rem;
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+    }
+
+    .auth-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        border-radius: 16px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #ef4444;
+    }
+
+    .auth-title {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.5rem;
+        color: var(--paper);
+        letter-spacing: -0.01em;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: var(--slate);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .auth-email {
+        color: var(--gold);
+        font-weight: 600;
+    }
+
+    .auth-divider {
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        margin: 1.25rem 0;
+    }
+
+    .btn-auth-primary {
+        background: #ef4444;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-family: var(--font-body);
+        text-decoration: none;
+    }
+
+    .btn-auth-primary:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px -8px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+
+    .btn-auth-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--slate);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-family: var(--font-body);
+        text-decoration: none;
+    }
+
+    .btn-auth-secondary:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--paper);
+        text-decoration: none;
+    }
+
+    .auth-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .auth-footer {
+        font-size: 0.7rem;
+        color: var(--slate-2);
+        margin-top: 1.5rem;
+        font-family: var(--font-mono);
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 1.75rem 1.25rem;
+        }
+        .auth-title {
+            font-size: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Icon -->
+        <div class="auth-icon">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+
+        <!-- Title -->
+        <h1 class="auth-title">Sign Out</h1>
+        <p class="auth-subtitle">
+            Are you sure you want to sign out of<br>
+            <span class="auth-email">{{ user.email|default:user.username }}</span>?
+        </p>
+
+        <div class="auth-divider"></div>
+
+        <!-- Buttons -->
+        <div class="auth-actions">
+            <form method="post" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                {% endif %}
+                <button type="submit" class="btn-auth-primary">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </button>
+            </form>
+
+            <a href="{% url 'dashboard' %}" class="btn-auth-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Cancel &amp; Go Back
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <p class="auth-footer">SwissReply.AI · v1.0</p>
+    </div>
+</div>
+{% endblock %}

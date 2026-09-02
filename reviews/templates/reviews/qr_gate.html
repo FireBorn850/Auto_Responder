@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How was your visit? | {{ qr.title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0B1220;
+            --ink-2: #111A2C;
+            --paper: #F7F5F0;
+            --gold: #E8A83C;
+            --gold-soft: #F4C871;
+            --teal: #2DD4A7;
+            --slate: #93A0B4;
+            --slate-2: #5C6B85;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 3px 3px;
+        }
+
+        .gate-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--ink-2);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+        }
+
+        .gate-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--ink);
+            box-shadow: 0 8px 24px -8px rgba(232, 168, 60, 0.3);
+        }
+
+        .gate-title {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--paper);
+            letter-spacing: -0.01em;
+        }
+
+        .gate-subtitle {
+            font-size: 0.9rem;
+            color: var(--slate);
+            margin-top: 0.25rem;
+        }
+
+        .stars-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.75rem 0;
+        }
+
+        .star-btn {
+            font-size: 2.75rem;
+            color: var(--slate-2);
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .star-btn:hover {
+            color: var(--gold);
+            transform: scale(1.12);
+            border-color: rgba(232, 168, 60, 0.2);
+            background: rgba(232, 168, 60, 0.06);
+        }
+
+        .star-btn:active {
+            transform: scale(0.92);
+        }
+
+        .star-btn .star-text {
+            font-size: 2.75rem;
+            line-height: 1;
+        }
+
+        .gate-footer {
+            font-size: 0.7rem;
+            color: var(--slate-2);
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .gate-footer strong {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .business-name {
+            color: var(--slate);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .business-name span {
+            color: var(--paper);
+        }
+
+        /* Rating feedback animation */
+        .rating-selected {
+            animation: pulse-gold 0.4s ease;
+        }
+
+        @keyframes pulse-gold {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); color: var(--gold); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 480px) {
+            .gate-card {
+                padding: 1.75rem 1.25rem;
+            }
+            .star-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 2rem;
+            }
+            .star-btn .star-text {
+                font-size: 2rem;
+            }
+            .gate-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="gate-card">
+        <!-- Icon -->
+        <div class="gate-icon">★</div>
+
+        <!-- Title -->
+        <h1 class="gate-title">How was your visit?</h1>
+        <p class="gate-subtitle">Tap a star to let us know.</p>
+
+        {% if qr.title %}
+        <p class="business-name">📍 <span>{{ qr.title }}</span></p>
+        {% endif %}
+
+        <!-- Star Rating Buttons -->
+        <div class="stars-container">
+            <a href="?rating=1" class="star-btn" aria-label="1 star" data-rating="1">
+                <span class="star-text">★</span>
+            </a>
+            <a href="?rating=2" class="star-btn" aria-label="2 stars" data-rating="2">
+                <span class="star-text">★</span>
+            </a>
+            <a href="?rating=3" class="star-btn" aria-label="3 stars" data-rating="3">
+                <span class="star-text">★</span>
+            </a>
+            <a href="?rating=4" class="star-btn" aria-label="4 stars" data-rating="4">
+                <span class="star-text">★</span>
+            </a>
+            <a href="?rating=5" class="star-btn" aria-label="5 stars" data-rating="5">
+                <span class="star-text">★</span>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <p class="gate-footer">
+            <strong>4–5★</strong> → Google review &nbsp;·&nbsp; <strong>1–3★</strong> → private feedback
+        </p>
+    </div>
+
+    <script>
+        // Add a subtle animation when a star is clicked
+        document.querySelectorAll('.star-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                // Add a visual feedback class
+                this.classList.add('rating-selected');
+
+                // Remove the class after animation completes
+                setTimeout(function() {
+                    btn.classList.remove('rating-selected');
+                }, 400);
+
+                // Allow the navigation to proceed
+                // The href will handle the redirect
+            });
+        });
+    </script>
+
+</body>
+</html>

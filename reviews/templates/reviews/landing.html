@@ -1,420 +1,1431 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReviewBooster.ai | Automate Google Reviews in French & English</title>
-    <meta name="description" content="Gemini AI drafts bilingual replies to your Google Business Profile reviews in seconds. You approve, it posts. Built for hospitality and retail.">
+    <title>SwissReply.AI | Automate Google Reviews in French & English</title>
+    <meta name="description"
+        content="Gemini AI drafts bilingual replies to your Google reviews in seconds. You approve, it posts. Built for hospitality and retail.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://swissreply.ai/">
+    <meta property="og:title" content="SwissReply.AI | Automate Google Reviews in French & English">
+    <meta property="og:description"
+        content="Gemini AI drafts bilingual replies to your Google reviews in seconds. You approve, it posts. Built for hospitality and retail.">
+    <!-- <meta property="og:image" content="https://swissreply.ai/static/og-image.png"> -->
+    <meta property="og:site_name" content="SwissReply.AI">
+
+    <!-- Twitter/X Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SwissReply.AI | Automate Google Reviews in French & English">
+    <meta name="twitter:description"
+        content="Gemini AI drafts bilingual replies to your Google reviews in seconds. You approve, it posts.">
+    <!-- <meta name="twitter:image" content="https://swissreply.ai/static/og-image.png"> -->
+    <meta name="description" content="Gemini AI drafts bilingual replies to your Google Reviews reviews in seconds. You approve, it posts. Built
+    for hospitality and retail.">
+    <script>
+        (function () {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+    </script>
+    <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <!-- <link rel="icon" type="image/png" href="{% static 'favicon.png' %}"> -->
     <style>
-        :root{
-            --ink:#0B1220;
-            --ink-2:#111A2C;
-            --paper:#F7F5F0;
-            --gold:#E8A83C;
-            --gold-soft:#F4C871;
-            --teal:#2DD4A7;
-            --slate:#93A0B4;
-            --slate-2:#5C6B85;
+        :root {
+            --ink: #0B1220;
+            --ink-2: #111A2C;
+            --paper: #F7F5F0;
+            --gold: #E8A83C;
+            --gold-soft: #F4C871;
+            --teal: #2DD4A7;
+            --slate: #93A0B4;
+            --slate-2: #5C6B85;
+            --surface-rgb: 255, 255, 255;
+            /* ADD THIS LINE */
         }
-        *{ scroll-behavior:smooth; }
-        body{
-            font-family:'Inter', sans-serif;
-            background:var(--ink);
-            color:var(--paper);
-        }
-        .font-display{ font-family:'Fraunces', serif; }
-        .font-mono{ font-family:'IBM Plex Mono', monospace; }
 
-        .grain{
-            background-image:radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
-            background-size:3px 3px;
+        /* ADD THIS WHOLE BLOCK */
+        html[data-theme="light"] {
+            --ink: #F3F5F8;
+            --ink-2: #FFFFFF;
+            --paper: #0F2A4A;
+            --gold: #1E3A5F;
+            --gold-soft: #2C5282;
+            --teal: #0F766E;
+            --slate: #3D5170;
+            --slate-2: #64748B;
+            --surface-rgb: 15, 42, 74;
+        }
+
+        html[data-theme="light"] body {
+            background: var(--ink);
+        }
+
+        html[data-theme="light"] [class*="bg-white/"] {
+            background-color: rgba(var(--surface-rgb), 0.05) !important;
+        }
+
+        html[data-theme="light"] [class*="border-white/"] {
+            border-color: rgba(var(--surface-rgb), 0.12) !important;
+        }
+
+        html[data-theme="light"] .text-white {
+            color: var(--paper) !important;
+        }
+
+        html[data-theme="light"] .text-slate-300,
+        html[data-theme="light"] .text-slate-400,
+        html[data-theme="light"] .text-slate-500,
+        html[data-theme="light"] .text-slate-600 {
+            color: var(--slate) !important;
+        }
+
+        /* Fixes hardcoded-hex cards/header that don't use CSS variables */
+        html[data-theme="light"] [class*="111A2C"] {
+            background: var(--ink-2) !important;
+        }
+
+        html[data-theme="light"] [class*="0B1220"] {
+            background-color: rgba(var(--surface-rgb), 0.92) !important;
+        }
+
+        /* A couple of slate shades your original override missed */
+        html[data-theme="light"] .text-slate-100,
+        html[data-theme="light"] .text-slate-200 {
+            color: var(--paper) !important;
+        }
+
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .font-display {
+            font-family: 'Fraunces', serif;
+        }
+
+        .font-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .grain {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+            background-size: 3px 3px;
         }
 
         /* Scroll reveal */
-        .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
-        .reveal.in{ opacity:1; transform:translateY(0); }
-        .reveal-delay-1{ transition-delay:.08s; }
-        .reveal-delay-2{ transition-delay:.16s; }
-        .reveal-delay-3{ transition-delay:.24s; }
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
 
-        @media (prefers-reduced-motion: reduce){
-            .reveal{ opacity:1 !important; transform:none !important; transition:none !important; }
-            *{ animation:none !important; }
+        .reveal.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 {
+            transition-delay: .08s;
+        }
+
+        .reveal-delay-2 {
+            transition-delay: .16s;
+        }
+
+        .reveal-delay-3 {
+            transition-delay: .24s;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+
+            * {
+                animation: none !important;
+            }
         }
 
         /* Hero mockup: review -> AI reply */
-        .type-cursor::after{
-            content:'';
-            display:inline-block;
-            width:2px; height:1em;
-            background:var(--gold);
-            margin-left:2px;
-            vertical-align:-2px;
-            animation:blink 1s steps(1) infinite;
-        }
-        @keyframes blink{ 50%{ opacity:0; } }
-
-        .star{ color:var(--gold); }
-
-        .card-hover{ transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease; }
-        .card-hover:hover{ transform:translateY(-4px); border-color:rgba(232,168,60,0.4); box-shadow:0 20px 40px -20px rgba(0,0,0,0.5); }
-
-        .btn-primary{
-            background:var(--gold);
-            color:var(--ink);
-            transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
-        }
-        .btn-primary:hover{ background:var(--gold-soft); transform:translateY(-2px); box-shadow:0 12px 24px -10px rgba(232,168,60,0.5); }
-        .btn-primary:active{ transform:translateY(0); }
-
-        .btn-ghost{ transition:border-color .2s ease, background .2s ease, transform .2s ease; }
-        .btn-ghost:hover{ border-color:rgba(247,245,240,0.5); background:rgba(247,245,240,0.04); transform:translateY(-2px); }
-
-        .nav-link{ position:relative; }
-        .nav-link::after{
-            content:''; position:absolute; left:0; bottom:-4px; width:0; height:1px; background:var(--gold);
-            transition:width .25s ease;
-        }
-        .nav-link:hover::after{ width:100%; }
-
-        .divider-dot{ width:4px; height:4px; border-radius:999px; background:var(--slate-2); }
-
-        .feature-num{ font-family:'IBM Plex Mono', monospace; color:var(--gold); }
-
-        .glow{ background:radial-gradient(closest-side, rgba(232,168,60,0.16), transparent); }
-        .glow-teal{ background:radial-gradient(closest-side, rgba(45,212,167,0.14), transparent); }
-
-        .pricing-card{ transition:transform .35s ease, border-color .35s ease; }
-        .pricing-card:hover{ transform:translateY(-6px); }
-        .pricing-featured{
-            background:linear-gradient(180deg, rgba(232,168,60,0.08), rgba(232,168,60,0));
+        .type-cursor::after {
+            content: '';
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--gold);
+            margin-left: 2px;
+            vertical-align: -2px;
+            animation: blink 1s steps(1) infinite;
         }
 
-        .marquee-track{
-            animation:scroll-left 28s linear infinite;
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
         }
-        @keyframes scroll-left{
-            0%{ transform:translateX(0); }
-            100%{ transform:translateX(-50%); }
+
+        .star {
+            color: var(--gold);
+        }
+
+        .card-hover {
+            transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(232, 168, 60, 0.4);
+            box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            color: var(--ink);
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-soft);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -10px rgba(232, 168, 60, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-ghost {
+            transition: border-color .2s ease, background .2s ease, transform .2s ease;
+        }
+
+        .btn-ghost:hover {
+            border-color: rgba(247, 245, 240, 0.5);
+            background: rgba(247, 245, 240, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width .25s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .divider-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 999px;
+            background: var(--slate-2);
+        }
+
+        .feature-num {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--gold);
+        }
+
+        .glow {
+            background: radial-gradient(closest-side, rgba(232, 168, 60, 0.16), transparent);
+        }
+
+        .glow-teal {
+            background: radial-gradient(closest-side, rgba(45, 212, 167, 0.14), transparent);
+        }
+
+        .pricing-card {
+            transition: transform .35s ease, border-color .35s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .pricing-featured {
+            background: linear-gradient(180deg, rgba(232, 168, 60, 0.08), rgba(232, 168, 60, 0));
+        }
+
+        .marquee-track {
+            animation: scroll-left 28s linear infinite;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--slate);
+            background: rgba(var(--surface-rgb), 0.03);
+            border: 1px solid rgba(var(--surface-rgb), 0.06);
+            transition: all .2s ease;
+            cursor: pointer;
+        }
+
+        html[data-theme="light"] header[class],
+        header {
+            background: rgba(11, 18, 32, 0.92) !important;
+        }
+
+        html[data-theme="light"] header .text-white,
+        html[data-theme="light"] header span.font-display {
+            color: #F7F5F0 !important;
+        }
+
+        html[data-theme="light"] header .text-slate-300 {
+            color: #93A0B4 !important;
+        }
+
+        html[data-theme="light"] header .nav-link:hover {
+            color: #F7F5F0 !important;
+        }
+
+        .icon-btn:hover {
+            background: rgba(var(--surface-rgb), 0.08);
+            color: var(--paper);
+            border-color: rgba(var(--surface-rgb), 0.12);
+        }
+
+        html[data-theme="light"] #themeIconMoon {
+            display: none;
+        }
+
+        html:not([data-theme="light"]) #themeIconSun {
+            display: none;
+        }
+
+        @keyframes drift1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(40px, -60px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-30px, 30px) scale(0.95);
+            }
+        }
+
+        @keyframes drift2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(-50px, 40px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(30px, -40px) scale(0.9);
+            }
+        }
+
+        .glow-drift-1 {
+            animation: drift1 22s ease-in-out infinite;
+        }
+
+        .glow-drift-2 {
+            animation: drift2 26s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .glow-drift-1,
+            .glow-drift-2 {
+                animation: none !important;
+            }
+        }
+
+        @keyframes flow-dash {
+            to {
+                stroke-dashoffset: -24;
+            }
+        }
+
+        .flow-line path {
+            animation: flow-dash 1s linear infinite;
+        }
+
+        @keyframes node-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 rgba(232, 168, 60, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 16px rgba(232, 168, 60, 0.35);
+            }
+        }
+
+        .source-node {
+            animation: node-glow 2.4s ease-in-out infinite;
+        }
+
+        @keyframes inbox-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.06);
+            }
+        }
+
+        .inbox-pulse {
+            animation: inbox-pulse 1.8s ease-in-out infinite;
         }
     </style>
 </head>
+
 <body class="antialiased selection:bg-amber-400 selection:text-slate-950">
 
-<div class="fixed inset-0 grain opacity-40 pointer-events-none z-0"></div>
-<div class="fixed -top-40 -right-40 w-[32rem] h-[32rem] glow rounded-full blur-3xl pointer-events-none z-0"></div>
-<div class="fixed top-[60%] -left-40 w-[28rem] h-[28rem] glow-teal rounded-full blur-3xl pointer-events-none z-0"></div>
+    {% csrf_token %}
 
-<!-- NAV -->
-<header class="relative z-20 border-b border-white/5 bg-[#0B1220]/85 backdrop-blur-md sticky top-0">
-    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center font-black text-slate-950 text-base">
-                RB
-            </div>
-            <span class="font-display font-semibold text-lg tracking-tight text-white">
-                ReviewBooster<span class="text-amber-400">.ai</span>
-            </span>
-        </div>
-
-        <nav class="hidden md:flex items-center gap-8 text-sm text-slate-300">
-            <a href="#how" class="nav-link hover:text-white transition">How it works</a>
-            <a href="#features" class="nav-link hover:text-white transition">Features</a>
-            <a href="#pricing" class="nav-link hover:text-white transition">Pricing</a>
-        </nav>
-
-        <div class="flex items-center gap-3">
-            {% if user.is_authenticated %}
-                <a href="{% url 'dashboard' %}" class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
-                    Open Workspace &rarr;
-                </a>
-            {% else %}
-                <a href="{% url 'account_login' %}" class="nav-link text-xs font-semibold text-slate-300 hover:text-white transition px-3 py-2">
-                    Sign In
-                </a>
-                <a href="{% url 'account_signup' %}" class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
-                    Start Free Trial
-                </a>
-            {% endif %}
-        </div>
+    <div class="fixed inset-0 grain opacity-40 pointer-events-none z-0"></div>
+    <div
+        class="fixed -top-40 -right-40 w-[32rem] h-[32rem] glow glow-drift-1 rounded-full blur-3xl pointer-events-none z-0">
     </div>
-</header>
+    <div
+        class="fixed top-[60%] -left-40 w-[28rem] h-[28rem] glow-teal glow-drift-2 rounded-full blur-3xl pointer-events-none z-0">
+    </div>
 
-<main class="relative z-10">
-
-    <!-- HERO -->
-    <section class="max-w-6xl mx-auto px-6 pt-20 pb-24 grid md:grid-cols-2 gap-16 items-center">
-        <div class="space-y-7 reveal in">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 font-mono">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Built for French &amp; English hospitality
+    <!-- NAV -->
+    <header class="relative z-20 border-b border-white/5 bg-[#0B1220]/85 backdrop-blur-md sticky top-0">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center font-black text-slate-950 text-base">
+                    SR
+                </div>
+                <span class="font-display font-semibold text-lg tracking-tight text-white">
+                    SwissReply<span class="text-amber-400">.AI</span>
+                </span>
             </div>
 
-            <h1 class="font-display text-4xl sm:text-5xl font-semibold text-white tracking-tight leading-[1.12]">
-                Every Google review gets a reply.<br>
-                <span class="text-amber-400">You never write one.</span>
-            </h1>
+            <nav class="hidden md:flex items-center gap-8 text-sm text-slate-300">
+                <a href="#demo" class="nav-link hover:text-white transition">Try it</a>
+                <a href="#how" class="nav-link hover:text-white transition">How it works</a>
+                <a href="#features" class="nav-link hover:text-white transition">Features</a>
+                <a href="#faq" class="nav-link hover:text-white transition">FAQ</a>
+                <a href="#pricing" class="nav-link hover:text-white transition">Pricing</a>
+            </nav>
 
-            <p class="text-slate-400 text-base sm:text-lg leading-relaxed max-w-lg">
-                Gemini drafts a bilingual, on-brand reply the moment a review lands. You approve with one click — or let good reviews post themselves. Bad ones always wait for you.
-            </p>
+            <button type="button" class="icon-btn md:hidden" onclick="toggleMobileMenu()" title="Menu"
+                id="mobileMenuBtn">
+                <svg id="hamburgerIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+                <svg id="closeIcon" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
 
-            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2">
-                {% if user.is_authenticated %}
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <button type="button" class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+                        <svg id="themeIconMoon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                        </svg>
+                        <svg id="themeIconSun" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="5" />
+                            <line x1="12" y1="1" x2="12" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="23" />
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                            <line x1="1" y1="12" x2="3" y2="12" />
+                            <line x1="21" y1="12" x2="23" y2="12" />
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                        </svg>
+                    </button>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
+                        Open Workspace &rarr;
+                    </a>
+                    {% else %}
+                    <a href="{% url 'account_login' %}"
+                        class="nav-link text-xs font-semibold text-slate-300 hover:text-white transition px-3 py-2">
+                        Sign In
+                    </a>
+                    <a href="{% url 'account_signup' %}"
+                        class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
+                        Start Free Trial
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- MOBILE NAV PANEL -->
+        <div id="mobileNavPanel"
+            class="hidden md:hidden absolute top-full left-0 right-0 bg-[#0B1220] border-b border-white/10 shadow-2xl">
+            <nav class="flex flex-col px-6 py-4 gap-1 text-sm text-slate-300">
+                <a href="#demo" onclick="closeMobileMenu()"
+                    class="py-3 border-b border-white/5 hover:text-white transition">Try it</a>
+                <a href="#how" onclick="closeMobileMenu()"
+                    class="py-3 border-b border-white/5 hover:text-white transition">How it works</a>
+                <a href="#features" onclick="closeMobileMenu()"
+                    class="py-3 border-b border-white/5 hover:text-white transition">Features</a>
+                <a href="#faq" onclick="closeMobileMenu()"
+                    class="py-3 border-b border-white/5 hover:text-white transition">FAQ</a>
+                <a href="#pricing" onclick="closeMobileMenu()" class="py-3 hover:text-white transition">Pricing</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="relative z-10">
+
+        <!-- HERO -->
+        <section class="max-w-6xl mx-auto px-6 pt-20 pb-24 grid md:grid-cols-2 gap-16 items-center">
+            <div class="space-y-7 reveal in">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 font-mono">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Built for French &amp; English hospitality
+                </div>
+
+                <h1 class="font-display text-4xl sm:text-5xl font-semibold text-white tracking-tight leading-[1.12]">
+                    Every Google review gets a reply.<br>
+                    <span class="text-amber-400">You never write one.</span>
+                </h1>
+
+                <p class="text-slate-400 text-base sm:text-lg leading-relaxed max-w-lg">
+                    Gemini drafts a bilingual, on-brand reply the moment a review lands. You approve with one click — or
+                    let good reviews post themselves. Bad ones always wait for you.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2">
+                    {% if user.is_authenticated %}
                     <a href="{% url 'dashboard' %}" class="btn-primary font-bold text-sm px-7 py-3.5 rounded-lg">
                         Open Workspace
                     </a>
-                {% else %}
+                    {% else %}
                     <a href="{% url 'account_signup' %}" class="btn-primary font-bold text-sm px-7 py-3.5 rounded-lg">
                         Start Free Trial
                     </a>
-                    <a href="{% url 'account_login' %}" class="btn-ghost text-slate-200 font-semibold text-sm px-7 py-3.5 rounded-lg border border-white/15">
+                    <a href="{% url 'account_login' %}"
+                        class="btn-ghost text-slate-200 font-semibold text-sm px-7 py-3.5 rounded-lg border border-white/15">
                         Sign In with Google
                     </a>
-                {% endif %}
-            </div>
-
-            <div class="flex items-center gap-3 pt-2 text-xs text-slate-500 font-mono">
-                <span>No credit card required</span>
-                <span class="divider-dot"></span>
-                <span>Cancel anytime</span>
-            </div>
-        </div>
-
-        <!-- SIGNATURE MOCKUP: review -> AI reply -->
-        <div class="reveal reveal-delay-1 in">
-            <div class="bg-[#111A2C] border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl shadow-black/40">
-                <div class="flex items-center justify-between text-xs font-mono text-slate-500">
-                    <span>Geneva Bistro · Google Business Profile</span>
-                    <span class="text-emerald-400">● live</span>
+                    {% endif %}
                 </div>
 
-                <div class="bg-white/5 rounded-xl p-4 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-white">Michael Brown</span>
-                        <span class="text-xs star">★★★★★</span>
+                <div class="flex items-center gap-3 pt-2 text-xs text-slate-500 font-mono">
+                    <span>No credit card required</span>
+                    <span class="divider-dot"></span>
+                    <span>Cancel anytime</span>
+                </div>
+            </div>
+
+            <!-- SIGNATURE MOCKUP: review -> AI reply -->
+            <div class="reveal reveal-delay-1 in">
+                <div class="bg-[#111A2C] border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl shadow-black/40">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-500">
+                        <span>Geneva Bistro · Google Reviews</span>
+                        <span class="text-emerald-400">● live</span>
                     </div>
-                    <p class="text-sm text-slate-300 italic">"Amazing atmosphere and great staff! Best espresso in town."</p>
-                </div>
 
-                <div class="flex items-center gap-2 text-xs font-mono text-amber-400 pl-1">
-                    <span>Gemini is drafting a reply</span>
-                    <span class="type-cursor"></span>
-                </div>
+                    <div class="bg-white/5 rounded-xl p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-white">Michael Brown</span>
+                            <span class="text-xs star">★★★★★</span>
+                        </div>
+                        <p class="text-sm text-slate-300 italic">"Amazing atmosphere and great staff! Best espresso in
+                            town."</p>
+                    </div>
 
-                <div class="bg-amber-400/10 border border-amber-400/20 rounded-xl p-4 space-y-3">
-                    <p class="text-sm text-slate-200 leading-relaxed">
-                        "Thank you, Michael! We're thrilled the espresso hit the mark — hope to see you again soon at Geneva Bistro."
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <button type="button" class="bg-emerald-500 hover:bg-emerald-400 transition text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">
-                            Approve &amp; Post
-                        </button>
-                        <button type="button" class="btn-ghost text-slate-300 text-xs font-semibold px-4 py-2 rounded-lg border border-white/15">
-                            Edit
-                        </button>
+                    <div class="flex items-center gap-2 text-xs font-mono text-amber-400 pl-1">
+                        <span>Gemini is drafting a reply</span>
+                        <span class="type-cursor"></span>
+                    </div>
+
+                    <div class="bg-amber-400/10 border border-amber-400/20 rounded-xl p-4 space-y-3">
+                        <p class="text-sm text-slate-200 leading-relaxed">
+                            "Thank you, Michael! We're thrilled the espresso hit the mark — hope to see you again soon
+                            at Geneva Bistro."
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <button type="button"
+                                class="bg-emerald-500 hover:bg-emerald-400 transition text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">
+                                Approve &amp; Post
+                            </button>
+                            <button type="button"
+                                class="btn-ghost text-slate-300 text-xs font-semibold px-4 py-2 rounded-lg border border-white/15">
+                                Edit
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- LOGO / TRUST STRIP -->
-    <section class="border-y border-white/5 py-8 overflow-hidden reveal">
-        <p class="text-center text-xs font-mono text-slate-600 mb-6 tracking-wide">RESPONDING FOR INDEPENDENT VENUES ACROSS THE FRANCOPHONE MARKET</p>
-        <div class="flex overflow-hidden">
-            <div class="marquee-track flex gap-16 whitespace-nowrap text-slate-600 font-display text-xl">
-                <span>Geneva Bistro</span>
-                <span>La Merveille</span>
-                <span>Café du Rhône</span>
-                <span>Maison Vernet</span>
-                <span>L'Atelier Gourmand</span>
-                <span>Geneva Bistro</span>
-                <span>La Merveille</span>
-                <span>Café du Rhône</span>
-                <span>Maison Vernet</span>
-                <span>L'Atelier Gourmand</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <section id="how" class="max-w-6xl mx-auto px-6 py-28">
-        <div class="max-w-xl mb-16 reveal">
-            <p class="font-mono text-xs text-amber-400 mb-3">HOW IT WORKS</p>
-            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Four steps, and only one needs you.</h2>
-        </div>
-
-        <div class="grid md:grid-cols-4 gap-8">
-            <div class="reveal reveal-delay-1 space-y-3">
-                <span class="feature-num text-sm">01</span>
-                <h3 class="font-semibold text-white">Review arrives</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Synced in real time from your Google Business Profile — no manual checking.</p>
-            </div>
-            <div class="reveal reveal-delay-2 space-y-3">
-                <span class="feature-num text-sm">02</span>
-                <h3 class="font-semibold text-white">Gemini drafts a reply</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">In the reviewer's language, in your brand's voice, referencing your actual business details.</p>
-            </div>
-            <div class="reveal reveal-delay-3 space-y-3">
-                <span class="feature-num text-sm">03</span>
-                <h3 class="font-semibold text-white">You approve — or don't</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Good reviews can post themselves. Anything 1–3 stars always waits for a human.</p>
-            </div>
-            <div class="reveal reveal-delay-3 space-y-3">
-                <span class="feature-num text-sm">04</span>
-                <h3 class="font-semibold text-white">It's posted</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Published straight to Google. No copy-pasting between tabs.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- FEATURES -->
-    <section id="features" class="max-w-6xl mx-auto px-6 py-8 pb-28">
-        <div class="max-w-xl mb-16 reveal">
-            <p class="font-mono text-xs text-amber-400 mb-3">FEATURES</p>
-            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Everything a manager needs, nothing they don't.</h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-1">
-                <div class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">🇫🇷🇬🇧</div>
-                <h3 class="text-base font-bold text-white">Native bilingual replies</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Detects French or English automatically and replies in kind — no translation tab required.</p>
+        <!-- LIVE DEMO -->
+        <section id="demo" class="max-w-6xl mx-auto px-6 py-24 reveal">
+            <div class="max-w-xl mb-12 mx-auto text-center">
+                <p class="font-mono text-xs text-amber-400 mb-3">TRY IT YOURSELF</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">No signup. Just click a review.
+                </h2>
+                <p class="text-slate-400 mt-3">Pick a sample review below and watch Gemini draft the reply. Real drafts
+                    on your account are typically ready in about 15 seconds.
+                </p>
             </div>
 
-            <div class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-2">
-                <div class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">🛡️</div>
-                <h3 class="text-base font-bold text-white">Smart Guardrail mode</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">4–5 star reviews post automatically. 1–3 star reviews always route to a manager first.</p>
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <button type="button" onclick="runDemo('good')"
+                    class="btn-ghost text-sm font-semibold px-5 py-2.5 rounded-lg border border-white/15 text-slate-200">
+                    ★★★★★ "Amazing staff!"
+                </button>
+                <button type="button" onclick="runDemo('neutral')"
+                    class="btn-ghost text-sm font-semibold px-5 py-2.5 rounded-lg border border-white/15 text-slate-200">
+                    ★★★ "Correct mais lent"
+                </button>
+                <button type="button" onclick="runDemo('bad')"
+                    class="btn-ghost text-sm font-semibold px-5 py-2.5 rounded-lg border border-white/15 text-slate-200">
+                    ★★ "Disappointed"
+                </button>
             </div>
 
-            <div class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-3">
-                <div class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">📇</div>
-                <h3 class="text-base font-bold text-white">Trackable QR codes</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Print codes for tables and receipts that link straight to your review prompt, with scan counts.</p>
-            </div>
-
-            <div class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-1">
-                <div class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">👥</div>
-                <h3 class="text-base font-bold text-white">Staff access, not your login</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Invite a floor manager to approve drafts without ever sharing your Google password.</p>
-            </div>
-
-            <div class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-2">
-                <div class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">🔔</div>
-                <h3 class="text-base font-bold text-white">Instant bad-review alerts</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Email or SMS the second a 1–2 star review lands, so nothing sits unanswered overnight.</p>
-            </div>
-
-            <div class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-3">
-                <div class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">🧠</div>
-                <h3 class="text-base font-bold text-white">Knows your business</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">Feed it real details — parking, signature dishes, policies — so replies never sound generic.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- PRICING -->
-    <section id="pricing" class="max-w-6xl mx-auto px-6 py-8 pb-28">
-        <div class="max-w-xl mb-16 reveal">
-            <p class="font-mono text-xs text-amber-400 mb-3">PRICING</p>
-            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Simple pricing, per location.</h2>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-6 items-stretch">
-            <div class="pricing-card bg-[#111A2C] border border-white/10 rounded-2xl p-8 space-y-6 reveal reveal-delay-1">
-                <div>
-                    <h3 class="font-semibold text-white text-lg">Starter</h3>
-                    <p class="text-sm text-slate-400 mt-1">One venue, getting started</p>
+            <div class="max-w-xl mx-auto">
+                <div
+                    class="bg-[#111A2C] border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl shadow-black/40 min-h-[260px]">
+                    <div id="demoPlaceholder" class="flex items-center justify-center h-40 text-slate-500 text-sm">
+                        Click a review above to see Gemini respond →
+                    </div>
+                    <div id="demoContent" class="hidden space-y-4">
+                        <div class="flex items-center justify-between text-xs font-mono text-slate-500">
+                            <span id="demoVenue">Sample Venue · Google Reviews</span>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-semibold text-white" id="demoReviewer">Reviewer</span>
+                                <span class="text-xs star" id="demoStars">★★★★★</span>
+                            </div>
+                            <p class="text-sm text-slate-300 italic" id="demoReviewText"></p>
+                        </div>
+                        <div id="demoTyping" class="flex items-center gap-2 text-xs font-mono text-amber-400 pl-1">
+                            <span>Gemini is drafting a reply</span>
+                            <span class="type-cursor"></span>
+                        </div>
+                        <div id="demoReplyBox"
+                            class="hidden bg-amber-400/10 border border-amber-400/20 rounded-xl p-4 space-y-3">
+                            <p class="text-sm text-slate-200 leading-relaxed" id="demoReplyText"></p>
+                            <div id="demoActions" class="flex items-center gap-2"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="font-display text-4xl text-white">CHF 29<span class="text-base text-slate-500 font-sans">/mo</span></div>
-                <ul class="space-y-2.5 text-sm text-slate-300">
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> 1 Google Business location</li>
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Bilingual AI drafts</li>
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Manual approval on every reply</li>
-                </ul>
-                <a href="{% url 'account_signup' %}" class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">Start free trial</a>
+            </div>
+        </section>
+
+        <!-- WHO WE BUILT THIS FOR -->
+        <section class="border-y border-white/5 py-10 reveal">
+            <p class="text-center text-xs font-mono text-slate-600 mb-8 tracking-wide">BUILT FOR VENUES LIKE THESE</p>
+            <div class="max-w-4xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+                <div class="flex flex-col items-center gap-2 text-slate-500">
+                    <span class="text-2xl">☕</span>
+                    <span class="text-xs font-mono">Cafés</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 text-slate-500">
+                    <span class="text-2xl">🍽️</span>
+                    <span class="text-xs font-mono">Restaurants</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 text-slate-500">
+                    <span class="text-2xl">🏨</span>
+                    <span class="text-xs font-mono">Boutique hotels</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 text-slate-500">
+                    <span class="text-2xl">💇</span>
+                    <span class="text-xs font-mono">Salons</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 text-slate-500">
+                    <span class="text-2xl">🍷</span>
+                    <span class="text-xs font-mono">Wine bars</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 text-slate-500">
+                    <span class="text-2xl">🛍️</span>
+                    <span class="text-xs font-mono">Retail shops</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section id="how" class="max-w-6xl mx-auto px-6 py-28">
+            <div class="max-w-xl mb-16 reveal">
+                <p class="font-mono text-xs text-amber-400 mb-3">HOW IT WORKS</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Four steps, and only one needs
+                    you.</h2>
             </div>
 
-            <div class="pricing-card pricing-featured bg-[#111A2C] border border-amber-400/40 rounded-2xl p-8 space-y-6 relative reveal reveal-delay-2">
-                <span class="absolute -top-3 left-8 bg-amber-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">Most popular</span>
-                <div>
-                    <h3 class="font-semibold text-white text-lg">Growth</h3>
-                    <p class="text-sm text-slate-400 mt-1">For busy venues with staff</p>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="reveal reveal-delay-1 space-y-3">
+                    <span class="feature-num text-sm">01</span>
+                    <h3 class="font-semibold text-white">Review arrives</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Synced in real time from your Google Business
+                        Profile — no manual checking.</p>
                 </div>
-                <div class="font-display text-4xl text-white">CHF 79<span class="text-base text-slate-500 font-sans">/mo</span></div>
-                <ul class="space-y-2.5 text-sm text-slate-300">
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Up to 3 locations</li>
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Smart Guardrail auto-posting</li>
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> QR code booster + staff seats</li>
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Instant SMS &amp; email alerts</li>
-                </ul>
-                <a href="{% url 'account_signup' %}" class="btn-primary block text-center font-bold text-sm px-6 py-3 rounded-lg">Start free trial</a>
+                <div class="reveal reveal-delay-2 space-y-3">
+                    <span class="feature-num text-sm">02</span>
+                    <h3 class="font-semibold text-white">Gemini drafts a reply</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">In the reviewer's language, in your brand's voice,
+                        referencing your actual business details.</p>
+                </div>
+                <div class="reveal reveal-delay-3 space-y-3">
+                    <span class="feature-num text-sm">03</span>
+                    <h3 class="font-semibold text-white">You approve — or don't</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Good reviews can post themselves. Anything 1–3
+                        stars always waits for a human.</p>
+                </div>
+                <div class="reveal reveal-delay-3 space-y-3">
+                    <span class="feature-num text-sm">04</span>
+                    <h3 class="font-semibold text-white">It's posted</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Published straight to Google. No copy-pasting
+                        between tabs.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- GUARDRAIL VISUAL -->
+        <section class="max-w-4xl mx-auto px-6 py-8 pb-28 reveal">
+            <div class="max-w-xl mb-10 mx-auto text-center">
+                <p class="font-mono text-xs text-amber-400 mb-3">SMART GUARDRAIL</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Your reputation never posts on
+                    autopilot.</h2>
+                <p class="text-slate-400 mt-3">Good reviews move fast. Anything risky always waits for a human.</p>
             </div>
 
-            <div class="pricing-card bg-[#111A2C] border border-white/10 rounded-2xl p-8 space-y-6 reveal reveal-delay-3">
-                <div>
-                    <h3 class="font-semibold text-white text-lg">Multi-Site</h3>
-                    <p class="text-sm text-slate-400 mt-1">Groups &amp; franchises</p>
+            <div class="flex items-center justify-center gap-4 mb-10">
+                <span id="guardLabelGood" class="text-sm font-semibold text-white">4–5★</span>
+                <button type="button" onclick="toggleGuardrail()" id="guardToggle"
+                    class="relative w-16 h-8 rounded-full bg-amber-400 transition-colors duration-300">
+                    <span id="guardKnob"
+                        class="absolute top-1 left-1 w-6 h-6 rounded-full bg-slate-950 transition-transform duration-300"></span>
+                </button>
+                <span id="guardLabelBad" class="text-sm font-semibold text-slate-500">1–3★</span>
+            </div>
+
+            <div class="bg-[#111A2C] border border-white/10 rounded-2xl p-6 max-w-md mx-auto">
+                <div id="guardGoodState" class="space-y-3">
+                    <div class="flex items-center gap-2 text-xs star">★★★★★</div>
+                    <p class="text-sm text-slate-300 italic">"Amazing atmosphere and great staff!"</p>
+                    <div class="flex items-center gap-2 pt-2">
+                        <span class="bg-emerald-500 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Posted
+                            automatically</span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-mono pt-1">No manager action needed</p>
                 </div>
-                <div class="font-display text-4xl text-white">Custom</div>
-                <ul class="space-y-2.5 text-sm text-slate-300">
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Unlimited locations</li>
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Webhook &amp; API access</li>
-                    <li class="flex gap-2"><span class="text-emerald-400">✓</span> Dedicated onboarding</li>
-                </ul>
-                <a href="#" class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">Talk to us</a>
+                <div id="guardBadState" class="space-y-3 hidden">
+                    <div class="flex items-center gap-2 text-xs star">★★</div>
+                    <p class="text-sm text-slate-300 italic">"Disappointed — my order was wrong."</p>
+                    <div class="flex items-center gap-2 pt-2">
+                        <span class="bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Sent to you for
+                            review</span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-mono pt-1">Nothing posts until you approve it</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section id="features" class="max-w-6xl mx-auto px-6 py-8 pb-28">
+            <div class="max-w-xl mb-16 reveal">
+                <p class="font-mono text-xs text-amber-400 mb-3">FEATURES</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Everything a manager needs,
+                    nothing they don't.</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div
+                    class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-1">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-translate"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">Native bilingual replies</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Detects French or English automatically and
+                        replies in kind — no translation tab required.</p>
+                </div>
+
+                <div
+                    class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-2">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">Smart Guardrail mode</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">4–5 star reviews post automatically. 1–3 star
+                        reviews always route to a manager first.</p>
+                </div>
+
+                <div
+                    class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-3">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-qr-code"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">Trackable QR codes</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Print codes for tables and receipts that link
+                        straight to your review prompt, with scan counts.</p>
+                </div>
+
+                <div
+                    class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-1">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">Staff access, not your login</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Invite a floor manager to approve drafts without
+                        ever sharing your Google password.</p>
+                </div>
+
+                <div
+                    class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-2">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">Instant bad-review alerts</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Email or SMS the second a 1–2 star review lands,
+                        so nothing sits unanswered overnight.</p>
+                </div>
+
+                <div
+                    class="card-hover bg-[#111A2C] p-6 rounded-2xl border border-white/10 space-y-3 reveal reveal-delay-3">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">Knows your business</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Feed it real details — parking, signature dishes,
+                        policies — so replies never sound generic.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="max-w-6xl mx-auto px-6 py-8 pb-28 reveal">
+            <div class="max-w-xl mb-14 reveal">
+                <p class="font-mono text-xs text-amber-400 mb-3">BEYOND GOOGLE</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">One inbox for every review, from
+                    everywhere.</h2>
+                <p class="text-slate-400 mt-3">Google isn't the only place customers talk about you. SwissReply.AI
+                    pulls reviews in from multiple sources so nothing falls through the cracks.</p>
+            </div>
+
+            <!-- PASTE THE ANIMATION HERE -->
+            <div class="flex items-center justify-center gap-4 sm:gap-8 mb-14 reveal">
+                <div class="flex flex-col items-center gap-2">
+                    <div
+                        class="w-14 h-14 rounded-full bg-[#111A2C] border border-white/10 flex items-center justify-center text-xl source-node">
+                        <i class="bi bi-google text-amber-400"></i>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-500">Google</span>
+                </div>
+                <svg class="flow-line w-10 sm:w-16 h-6" viewBox="0 0 100 20">
+                    <path d="M0 10 H100" stroke="var(--gold)" stroke-width="2" stroke-dasharray="6 6" fill="none" />
+                </svg>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full bg-[#111A2C] border border-white/10 flex items-center justify-center text-xl source-node"
+                        style="animation-delay:.3s">
+                        <i class="bi bi-globe2 text-emerald-400"></i>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-500">TripAdvisor</span>
+                </div>
+                <svg class="flow-line w-10 sm:w-16 h-6" viewBox="0 0 100 20" style="animation-delay:.3s">
+                    <path d="M0 10 H100" stroke="var(--gold)" stroke-width="2" stroke-dasharray="6 6" fill="none" />
+                </svg>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full bg-[#111A2C] border border-white/10 flex items-center justify-center text-xl source-node"
+                        style="animation-delay:.6s">
+                        <i class="bi bi-link-45deg text-slate-300"></i>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-500">Webhook</span>
+                </div>
+                <svg class="flow-line w-10 sm:w-16 h-6" viewBox="0 0 100 20" style="animation-delay:.6s">
+                    <path d="M0 10 H100" stroke="var(--gold)" stroke-width="2" stroke-dasharray="6 6" fill="none" />
+                </svg>
+                <div class="flex flex-col items-center gap-2">
+                    <div
+                        class="w-16 h-16 rounded-full bg-amber-400/10 border-2 border-amber-400/40 flex items-center justify-center text-2xl inbox-pulse">
+                        <i class="bi bi-inbox-fill text-amber-400"></i>
+                    </div>
+                    <span class="text-[10px] font-mono text-amber-400 font-bold">Your Inbox</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div
+                    class="card-hover bg-[#111A2C] border border-white/10 rounded-2xl p-6 space-y-3 reveal reveal-delay-1">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-globe2"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">TripAdvisor sync</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Connect your TripAdvisor listing alongside
+                        Google Business Profile — reviews from both land in the same dashboard, with the same
+                        AI drafting and Guardrail rules applied automatically.</p>
+                </div>
+
+                <div
+                    class="card-hover bg-[#111A2C] border border-white/10 rounded-2xl p-6 space-y-3 reveal reveal-delay-2">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-link-45deg"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">Webhook API</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Have reviews coming from your own booking
+                        system, POS, or a custom form? Push them into SwissReply.AI via webhook and get the same
+                        AI drafts, sentiment analysis, and approval flow — no manual re-entry.</p>
+                </div>
+
+                <div
+                    class="card-hover bg-[#111A2C] border border-white/10 rounded-2xl p-6 space-y-3 reveal reveal-delay-3">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white">One unified feed</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Every source is tagged and searchable in a
+                        single feed, so your team never has to check three different apps to know what customers
+                        are saying.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHY NOT JUST CHATGPT -->
+        <section class="max-w-4xl mx-auto px-6 py-8 pb-28 reveal">
+            <div class="max-w-xl mb-12 mx-auto text-center">
+                <p class="font-mono text-xs text-amber-400 mb-3">A FAIR QUESTION</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">"Why not just paste this into
+                    ChatGPT myself?"</h2>
+                <p class="text-slate-400 mt-3">Honestly — for one review, you could. Here's where it breaks down at
+                    scale.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-[#111A2C] border border-white/10 rounded-2xl p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-400 font-mono">COPY-PASTING IT YOURSELF</h3>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> Check Google manually for new
+                            reviews</li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> Copy each review into a chat window
+                        </li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> Re-explain your business every time
+                        </li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> Copy the reply back, paste into
+                            Google</li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> No memory of your tone across
+                            replies</li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> Nothing stops a bad reply from
+                            going out fast</li>
+                    </ul>
+                </div>
+
+                <div class="bg-[#111A2C] border border-amber-400/40 rounded-2xl p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-amber-400 font-mono">SWISSREPLY.AI</h3>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Reviews sync automatically, no
+                            checking</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Drafts appear the moment a review
+                            lands</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Remembers your business details
+                            every time</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Approve and it posts straight to
+                            Google</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Consistent tone across every
+                            reply</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Guardrail always holds risky
+                            replies for review</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="max-w-3xl mx-auto px-6 py-8 pb-28 reveal">
+            <div class="max-w-xl mb-12 mx-auto text-center">
+                <p class="font-mono text-xs text-amber-400 mb-3">FAQ</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Questions owners actually ask.
+                </h2>
+            </div>
+
+            <div class="space-y-3" id="faqList">
+                <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
+                    <button type="button" onclick="toggleFaq(this)"
+                        class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
+                        <span>What if the AI says something wrong or off-brand?</span>
+                        <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-4">
+                        <p class="text-sm text-slate-400 leading-relaxed">Every reply is a draft, not a publish. You (or
+                            a staff member) see it before it goes live and can edit or reject it — nothing 1–3★ ever
+                            posts without a human clicking approve. Even for 4–5★ auto-posting, you set your own tone
+                            and business details up front so drafts stay on-brand.</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
+                    <button type="button" onclick="toggleFaq(this)"
+                        class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
+                        <span>Can I edit a reply before it posts?</span>
+                        <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-4">
+                        <p class="text-sm text-slate-400 leading-relaxed">Yes — every draft has an Edit button right
+                            next to Approve & Post. You can rewrite it completely, tweak a line, or approve it as-is.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
+                    <button type="button" onclick="toggleFaq(this)"
+                        class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
+                        <span>What happens to a bad review?</span>
+                        <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-4">
+                        <p class="text-sm text-slate-400 leading-relaxed">Any 1–3★ review always routes to you or a
+                            manager first — it never auto-posts. Log in anytime to see what's waiting for your response.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
+                    <button type="button" onclick="toggleFaq(this)"
+                        class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
+                        <span>Which languages does it actually understand?</span>
+                        <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-4">
+                        <p class="text-sm text-slate-400 leading-relaxed">French and English natively — it detects the
+                            reviewer's language automatically and replies in kind, no manual translation step.</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
+                    <button type="button" onclick="toggleFaq(this)"
+                        class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
+                        <span>Do I need to share my Google login?</span>
+                        <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-4">
+                        <p class="text-sm text-slate-400 leading-relaxed">No — you connect your account once via secure
+                            sign-in, and can invite staff to approve drafts without ever handing over your password.</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
+                    <button type="button" onclick="toggleFaq(this)"
+                        class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
+                        <span>Can I cancel anytime?</span>
+                        <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-4">
+                        <p class="text-sm text-slate-400 leading-relaxed">Yes, no contract or lock-in — cancel from your
+                            workspace whenever you like.</p>
+                    </div>
+                </div>
+                <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
+                    <button type="button" onclick="toggleFaq(this)"
+                        class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
+                        <span>What happens to my data if I cancel?</span>
+                        <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-4">
+                        <p class="text-sm text-slate-400 leading-relaxed">You keep full control of your Google Business
+                            Profile at all times — we only assist with drafting and posting replies. Cancel anytime and
+                            we stop accessing your account immediately; nothing is deleted on Google's side.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING -->
+        <section id="pricing" class="max-w-6xl mx-auto px-6 py-8 pb-28">
+            <div class="max-w-xl mb-16 reveal">
+                <p class="font-mono text-xs text-amber-400 mb-3">PRICING</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Simple pricing, per location.
+                </h2>
+                <p class="text-slate-400 mt-3">No setup fees. Cancel anytime. Prices in CHF.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 items-stretch">
+                <!-- STARTER -->
+                <div
+                    class="pricing-card bg-[#111A2C] border border-white/10 rounded-2xl p-8 space-y-6 reveal reveal-delay-1">
+                    <div>
+                        <h3 class="font-semibold text-white text-lg">Starter</h3>
+                        <p class="text-sm text-slate-400 mt-1">One venue, full control</p>
+                    </div>
+                    <div class="font-display text-4xl text-white">CHF 39<span
+                            class="text-base text-slate-500 font-sans">/mo</span></div>
+                    <ul class="space-y-2.5 text-sm text-slate-300">
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> 1 Google Business location</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Bilingual AI drafts (FR/EN)</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Manual approval on every reply
+                        </li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Blacklisted-word protection</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Review Simulator sandbox</li>
+                    </ul>
+                    <a href="{% url 'account_signup' %}"
+                        class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">Start
+                        free trial</a>
+                </div>
+
+                <!-- PREMIUM -->
+                <div
+                    class="pricing-card pricing-featured bg-[#111A2C] border border-amber-400/40 rounded-2xl p-8 space-y-6 relative reveal reveal-delay-2">
+                    <span
+                        class="absolute -top-3 left-8 bg-amber-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">Most
+                        popular</span>
+                    <div>
+                        <h3 class="font-semibold text-white text-lg">Premium</h3>
+                        <p class="text-sm text-slate-400 mt-1">For venues that want it running itself</p>
+                    </div>
+                    <div class="font-display text-4xl text-white">CHF 79<span
+                            class="text-base text-slate-500 font-sans">/mo</span></div>
+                    <ul class="space-y-2.5 text-sm text-slate-300">
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Up to 3 locations</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Smart Guardrail auto-posting</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> TripAdvisor sync included</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> QR Code Booster + Smart Rating
+                            Gate</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Competitor benchmarking</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> AI-powered complaint trend
+                            analysis</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Team seats &amp; staff access
+                        </li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Instant negative-review alerts
+                        </li>
+                    </ul>
+                    <a href="{% url 'account_signup' %}"
+                        class="btn-primary block text-center font-bold text-sm px-6 py-3 rounded-lg">Start free
+                        trial</a>
+                </div>
+
+                <!-- FOUNDING PARTNER -->
+                <div
+                    class="pricing-card bg-[#111A2C] border border-emerald-400/40 rounded-2xl p-8 space-y-6 relative reveal reveal-delay-3">
+                    <span
+                        class="absolute -top-3 left-8 bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">Limited
+                        spots</span>
+                    <div>
+                        <h3 class="font-semibold text-white text-lg">Founding Partner</h3>
+                        <p class="text-sm text-slate-400 mt-1">Full Premium access, free for 1 month</p>
+                    </div>
+                    <div class="font-display text-4xl text-white">CHF 0<span
+                            class="text-base text-slate-500 font-sans">/1st month</span></div>
+                    <ul class="space-y-2.5 text-sm text-slate-300">
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Everything in Premium, unlocked
+                        </li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> No card required</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Personal onboarding with the
+                            founder</li>
+                    </ul>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">In exchange, we ask for a short LinkedIn
+                        recommendation and permission to feature your business as an early case study.</p>
+                    <a href="{% url 'request_access_code' %}"
+                        class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">Request
+                        access code</a>
+                    <p class="text-[10px] text-slate-500 text-center">We'll email you a code — sign up, then enter it in
+                        your dashboard to unlock everything.</p>
+                    <a href="{% url 'account_signup' %}"
+                        class="block text-center text-[11px] text-amber-400 hover:text-amber-300 transition">Already
+                        have a code? Sign up, then redeem it →</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SETUP PROOF -->
+        <section class="max-w-5xl mx-auto px-6 py-8 pb-28 reveal">
+            <div class="max-w-xl mb-14 mx-auto text-center">
+                <p class="font-mono text-xs text-amber-400 mb-3">GETTING STARTED</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Ten minutes, start to finish.
+                </h2>
+                <p class="text-slate-400 mt-3">No developer, no IT ticket — just you and your Google login.</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="reveal reveal-delay-1 space-y-3">
+                    <span class="feature-num text-sm">01</span>
+                    <h3 class="font-semibold text-white">Connect your profile</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Sign in with Google, pick your business location.
+                        ~2 minutes.</p>
+                </div>
+                <div class="reveal reveal-delay-2 space-y-3">
+                    <span class="feature-num text-sm">02</span>
+                    <h3 class="font-semibold text-white">Tell it about your business</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Add your tone, signature dishes, policies — a few
+                        short fields. ~5 minutes.</p>
+                </div>
+                <div class="reveal reveal-delay-3 space-y-3">
+                    <span class="feature-num text-sm">03</span>
+                    <h3 class="font-semibold text-white">Set your Guardrail</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Choose what auto-posts and what waits for you.
+                        Defaults are ready if you skip this. ~1 minute.</p>
+                </div>
+                <div class="reveal reveal-delay-3 space-y-3">
+                    <span class="feature-num text-sm">04</span>
+                    <h3 class="font-semibold text-white">You're live</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Drafts start appearing on your next review — no
+                        waiting period.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FINAL CTA -->
+        <section class="max-w-4xl mx-auto px-6 pb-28 text-center reveal">
+            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white mb-4">Stop leaving reviews on read.
+            </h2>
+            <p class="text-slate-400 mb-8 max-w-md mx-auto">Set it up in ten minutes. Your first drafts are ready before
+                your coffee is.</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}"
+                class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">Open Workspace</a>
+            {% else %}
+            <a href="{% url 'account_signup' %}"
+                class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">Start Free Trial</a>
+            {% endif %}
+        </section>
+
+    </main>
+
+    <footer class="relative z-10 border-t border-white/5 py-10">
+        <div
+            class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <p>© 2026 SwissReply.AI. Built for high-conversion hospitality and retail management.</p>
+            <div class="flex items-center gap-6">
+                <a href="{% url 'privacy_policy' %}" class="hover:text-slate-300 transition">Privacy</a>
+                <a href="{% url 'terms_of_service' %}" class="hover:text-slate-300 transition">Terms</a>
+                <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Inquiry"
+                    class="hover:text-slate-300 transition">Contact</a>
             </div>
         </div>
-    </section>
+    </footer>
 
-    <!-- FINAL CTA -->
-    <section class="max-w-4xl mx-auto px-6 pb-28 text-center reveal">
-        <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white mb-4">Stop leaving reviews on read.</h2>
-        <p class="text-slate-400 mb-8 max-w-md mx-auto">Set it up in ten minutes. Your first drafts are ready before your coffee is.</p>
-        {% if user.is_authenticated %}
-            <a href="{% url 'dashboard' %}" class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">Open Workspace</a>
-        {% else %}
-            <a href="{% url 'account_signup' %}" class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">Start Free Trial</a>
-        {% endif %}
-    </section>
-
-</main>
-
-<footer class="relative z-10 border-t border-white/5 py-10">
-    <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-        <p>© 2026 ReviewBooster.ai. Built for high-conversion hospitality and retail management.</p>
-        <div class="flex items-center gap-6">
-            <a href="#" class="hover:text-slate-300 transition">Privacy</a>
-            <a href="#" class="hover:text-slate-300 transition">Terms</a>
-            <a href="#" class="hover:text-slate-300 transition">Contact</a>
-        </div>
-    </div>
-</footer>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var items = document.querySelectorAll('.reveal');
-        if (!('IntersectionObserver' in window)) {
-            items.forEach(function (el) { el.classList.add('in'); });
-            return;
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var items = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window)) {
+                items.forEach(function (el) { el.classList.add('in'); });
+                return;
+            }
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            items.forEach(function (el) { observer.observe(el); });
+        });
+        function toggleTheme() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
         }
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('in');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15 });
-        items.forEach(function (el) { observer.observe(el); });
-    });
-</script>
+
+        const demoData = {
+            good: {
+                venue: "Geneva Bistro · Google Reviews",
+                reviewer: "Michael Brown",
+                stars: 5,
+                text: "Amazing atmosphere and great staff! Best espresso in town.",
+                lang: "en"
+            },
+            neutral: {
+                venue: "Café du Rhône · Google Reviews",
+                reviewer: "Claire M.",
+                stars: 3,
+                text: "Correct mais le service était assez lent un samedi soir.",
+                lang: "fr"
+            },
+            bad: {
+                venue: "Maison Vernet · Google Reviews",
+                reviewer: "James T.",
+                stars: 2,
+                text: "Disappointed — my order was wrong and no one apologized.",
+                lang: "en"
+            }
+        };
+
+        function getCookie(name) {
+            const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return match ? match.pop() : '';
+        }
+
+        function runDemo(type) {
+            const data = demoData[type];
+            document.getElementById('demoPlaceholder').classList.add('hidden');
+            const content = document.getElementById('demoContent');
+            content.classList.remove('hidden');
+
+            document.getElementById('demoVenue').textContent = data.venue;
+            document.getElementById('demoReviewer').textContent = data.reviewer;
+            document.getElementById('demoStars').textContent = '★'.repeat(data.stars) + '☆'.repeat(5 - data.stars);
+            document.getElementById('demoReviewText').textContent = '"' + data.text + '"';
+
+            document.getElementById('demoTyping').classList.remove('hidden');
+            document.getElementById('demoReplyBox').classList.add('hidden');
+            document.getElementById('demoActions').innerHTML = '';
+
+            const body = new URLSearchParams();
+            body.append('reviewer_name', data.reviewer);
+            body.append('rating', data.stars);
+            body.append('comment', data.text);
+            body.append('language', data.lang);
+
+            fetch('/demo/preview/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: body.toString()
+            })
+                .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                .then(({ ok, data }) => {
+                    document.getElementById('demoTyping').classList.add('hidden');
+                    document.getElementById('demoReplyBox').classList.remove('hidden');
+
+                    if (!ok) {
+                        document.getElementById('demoReplyText').textContent = data.error || 'Something went wrong.';
+                        return;
+                    }
+
+                    document.getElementById('demoReplyText').textContent = '"' + data.reply + '"';
+
+                    const actions = document.getElementById('demoActions');
+                    if (data.auto_post) {
+                        actions.innerHTML = `
+                <span class="bg-emerald-500 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Auto-posted ✓</span>
+                <span class="text-xs text-slate-400 font-mono">4–5★ replies post automatically</span>`;
+                    } else {
+                        actions.innerHTML = `
+                <span class="bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Waiting on manager</span>
+                <span class="text-xs text-slate-400 font-mono">1–3★ always needs your approval</span>`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('demoTyping').classList.add('hidden');
+                    document.getElementById('demoReplyBox').classList.remove('hidden');
+                    document.getElementById('demoReplyText').textContent = 'Network error — please try again.';
+                });
+        }
+
+        let guardrailOn = false;
+        function toggleGuardrail() {
+            guardrailOn = !guardrailOn;
+            const good = document.getElementById('guardGoodState');
+            const bad = document.getElementById('guardBadState');
+            const knob = document.getElementById('guardKnob');
+            const toggle = document.getElementById('guardToggle');
+            const labelGood = document.getElementById('guardLabelGood');
+            const labelBad = document.getElementById('guardLabelBad');
+
+            good.style.display = guardrailOn ? 'none' : 'block';
+            bad.style.display = guardrailOn ? 'block' : 'none';
+            knob.style.transform = guardrailOn ? 'translateX(32px)' : 'translateX(0)';
+            toggle.style.backgroundColor = guardrailOn ? '#5C6B85' : '#E8A83C';
+            labelGood.style.color = guardrailOn ? '#93A0B4' : '#FFFFFF';
+            labelBad.style.color = guardrailOn ? '#FFFFFF' : '#93A0B4';
+        }
+        function toggleFaq(btn) {
+            const answer = btn.nextElementSibling;
+            const icon = btn.querySelector('.faq-icon');
+            const isOpen = !answer.classList.contains('hidden');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
+            document.querySelectorAll('.faq-icon').forEach(i => i.textContent = '+');
+            if (!isOpen) {
+                answer.classList.remove('hidden');
+                icon.textContent = '−';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const panel = document.getElementById('mobileNavPanel');
+            const hamburger = document.getElementById('hamburgerIcon');
+            const close = document.getElementById('closeIcon');
+            const isOpen = !panel.classList.contains('hidden');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                panel.classList.remove('hidden');
+                hamburger.classList.add('hidden');
+                close.classList.remove('hidden');
+            }
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileNavPanel').classList.add('hidden');
+            document.getElementById('hamburgerIcon').classList.remove('hidden');
+            document.getElementById('closeIcon').classList.add('hidden');
+        }
+
+    </script>
 
 </body>
+
 </html>

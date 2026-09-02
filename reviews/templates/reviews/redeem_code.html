@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block page_title %}Redeem Access Code{% endblock %}
+{% block content %}
+<div class="w-full max-w-md mx-auto py-16 text-center space-y-6">
+    <div class="w-14 h-14 mx-auto bg-gold-10 rounded-full flex items-center justify-center text-gold text-2xl">
+        <i class="bi bi-gift"></i>
+    </div>
+    <h1 class="font-display text-2xl font-semibold text-white">Redeem your Founding Partner code</h1>
+    <p class="text-sm text-slate-400">Enter the code you received to unlock full Premium access, free for 30 days.</p>
+
+    {% if messages %}
+    <div class="space-y-2 text-left">
+        {% for message in messages %}
+        <div class="px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-900/20 text-emerald-400 border-emerald-800/30
+            {% else %}bg-rose-900/20 text-rose-400 border-rose-800/30{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST" class="flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="code" required placeholder="e.g. FOUNDER-GENEVA-01"
+            class="flex-1 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-slate-500 uppercase">
+        <button type="submit" class="btn-primary px-6">Redeem</button>
+    </form>
+</div>
+{% endblock %}

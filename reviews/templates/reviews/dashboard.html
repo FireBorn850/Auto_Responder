@@ -1,270 +1,2003 @@
 {% extends "base.html" %}
 
 {% block page_title %}Dashboard{% endblock %}
-{% block head_title %}AI Review Booster Dashboard{% endblock %}
+{% block head_title %}SwissReply.AI — Automate Google Reviews{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+{% load static %}
+<script src="{% static 'js/chart.umd.min.js' %}"></script>
+
+<style>
+    :root {
+        --primary-50: #fef9e7;
+        --primary-100: #fcf3d0;
+        --primary-400: #E8A83C;
+        --primary-500: #E8A83C;
+        --primary-600: #d4952a;
+        --primary-700: #b87d1f;
+
+        --accent-500: #2DD4A7;
+
+        --success-50: #ecfdf5;
+        --success-500: #10b981;
+        --success-600: #059669;
+
+        --warning-50: #fffbeb;
+        --warning-500: #f59e0b;
+        --warning-600: #d97706;
+
+        --danger-50: #fef2f2;
+        --danger-500: #ef4444;
+        --danger-600: #dc2626;
+
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-300: #cbd5e1;
+        --slate-400: #94a3b8;
+        --slate-500: #64748b;
+        --slate-600: #475569;
+        --slate-700: #334155;
+        --slate-800: #1e293b;
+        --slate-900: #0f172a;
+
+        --shadow-glass: 0 8px 32px -8px color-mix(in srgb, var(--gold) 15%, transparent);
+        --radius-lg: 16px;
+        --radius-md: 12px;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    h1,
+    h2,
+    h3,
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    .font-mono {
+        font-family: var(--font-mono);
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.in-view {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .rb-header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: rgba(11, 18, 32, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+    }
+
+    .rb-logo-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px -4px rgba(232, 168, 60, 0.5);
+        flex-shrink: 0;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--ink);
+    }
+
+    .avatar-gradient {
+        background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink);
+        font-weight: 700;
+        font-family: var(--font-display);
+        flex-shrink: 0;
+    }
+
+    .icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--slate-400);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--paper);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .notif-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 3px;
+        border-radius: 9999px;
+        background: var(--danger-500);
+        color: white;
+        font-size: 0.6rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--ink);
+    }
+
+    .rb-dropdown {
+        position: relative;
+    }
+
+    .rb-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 220px;
+        background: var(--ink-2);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-md);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+        padding: 0.5rem;
+        z-index: 50;
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+        pointer-events: none;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rb-dropdown-menu.open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .rb-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.625rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--slate-300);
+        text-decoration: none;
+        transition: background 0.15s ease;
+    }
+
+    .rb-dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--paper);
+        text-decoration: none;
+    }
+
+    .stat-card {
+        position: relative;
+        background: var(--ink-2);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        padding: 1px;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 20%, transparent), rgba(45, 212, 167, 0.08) 60%, transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-glass);
+        border-color: rgba(232, 168, 60, 0.2);
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.75rem 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--slate-400);
+        text-decoration: none;
+        transition: all 0.18s ease;
+    }
+
+    .chip:hover {
+        text-decoration: none;
+        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--paper);
+    }
+
+    .chip.active {
+        color: var(--ink);
+        border-color: transparent;
+        box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--gold) 30%, transparent);
+    }
+
+    .chip.active.chip-all {
+        background: var(--gold);
+        color: var(--ink);
+    }
+
+    .chip.active.chip-pending {
+        background: var(--warning-500);
+        color: white;
+    }
+
+    .chip.active.chip-approved {
+        background: var(--success-500);
+        color: white;
+    }
+
+    .chip.active.chip-posted {
+        background: var(--gold);
+        color: var(--ink);
+    }
+
+    .chip.active.chip-flagged,
+    .chip.active.chip-negative {
+        background: var(--danger-500);
+        color: white;
+    }
+
+    .search-wrap {
+        position: relative;
+    }
+
+    .search-wrap input {
+        width: 100%;
+        padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 0.78rem;
+        color: var(--paper);
+        transition: all 0.2s ease;
+    }
+
+    .search-wrap input::placeholder {
+        color: var(--slate-500);
+    }
+
+    .search-wrap input:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 0 0 3px rgba(232, 168, 60, 0.08);
+    }
+
+    .search-wrap i {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate-500);
+        font-size: 0.8rem;
+        pointer-events: none;
+    }
+
+    .view-toggle-btn {
+        padding: 0.3rem 0.65rem;
+        font-size: 0.65rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        color: var(--slate-500);
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+
+    .view-toggle-btn.active {
+        background: var(--gold);
+        color: var(--ink);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .review-card {
+        position: relative;
+        background: var(--ink-2);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 1.375rem;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+        border-left: 3px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .review-card[data-status="posted"] {
+        border-left-color: var(--gold);
+    }
+
+    .review-card[data-status="approved"] {
+        border-left-color: var(--success-500);
+    }
+
+    .review-card[data-status="pending"] {
+        border-left-color: var(--warning-500);
+    }
+
+    .review-card[data-status="flagged"] {
+        border-left-color: var(--danger-500);
+    }
+
+    .review-card[data-status="generation_failed"] {
+        border-left-color: var(--danger-500);
+    }
+
+    .review-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px -14px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 9999px;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+    }
+
+    .badge-posted {
+        background: color-mix(in srgb, var(--gold) 15%, transparent);
+        color: var(--gold);
+        border-color: color-mix(in srgb, var(--gold) 20%, transparent);
+    }
+
+    .badge-approved {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-500);
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-500);
+        border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-flagged {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger-500);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .badge-generation-failed {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger-500);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .badge-sentiment-positive {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-500);
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-sentiment-neutral {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-500);
+        border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-sentiment-negative {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger-500);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+        color: var(--ink);
+        padding: 0.55rem 1.05rem;
+        border-radius: var(--radius-md);
+        font-size: 0.7rem;
+        font-weight: 700;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px -8px color-mix(in srgb, var(--gold) 50%, transparent);
+        color: var(--ink);
+        text-decoration: none;
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-500), var(--success-600));
+        color: white;
+        padding: 0.55rem 1.05rem;
+        border-radius: var(--radius-md);
+        font-size: 0.7rem;
+        font-weight: 700;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px -8px rgba(5, 150, 105, 0.5);
+        color: white;
+    }
+
+    .btn-ghost {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--slate-300);
+        padding: 0.5rem 0.9rem;
+        border-radius: var(--radius-md);
+        font-size: 0.68rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--paper);
+        text-decoration: none;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .flagged-notice {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.15);
+        border-radius: 10px;
+        padding: 0.65rem 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .error-notice {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 10px;
+        padding: 0.65rem 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    @keyframes spin-icon {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .spin {
+        display: inline-block;
+        animation: spin-icon 0.8s linear infinite;
+    }
+
+    .generating-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(11, 18, 32, 0.88);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: var(--radius-lg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        z-index: 5;
+    }
+
+    .generating-overlay .spin {
+        font-size: 1.4rem;
+        color: var(--gold);
+    }
+
+    .generating-overlay span {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--slate-300);
+        font-family: var(--font-mono);
+        letter-spacing: 0.02em;
+    }
+
+    .stars {
+        display: inline-flex;
+        gap: 0.05rem;
+        color: var(--gold);
+        font-size: 0.9rem;
+    }
+
+    .stars-empty {
+        color: rgba(255, 255, 255, 0.1);
+    }
+
+    .source-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.125rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+    }
+
+    .source-google {
+        background: color-mix(in srgb, var(--gold) 10%, transparent);
+        color: var(--gold);
+        border-color: color-mix(in srgb, var(--gold) 15%, transparent);
+    }
+
+    .source-tripadvisor {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-500);
+        border-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .source-webhook {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+        border-color: rgba(139, 92, 246, 0.15);
+    }
+
+    .ai-draft-panel {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px dashed rgba(255, 255, 255, 0.06);
+    }
+
+    .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        background: color-mix(in srgb, var(--gold) 10%, transparent);
+        border: 1px solid color-mix(in srgb, var(--gold) 15%, transparent);
+        color: var(--gold);
+        font-size: 0.62rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .draft-bubble {
+        border-radius: var(--radius-md);
+        padding: 2px;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 20%, transparent), rgba(45, 212, 167, 0.08));
+    }
+
+    .draft-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        color: var(--paper);
+        background: rgba(255, 255, 255, 0.03);
+        transition: box-shadow 0.2s ease, background 0.2s ease;
+        resize: vertical;
+        min-height: 80px;
+        display: block;
+        font-family: var(--font-body);
+    }
+
+    .draft-textarea:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .draft-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .draft-actions-group {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+
+    .kbd-hint {
+        font-size: 0.6rem;
+        color: var(--slate-500);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .kbd-hint kbd {
+        font-family: var(--font-body);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        padding: 0.05rem 0.35rem;
+        font-size: 0.58rem;
+        color: var(--slate-400);
+    }
+
+    .live-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success-500);
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.5;
+            transform: scale(0.85);
+        }
+    }
+
+    .modal-overlay {
+        background: rgba(11, 18, 32, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .modal-box {
+        background: var(--ink-2);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .sync-progress-track {
+        height: 6px;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+    }
+
+    .sync-progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+        border-radius: 9999px;
+        transition: width 0.3s ease;
+    }
+
+    #toastHost {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .toast {
+        background: var(--ink-2);
+        color: var(--paper);
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.success {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.2);
+        color: var(--success-500);
+    }
+
+    @keyframes toastIn {
+        from {
+            opacity: 0;
+            transform: translateX(16px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .counter,
+    .counter-decimal {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .review-hidden {
+        display: none !important;
+    }
+
+    #reviewsGrid.grid-view {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 1rem;
+    }
+
+    #reviewsGrid.list-view {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .stat-card {
+            padding: 1.1rem;
+        }
+
+        .review-card {
+            padding: 1rem;
+        }
+
+        .chip {
+            font-size: 0.62rem;
+            padding: 0.32rem 0.6rem;
+        }
+
+        .btn-primary,
+        .btn-success,
+        .btn-ghost {
+            font-size: 0.62rem;
+            padding: 0.45rem 0.75rem;
+        }
+
+        #reviewsGrid.grid-view {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--ink);
+        border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Text colors */
+    .text-gold {
+        color: var(--gold);
+    }
+
+    .text-slate-300 {
+        color: #cbd5e1;
+    }
+
+    .text-slate-400 {
+        color: #94a3b8;
+    }
+
+    .text-slate-500 {
+        color: #64748b;
+    }
+
+    .text-slate-600 {
+        color: #475569;
+    }
+
+    .text-slate-700 {
+        color: #334155;
+    }
+
+    .text-slate-800 {
+        color: #1e293b;
+    }
+
+    .text-slate-900 {
+        color: #0f172a;
+    }
+
+    .bg-slate-100 {
+        background: #f1f5f9;
+    }
+
+    .bg-slate-200 {
+        background: #e2e8f0;
+    }
+
+    .bg-slate-900 {
+        background: #0f172a;
+    }
+
+    .bg-white {
+        background: #ffffff;
+    }
+
+    .bg-amber-50 {
+        background: #fffbeb;
+    }
+
+    .bg-rose-50 {
+        background: #fef2f2;
+    }
+
+    .bg-emerald-50 {
+        background: #ecfdf5;
+    }
+
+    .bg-indigo-50 {
+        background: #eef2ff;
+    }
+
+    .bg-sky-50 {
+        background: #f0f9ff;
+    }
+
+    .border-slate-100 {
+        border-color: #f1f5f9;
+    }
+
+    .border-slate-200 {
+        border-color: #e2e8f0;
+    }
+
+    .border-slate-300 {
+        border-color: #cbd5e1;
+    }
+
+    .border-slate-200 {
+        border-color: #e2e8f0;
+    }
+
+    .border-emerald-200 {
+        border-color: #a7f3d0;
+    }
+
+    .border-amber-200 {
+        border-color: #fde68a;
+    }
+
+    .border-rose-200 {
+        border-color: #fecaca;
+    }
+
+    .border-blue-200 {
+        border-color: #bfdbfe;
+    }
+
+    .text-emerald-600 {
+        color: #059669;
+    }
+
+    .text-emerald-700 {
+        color: #047857;
+    }
+
+    .text-amber-600 {
+        color: #d97706;
+    }
+
+    .text-amber-700 {
+        color: #b45309;
+    }
+
+    .text-amber-800 {
+        color: #92400e;
+    }
+
+    .text-rose-600 {
+        color: #dc2626;
+    }
+
+    .text-rose-700 {
+        color: #b91c1c;
+    }
+
+    .text-rose-800 {
+        color: #991b1b;
+    }
+
+    .text-blue-700 {
+        color: #1d4ed8;
+    }
+
+    .text-indigo-600 {
+        color: #4f46e5;
+    }
+
+    .text-purple-600 {
+        color: #7c3aed;
+    }
+
+    .text-amber-500 {
+        color: #f59e0b;
+    }
+
+    html[data-theme="light"] .rb-header {
+        background: rgba(255, 255, 255, 0.92);
+        border-bottom-color: rgba(var(--surface-rgb), 0.08);
+    }
+    html[data-theme="light"] .icon-btn,
+    html[data-theme="light"] .chip,
+    html[data-theme="light"] .search-wrap input,
+    html[data-theme="light"] .btn-ghost {
+        background: rgba(var(--surface-rgb), 0.04);
+        border-color: rgba(var(--surface-rgb), 0.1);
+        color: var(--slate);
+    }
+    html[data-theme="light"] .icon-btn:hover,
+    html[data-theme="light"] .chip:hover,
+    html[data-theme="light"] .btn-ghost:hover {
+        background: rgba(var(--surface-rgb), 0.08);
+        color: var(--paper);
+    }
+    html[data-theme="light"] .rb-dropdown-menu,
+    html[data-theme="light"] .stat-card,
+    html[data-theme="light"] .review-card,
+    html[data-theme="light"] .modal-box {
+        background: var(--ink-2);
+        border-color: rgba(var(--surface-rgb), 0.08);
+    }
+    html[data-theme="light"] .rb-dropdown-item:hover {
+        background: rgba(var(--surface-rgb), 0.05);
+    }
+    html[data-theme="light"] .draft-textarea {
+        background: rgba(var(--surface-rgb), 0.03);
+        color: var(--paper);
+    }
+    html[data-theme="light"] .draft-textarea:focus {
+        background: rgba(var(--surface-rgb), 0.06);
+    }
+    html[data-theme="light"] .kbd-hint kbd {
+        background: rgba(var(--surface-rgb), 0.05);
+        border-color: rgba(var(--surface-rgb), 0.1);
+    }
+    html[data-theme="light"] ::-webkit-scrollbar-thumb {
+        background: rgba(var(--surface-rgb), 0.15);
+    }
+    html[data-theme="light"] .text-white,
+    html[data-theme="light"] .text-slate-300 {
+        color: var(--paper) !important;
+    }
+    html[data-theme="light"] .text-slate-400,
+    html[data-theme="light"] .text-slate-500,
+    html[data-theme="light"] .text-slate-600 {
+        color: var(--slate) !important;
+    }
+    html[data-theme="light"] [class*="bg-white/"] {
+        background-color: rgba(var(--surface-rgb), 0.05) !important;
+    }
+    html[data-theme="light"] [class*="border-white/"] {
+        border-color: rgba(var(--surface-rgb), 0.12) !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-6xl mx-auto space-y-6">
+<div id="toastHost"></div>
 
+<!-- ===== DASHBOARD ACTIONS BAR ===== -->
+<div class="rb-header -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6">
+    <div class="w-full max-w-7xl mx-auto flex items-center justify-end gap-2">
+        <!-- Quick Actions -->
+        <div class="rb-dropdown hidden sm:block">
+            <button type="button" onclick="toggleDropdown('quickActionsMenu')" class="btn-ghost">
+                <span>Quick Actions</span>
+                <i class="bi bi-chevron-down" style="font-size: 0.6rem;"></i>
+            </button>
+            <div id="quickActionsMenu" class="rb-dropdown-menu">
+                <a href="#" onclick="toggleSyncModal(); return false;" class="rb-dropdown-item">Sync reviews</a>
+                <a href="{% url 'export_csv' %}" class="rb-dropdown-item">Export CSV</a>
+                <a href="{% url 'export_insights_report' %}" class="rb-dropdown-item">Export Insights Report</a>
+                <a href="{% url 'ai_settings' %}" class="rb-dropdown-item">Settings</a>
+            </div>
+        </div>
+
+        <span class="chip" title="AI replies generated today, resets at midnight">
+            <i class="bi bi-stars"></i>
+            <span class="font-mono">{{ ai_used_today }}/{{ profile.ai_daily_limit }} AI today</span>
+        </span>
+
+        <button onclick="toggleSyncModal()" class="btn-primary">
+            <i class="bi bi-arrow-repeat"></i>
+            <span class="hidden sm:inline">Sync Reviews</span>
+        </button>
+
+        <!-- Notifications -->
+        <div class="rb-dropdown">
+            <button type="button" onclick="toggleDropdown('notifMenu')" class="icon-btn">
+                <i class="bi bi-bell"></i>
+                {% if negative_count > 0 %}<span class="notif-badge">{{ negative_count }}</span>{% endif %}
+            </button>
+            <div id="notifMenu" class="rb-dropdown-menu" style="min-width: 260px;">
+                <div class="px-2.5 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">
+                    Notifications</div>
+                {% if negative_count > 0 %}
+                <a href="?rating=negative" class="rb-dropdown-item">{{ negative_count }} review{{
+                    negative_count|pluralize }} need attention</a>
+                {% else %}
+                <div class="px-2.5 py-3 text-xs text-slate-500 text-center">You're all caught up.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="w-full max-w-7xl mx-auto space-y-7 px-4 sm:px-6">
+
+    <!-- ===== MESSAGES ===== -->
     {% if messages %}
     <div class="space-y-2">
         {% for message in messages %}
-        <div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs font-semibold border
-            {% if message.tags == 'success' %}bg-emerald-50 text-emerald-700 border-emerald-200
-            {% elif message.tags == 'warning' %}bg-amber-50 text-amber-700 border-amber-200
-            {% elif message.tags == 'error' %}bg-rose-50 text-rose-700 border-rose-200
-            {% else %}bg-blue-50 text-blue-700 border-blue-200{% endif %}">
-            <span class="flex items-center gap-2">
-                {% if message.tags == 'success' %}<i class="fa-solid fa-circle-check"></i>
-                {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation"></i>
-                {% elif message.tags == 'error' %}<i class="fa-solid fa-circle-exclamation"></i>
-                {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
-                {{ message }}
-            </span>
-            <button type="button" onclick="this.closest('div.flex').remove()" class="opacity-60 hover:opacity-100 transition">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+        <div class="reveal in-view flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-900/20 text-emerald-400 border-emerald-800/30
+            {% elif message.tags == 'warning' %}bg-amber-900/20 text-amber-400 border-amber-800/30
+            {% elif message.tags == 'error' %}bg-rose-900/20 text-rose-400 border-rose-800/30
+            {% else %}bg-blue-900/20 text-blue-400 border-blue-800/30{% endif %}">
+            <span class="flex items-center gap-2">{{ message }}</span>
+            <button type="button" onclick="this.closest('div.flex').remove()"
+                class="opacity-60 hover:opacity-100 transition">✕</button>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- Clean Page Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- ===== PAGE INTRO ===== -->
+    <div class="reveal flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Review Booster & Auto-Responder</h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            <h1 class="font-display text-2xl font-semibold text-white tracking-tight">Dashboard</h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1 flex items-center gap-1.5">
                 {% if user.is_authenticated %}
-                    Managing automated Google Business Profile responses for <span class="font-semibold text-slate-700">{{ user.username }}</span>.
+                Managing automated Google Business Profile responses for
+                <span class="font-semibold text-white">{{ user.username }}</span>.
+                <span class="text-emerald-500 font-medium font-mono text-[10px]">● operational</span>
                 {% else %}
-                    Welcome! Please sign in to manage and automate your business reviews.
+                Welcome! Please sign in to manage and automate your business reviews.
                 {% endif %}
             </p>
         </div>
+    </div>
 
-        {% if user.is_authenticated %}
-        <div class="flex items-center gap-2">
-            <button onclick="toggleSyncModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2">
-                <i class="fa-solid fa-arrows-rotate"></i>
-                <span>Sync Live Google Reviews</span>
-            </button>
+    <!-- ===== ANALYTICS SUMMARY CARDS ===== -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div class="reveal stat-card" style="transition-delay: 0ms;">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Total
+                    Reviews</span>
+            </div>
+            <div class="mt-2 text-3xl font-display font-semibold text-white counter"
+                data-target="{{ analytics.total_reviews_synced }}">0</div>
+            <p class="text-[11px] text-slate-500 mt-1">Synced for this business</p>
+        </div>
 
-            {% if user.is_staff %}
-            <a href="/admin/" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2">
-                <i class="fa-solid fa-user-shield text-slate-400"></i>
-                <span>Admin</span>
-            </a>
+        <div class="reveal stat-card" style="transition-delay: 40ms;">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Avg Rating</span>
+            </div>
+            <div class="mt-2 flex items-baseline gap-1">
+                <span class="text-3xl font-display font-semibold text-gold counter-decimal"
+                    data-target="{{ analytics.avg_rating }}">0.0</span>
+                <span class="text-xs font-medium text-slate-500">/ 5.0</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Across all synced reviews</p>
+        </div>
+
+        <div class="reveal stat-card" style="transition-delay: 80ms; border-color: rgba(232,168,60,0.25);">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono">Time Saved This
+                    Week</span>
+            </div>
+            <div class="mt-2 text-3xl font-display font-semibold text-teal-400">~<span class="counter-decimal"
+                    data-target="{{ analytics.saved_hours_this_week }}">0.0</span> hrs</div>
+            <p class="text-[11px] text-slate-500 mt-1">{{ analytics.reviews_handled_this_week }} repl{{ analytics.reviews_handled_this_week|pluralize:"y,ies" }} handled since Monday</p>
+        </div>
+
+        <div class="reveal stat-card" style="transition-delay: 120ms;">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Total Time
+                    Saved</span>
+            </div>
+            <div class="mt-2 text-3xl font-display font-semibold text-teal-400">~<span class="counter-decimal"
+                    data-target="{{ analytics.saved_hours }}">0.0</span> hrs</div>
+            <p class="text-[11px] text-slate-500 mt-1">Lifetime, since joining</p>
+        </div>
+
+        <div class="reveal stat-card" style="transition-delay: 160ms;">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Response
+                    Rate</span>
+            </div>
+            <div class="mt-2 text-3xl font-display font-semibold text-gold">
+                {{ analytics.response_rate }}%
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">{{ analytics.total_reviews_handled }} reviews handled</p>
+        </div>
+
+        <div class="reveal stat-card" style="transition-delay: 200ms;">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Avg Response
+                    Time</span>
+            </div>
+            <div class="mt-2 text-3xl font-display font-semibold text-teal-400">
+                {{ analytics.avg_response_display }}
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Review created → reply approved/posted</p>
+        </div>
+    </div>
+
+    <!-- ===== COMPETITOR BENCHMARKING ===== -->
+    <div class="reveal space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">Competitor Benchmarking
+            </h3>
+            {% if can_manage %}
+            <button type="button" onclick="toggleCompetitorForm()" class="btn-ghost">+ Add Competitor</button>
             {% endif %}
         </div>
-        {% else %}
-        <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
-            <span class="text-xs text-slate-500 font-medium mr-1">Sign in:</span>
-            <a href="{% url 'google_login' %}" title="Sign in with Google" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition">
-                <i class="fab fa-google text-red-500 text-sm"></i>
-            </a>
-            <a href="{% url 'github_login' %}" title="Sign in with GitHub" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition">
-                <i class="fab fa-github text-slate-800 text-sm"></i>
-            </a>
-            <a href="{% url 'microsoft_login' %}" title="Sign in with Microsoft" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition">
-                <i class="fab fa-microsoft text-blue-600 text-sm"></i>
-            </a>
-        </div>
+
+        {% if can_manage %}
+        <form id="competitorForm" action="{% url 'add_competitor' %}" method="POST" class="hidden stat-card space-y-3">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <input type="text" name="name" required placeholder="Competitor name"
+                    class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
+                <input type="text" name="location" placeholder="Location" value="Geneva"
+                    class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
+                <input type="number" step="0.1" min="0" max="5" name="avg_rating" placeholder="Avg rating (0-5)"
+                    class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
+                <input type="number" min="0" name="total_reviews" placeholder="Total reviews"
+                    class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
+            </div>
+            <input type="url" name="google_maps_url" placeholder="Google Maps URL (optional)"
+                class="w-full p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
+            <button type="submit" class="btn-primary">Add</button>
+        </form>
         {% endif %}
-    </div>
 
-    <!-- Analytics Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">This Month</span>
-                <span class="p-2 bg-slate-50 text-slate-600 rounded-lg"><i class="fa-regular fa-calendar-check text-sm"></i></span>
-            </div>
-            <div class="mt-2 text-3xl font-extrabold text-slate-900">
-                {{ analytics.total_reviews_this_month }}
-            </div>
-            <p class="text-xs text-slate-500 mt-1">New reviews received</p>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Avg Rating</span>
-                <span class="p-2 bg-amber-50 text-amber-500 rounded-lg"><i class="fa-solid fa-star text-sm"></i></span>
-            </div>
-            <div class="mt-2 text-3xl font-extrabold text-amber-500">
-                {{ analytics.avg_rating }} <span class="text-sm font-normal text-slate-400">/ 5.0</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">Across {{ analytics.total_reviews_handled }} reviews</p>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Time Saved</span>
-                <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i class="fa-solid fa-bolt text-sm"></i></span>
-            </div>
-            <div class="mt-2 text-3xl font-extrabold text-emerald-600">
-                ~{{ analytics.saved_hours }} hrs
-            </div>
-            <p class="text-xs text-slate-500 mt-1">Automated response time</p>
-        </div>
-    </div>
-
-    <!-- Review Cards Feed -->
-    <div class="space-y-4">
-        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">Customer Reviews Feed</h3>
-        {% for review in reviews %}
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex justify-between items-center mb-2">
-                <div>
-                    <span class="font-bold text-base text-slate-900">{{ review.reviewer_name }}</span>
-                    <span class="text-amber-500 font-semibold text-sm ml-2">{{ review.rating }} ★</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- Your business, always first -->
+            <div class="stat-card" style="border-color: rgba(232,168,60,0.3);">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono">{{ profile.business_name }} (You)</span>
                 </div>
-                <span class="text-xs px-2.5 py-1 rounded-full font-semibold
-                    {% if review.status == 'posted' %}bg-blue-50 text-blue-700 border border-blue-200
-                    {% elif review.status == 'approved' %}bg-emerald-50 text-emerald-700 border border-emerald-200
-                    {% elif review.status == 'flagged' %}bg-rose-50 text-rose-700 border border-rose-200
-                    {% else %}bg-amber-50 text-amber-700 border border-amber-200{% endif %}">
-                    {% if review.status == 'posted' %}
-                    ✓ Posted to Google ({{ review.detected_language|upper }})
-                    {% elif review.status == 'flagged' %}
-                    ⚠ Flagged for Review
+                <div class="mt-2 flex items-baseline gap-1">
+                    <span class="text-2xl font-display font-semibold text-gold">{{ analytics.avg_rating }}</span>
+                    <span class="text-xs text-slate-500">/ 5.0</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">{{ analytics.total_reviews_synced }} review{{ analytics.total_reviews_synced|pluralize }}</p>
+            </div>
+
+            {% for c in competitors %}
+            <div class="stat-card">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono truncate">{{ c.name }}</span>
+                    {% if can_manage %}
+                    <form action="{% url 'delete_competitor' c.id %}" method="POST" class="competitor-delete-form" data-name="{{ c.name|escapejs }}" onsubmit="return false;">
+                        {% csrf_token %}
+                        <button type="button" onclick="confirmDeleteCompetitor(this)" class="text-slate-600 hover:text-rose-400 transition text-xs" title="Remove">✕</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="mt-2 flex items-baseline gap-1">
+                    <span
+                        class="text-2xl font-display font-semibold {% if c.avg_rating > analytics.avg_rating %}text-rose-400{% else %}text-white{% endif %}">{{ c.avg_rating }}</span>
+                    <span class="text-xs text-slate-500">/ 5.0</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">
+                    {{ c.total_reviews }} review{{ c.total_reviews|pluralize }} · {{ c.location }}
+                    {% if c.google_maps_url %} · <a href="{{ c.google_maps_url }}" target="_blank"
+                        rel="noopener noreferrer" class="text-gold hover:text-gold-soft">View →</a>{% endif %}
+                </p>
+            </div>
+            {% empty %}
+            {% if not can_manage %}
+            <div class="stat-card sm:col-span-2 lg:col-span-3 text-center">
+                <p class="text-xs text-slate-500">No competitors added yet.</p>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+
+        <!-- ===== RECURRING COMPLAINT THEMES (AI) ===== -->
+    <div class="reveal stat-card">
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Recurring Complaint
+                Themes — AI Analysis</span>
+            <button type="button" id="insightsBtn" onclick="runInsightsAnalysis()" class="btn-ghost">
+                <i class="bi bi-stars"></i>
+                <span>Analyze Recurring Themes</span>
+            </button>
+        </div>
+        <div id="insightsEmptyState" class="text-xs text-slate-500 py-2">
+            Click "Analyze Recurring Themes" to have AI cluster your 1-3★ reviews into recurring problems — what's
+            coming up again and again, and what to fix first.
+        </div>
+        <div id="insightsResults" class="hidden space-y-3 mt-2">
+            <p class="text-xs text-slate-300" id="insightsSummary"></p>
+            <div id="insightsIssuesList" class="space-y-2"></div>
+            <div class="rounded-xl p-3 mt-2" style="background: color-mix(in srgb, var(--gold) 6%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 15%, transparent);">
+                <p class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono mb-1">Actionable Tip</p>
+                <p class="text-xs text-slate-300" id="insightsTip"></p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ===== SENTIMENT TREND ===== -->
+    {% if has_sentiment_data %}
+    <div class="reveal stat-card">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Sentiment Trend — Last
+                30 Days</span>
+        </div>
+        <canvas id="sentimentTrendChart" height="80"></canvas>
+    </div>
+    {% endif %}
+
+    <!-- Feed Header, Search, Filters -->
+    <div class="reveal space-y-3">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono flex items-center gap-2">
+                <span>Customer Reviews Feed</span>
+                <span class="text-slate-600 font-normal">·</span>
+                <span class="text-slate-400 font-normal normal-case font-body">{{ reviews|length }} reviews</span>
+            </h3>
+
+            <div class="flex items-center gap-2 w-full lg:w-auto">
+                <div class="search-wrap flex-1 lg:w-64">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="reviewSearch" placeholder="Search reviews by name or text..."
+                        oninput="filterReviewsBySearch(this.value)">
+                </div>
+                <div class="flex items-center gap-0.5 bg-white/5 rounded-lg p-0.5">
+                    <span id="viewGridBtn" class="view-toggle-btn active" onclick="setView('grid')"
+                        title="Grid view">Grid</span>
+                    <span id="viewListBtn" class="view-toggle-btn" onclick="setView('list')"
+                        title="List view">List</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter chips -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+            <a href="?status=all" class="chip {% if status_filter == 'all' %}active chip-all{% endif %}">All <span
+                    class="opacity-60">{{ status_counts.all }}</span></a>
+            <a href="?status=pending"
+                class="chip {% if status_filter == 'pending' %}active chip-pending{% endif %}">Pending <span
+                    class="opacity-60">{{ status_counts.pending }}</span></a>
+            <a href="?status=approved"
+                class="chip {% if status_filter == 'approved' %}active chip-approved{% endif %}">Approved <span
+                    class="opacity-60">{{ status_counts.approved }}</span></a>
+            <a href="?status=posted" class="chip {% if status_filter == 'posted' %}active chip-posted{% endif %}">Posted
+                <span class="opacity-60">{{ status_counts.posted }}</span></a>
+            <a href="?status=flagged"
+                class="chip {% if status_filter == 'flagged' %}active chip-flagged{% endif %}">Flagged <span
+                    class="opacity-60">{{ status_counts.flagged }}</span></a>
+            <span class="w-px h-5 bg-white/10 mx-1"></span>
+            <a href="?rating=negative"
+                class="chip {% if rating_filter == 'negative' %}active chip-negative{% endif %}">Negative <span
+                    class="opacity-60">{{ negative_count }}</span></a>
+            {% if status_filter != 'all' or rating_filter == 'negative' %}
+            <a href="?status=all" class="chip">✕ Clear filters</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Review Cards -->
+    <div id="reviewsGrid" class="grid-view">
+        {% for review in reviews %}
+        <div class="reveal review-card" data-status="{{ review.status }}"
+            data-search="{{ review.reviewer_name|lower }} {{ review.comment|lower }}"
+            style="transition-delay: {{ forloop.counter|add:0|stringformat:'d' }}ms;">
+            <!-- Header -->
+            <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2.5">
+                    <div
+                        class="avatar-gradient w-9 h-9 rounded-full text-xs shadow-sm flex items-center justify-center">
+                        {{ review.reviewer_name.0|upper }}</div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-sm text-white">{{ review.reviewer_name }}</span>
+                            {% if review.is_likely_spam %}
+                            <span class="badge badge-flagged">Likely Spam</span>
+                            {% endif %}
+                            {% if review.sentiment == 'positive' %}
+                            <span class="badge badge-sentiment-positive">Positive</span>
+                            {% elif review.sentiment == 'negative' %}
+                            <span class="badge badge-sentiment-negative">Negative</span>
+                            {% elif review.sentiment == 'neutral' %}
+                            <span class="badge badge-sentiment-neutral">Neutral</span>
+                            {% endif %}
+                            {% if review.seo_keyword_used %}
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2);"
+                                title="Local SEO phrase used: {{ review.seo_keyword_used }}">
+                                <i class="bi bi-geo-alt-fill"></i> SEO Boost
+                            </span>
+                            {% endif %}
+                            {% if review.action_link_shown %}
+                            <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #6366f1; border-color: rgba(99, 102, 241, 0.2);"
+                                title="Promotional link included in this reply">
+                                <i class="bi bi-link-45deg"></i> Promo Sent
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span class="stars text-sm">
+                                {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %} {% endfor %} </span>
+                                    <span class="text-[10.5px] text-slate-500">· {{ review.created_at|timesince }}
+                                        ago</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="badge
+                        {% if review.status == 'posted' %}badge-posted
+                        {% elif review.status == 'approved' %}badge-approved
+                        {% elif review.status == 'flagged' %}badge-flagged
+                        {% elif review.status == 'generation_failed' %}badge-generation-failed
+                        {% else %}badge-pending{% endif %}">
+                    {% if review.status == 'posted' %}Posted
+                    {% elif review.status == 'flagged' %}Flagged
+                    {% elif review.status == 'generation_failed' %}Retry Needed
                     {% else %}
-                    {{ review.get_status_display }} ({{ review.detected_language|upper }})
+                    {% if review.status == 'pending' %}Pending
+                    {% elif review.status == 'approved' %}Approved
+                    {% else %}{{ review.status }}{% endif %}
                     {% endif %}
                 </span>
             </div>
 
-            <p class="text-xs text-slate-400 font-medium mb-1"><i class="fa-solid fa-store mr-1"></i> {{ review.business_name }}</p>
-            <p class="text-slate-600 italic text-sm mb-4">"{{ review.comment }}"</p>
+            <!-- Business & Source -->
+            <p class="text-[11px] text-slate-500 font-medium mb-2 flex items-center gap-2 flex-wrap">
+                <span>{{ review.business_name }}</span>
+                {% if review.source == 'tripadvisor' %}
+                <span class="source-badge source-tripadvisor">TripAdvisor</span>
+                {% elif review.source == 'webhook' %}
+                <span class="source-badge source-webhook">Webhook</span>
+                {% else %}
+                <span class="source-badge source-google">Google</span>
+                {% endif %}
+            </p>
 
+            <!-- Comment -->
+            <p class="text-slate-300 text-sm leading-relaxed line-clamp-3">&ldquo;{{ review.comment }}&rdquo;</p>
+
+            <!-- ===== FLAGGED REVIEW ===== -->
             {% if review.status == 'flagged' %}
-            <!-- FLAGGED: comment didn't pass the authenticity check -->
-            <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
-                <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start gap-3">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5"></i>
-                    <div class="space-y-1">
-                        <p class="text-xs font-semibold text-rose-700">This doesn't look like a genuine review.</p>
-                        <p class="text-xs text-rose-600">We skipped an AI-generated reply so nothing gets posted automatically. You can still write a reply by hand, or generate one anyway.</p>
-                    </div>
+            <div class="flagged-notice mt-3">
+                <div class="flex-1 min-w-0">
+                    <p class="text-[11.5px] font-bold text-amber-400">Skipped auto-reply — this doesn't look like a
+                        genuine review.</p>
                 </div>
-                <a href="{% url 'generate_draft' review.id %}?force=1" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium text-xs transition">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>Generate AI Response Anyway</span>
-                </a>
+                <button type="button" data-draft-url="{% url 'generate_draft' review.id %}"
+                    onclick="generateDraft(this, true)"
+                    class="text-[10px] font-bold text-amber-400 hover:text-amber-300 whitespace-nowrap flex items-center gap-1 bg-transparent border-0 p-0 cursor-pointer">
+                    Generate anyway
+                </button>
             </div>
+
+            {% elif review.status == 'generation_failed' %}
+            <div class="error-notice mt-3">
+                <div class="flex-1 min-w-0">
+                    <p class="text-[11.5px] font-bold text-rose-400">AI couldn't generate a reply — nothing was
+                        saved or posted.</p>
+                </div>
+                <button type="button" data-draft-url="{% url 'generate_draft' review.id %}"
+                    onclick="generateDraft(this, false)"
+                    class="text-[10px] font-bold text-rose-400 hover:text-rose-300 whitespace-nowrap flex items-center gap-1 bg-transparent border-0 p-0 cursor-pointer">
+                    Try again
+                </button>
+            </div>
+
+            <!-- ===== AI DRAFT AVAILABLE ===== -->
             {% elif review.ai_draft_reply %}
-            <form action="{% url 'approve_review' review.id %}" method="POST" class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+            <form action="{% url 'approve_review' review.id %}" method="POST" class="ai-draft-panel">
                 {% csrf_token %}
-                <label class="block text-xs font-semibold text-slate-700 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-blue-600">
-                        <i class="fa-solid fa-sparkles"></i>
-                        <span>AI Draft Response (Editable):</span>
-                    </span>
-                    <button type="button" onclick="copyReplyToClipboard('draft-{{ review.id }}', this)" class="text-slate-500 hover:text-blue-600 text-xs flex items-center gap-1 font-normal transition">
-                        <i class="fa-regular fa-copy"></i>
-                        <span>Copy Draft</span>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="ai-badge">AI Draft</span>
+                    <button type="button" onclick="copyReplyToClipboard('draft-{{ review.id }}', this)"
+                        class="text-slate-500 hover:text-gold text-[10px] font-semibold flex items-center gap-1.5 transition uppercase tracking-wider font-mono">
+                        <i class="bi bi-clipboard"></i>
+                        <span>Copy</span>
                     </button>
-                </label>
+                </div>
 
-                <textarea id="draft-{{ review.id }}" name="ai_draft_reply" rows="3" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-800 bg-slate-50/50">{{ review.ai_draft_reply }}</textarea>
+                <div class="draft-bubble">
+                    <textarea id="draft-{{ review.id }}" name="ai_draft_reply" rows="3"
+                        class="draft-textarea">{{ review.ai_draft_reply }}</textarea>
+                </div>
 
-                <div class="flex items-center justify-between gap-2 pt-1">
-                    <div class="flex items-center gap-2">
-                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-xs transition shadow-sm">
-                            Approve Response
-                        </button>
-                        <a href="{% url 'generate_draft' review.id %}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium text-xs transition">
-                            🔄 Regenerate
-                        </a>
+                <div class="draft-actions">
+                    <div class="draft-actions-group">
+                        <button type="submit" class="btn-success"><span>Approve & Post</span></button>
+                        <button type="button" class="btn-ghost" data-draft-url="{% url 'generate_draft' review.id %}"
+                            onclick="generateDraft(this, false)"><span>Regenerate</span></button>
                     </div>
-
-                    <a href="https://business.google.com/" target="_blank" rel="noopener noreferrer" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
-                        <i class="fa-brands fa-google"></i>
-                        <span>Open Google Business</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                    </a>
+                    <span class="kbd-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> to post</span>
                 </div>
             </form>
+            {% if review.status == 'approved' and profile.google_maps_url %}
+            <div class="mt-2 text-[10px] text-slate-500">
+                Approved, not yet posted automatically —
+                <a href="{{ profile.google_maps_url }}" target="_blank" rel="noopener noreferrer"
+                    class="text-gold hover:text-gold-soft font-medium">open Google Business</a>
+                to post it yourself, or click Approve & Post above to retry.
+            </div>
+            {% endif %}
+
+            <!-- ===== ALREADY POSTED ===== -->
+            {% elif review.status == 'posted' %}
+            <div
+                class="mt-3 pt-3 border-t border-white/5 flex flex-wrap items-center gap-2 text-[11px] text-emerald-400">
+                <span class="font-medium">Reply is live on Google — no action needed.</span>
+                <a href="{{ profile.google_maps_url|default:'https://business.google.com/' }}" target="_blank"
+                    rel="noopener noreferrer" class="text-gold hover:text-gold-soft font-medium ml-1">View on Google
+                    →</a>
+            </div>
+
+            <!-- ===== NO AI DRAFT ===== -->
             {% else %}
-            <div class="pt-3 border-t border-slate-100">
-                <a href="{% url 'generate_draft' review.id %}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-xs transition shadow-sm">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>Generate AI Response with Gemini</span>
-                </a>
+            <div class="mt-3 pt-3 border-t border-white/5 flex flex-wrap items-center gap-2">
+                <button type="button" class="btn-primary" data-draft-url="{% url 'generate_draft' review.id %}"
+                    onclick="generateDraft(this, false)"><span>Generate AI
+                        Response</span></button>
+                <span class="text-[10px] text-slate-500 font-medium font-mono">Powered by Gemini</span>
             </div>
             {% endif %}
         </div>
         {% empty %}
-        <div class="bg-white p-8 rounded-2xl text-center text-xs text-slate-400 shadow-sm border border-slate-200 space-y-3">
-            <i class="fa-solid fa-comments text-2xl text-slate-300"></i>
-            <p>No reviews found for your account yet.</p>
-            <button onclick="toggleSyncModal()" class="inline-block bg-blue-50 text-blue-600 font-semibold px-4 py-2 rounded-xl text-xs hover:bg-blue-100 transition">
-                Import Sample Google Reviews
-            </button>
+        <div class="reveal bg-ink-2 p-10 rounded-2xl text-center shadow-sm border border-white/5 space-y-3"
+            style="grid-column: 1 / -1;">
+            <div class="w-14 h-14 mx-auto bg-white/5 rounded-full flex items-center justify-center">
+                <i class="bi bi-chat-square-text" style="font-size: 1.75rem; color: var(--gold);"></i>
+            </div>
+            {% if rating_filter == 'negative' %}
+            <p class="text-sm font-semibold text-white">No negative reviews right now</p>
+            <p class="text-xs text-slate-400">Nice work! All your reviews are 3★ or higher.</p>
+            <a href="?status=all" class="btn-primary inline-flex">Show all reviews</a>
+            {% elif status_filter == 'all' %}
+            <p class="text-sm font-semibold text-white">No reviews found for this business yet</p>
+            <p class="text-xs text-slate-400">Sync your Google reviews to get started with AI-powered responses.</p>
+            <button onclick="toggleSyncModal()" class="btn-primary mx-auto"><span>Sync Live Reviews</span></button>
+            {% else %}
+            <p class="text-sm font-semibold text-white">No {{ status_filter }} reviews right now</p>
+            <p class="text-xs text-slate-400">Try viewing all reviews instead.</p>
+            <a href="?status=all" class="btn-primary inline-flex">Show all reviews</a>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
 
-</div>
-
-<!-- SYNC GOOGLE REVIEWS MODAL -->
-<div id="syncModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
-        <div class="flex justify-between items-center">
-            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <i class="fa-brands fa-google text-red-500"></i>
-                <span>Fetch Live Google Reviews</span>
-            </h3>
-            <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 text-sm">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-
-        <form action="{% url 'sync_google_reviews' %}" method="POST" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Business Name</label>
-                <input type="text" name="business_name" placeholder="e.g. Geneva Bistro or La Merveille" required class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Google Place ID (Optional)</label>
-                <input type="text" name="place_id" placeholder="ChIJN1t_tDe1xkcR..." class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <p class="text-[11px] text-slate-400 mt-1">Leave empty to auto-load sample live customer feedback.</p>
-            </div>
-
-            <div class="flex justify-end gap-2 pt-2">
-                <button type="button" onclick="toggleSyncModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
-                    Cancel
-                </button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-cloud-arrow-down"></i>
-                    <span>Import Reviews</span>
-                </button>
-            </div>
-        </form>
+    <div id="noSearchResults" class="hidden text-center py-10 text-xs text-slate-500">
+        No reviews match your search.
     </div>
 </div>
 
+<!-- ===== FOOTER ===== -->
+<div
+    class="reveal flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-4 border-t border-white/5 text-[10px] text-slate-500">
+    <div class="flex items-center gap-4">
+        <span class="flex items-center gap-1.5"><span class="live-dot"></span><span class="font-mono">System
+                online</span></span>
+        <span>·</span>
+        <span>Last sync: <span class="text-slate-400 font-medium">{% now "M d, Y H:i" %}</span></span>
+        <span>·</span>
+        <span class="font-mono">v1.0</span>
+    </div>
+    <div class="flex items-center gap-4">
+            <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request" class="hover:text-slate-300 transition" title="Get help">Support</a>
+            <a href="{% url 'getting_started' %}" class="hover:text-slate-300 transition" title="Read the docs">Documentation</a>
+    </div>
+</div>
+<!-- </div> -->
+
+<!-- ===== SYNC GOOGLE REVIEWS MODAL ===== -->
+<div id="syncModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay" onclick="toggleSyncModal()"></div>
+    <div
+        class="modal-box bg-ink-2 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-white/10 space-y-5 relative z-10">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-base font-display font-semibold text-white flex items-center gap-2">
+                    <span
+                        class="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-soft text-ink flex items-center justify-center text-sm font-bold font-display">G</span>
+                    <span>Sync Google Reviews</span>
+                </h3>
+                <p class="text-[11px] text-slate-500 mt-0.5">Fetch live customer feedback from Google Business</p>
+            </div>
+            <button onclick="toggleSyncModal()"
+                class="text-slate-500 hover:text-slate-300 text-sm p-1 transition">✕</button>
+        </div>
+
+        <form action="{% url 'sync_google_reviews' %}" method="POST" class="space-y-4" onsubmit="showSyncProgress()">
+            {% csrf_token %}
+            <div>
+                <label
+                    class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">Business
+                    Name <span class="text-red-500">*</span></label>
+                <input type="text" name="business_name" placeholder="e.g. Geneva Bistro" required
+                    class="w-full p-2.5 border border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-gold focus:outline-none transition placeholder:text-slate-600 bg-white/5 text-white">
+                <p class="text-[10px] text-slate-600 mt-1">Enter the exact business name as it appears on Google.</p>
+            </div>
+
+            <div>
+                <label
+                    class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">Google
+                    Place ID <span class="font-normal text-slate-600">(optional)</span></label>
+                <input type="text" name="place_id" placeholder="ChIJN1t_tDe1xkcR..."
+                    class="w-full p-2.5 border border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-gold focus:outline-none transition placeholder:text-slate-600 bg-white/5 text-white">
+                <p class="text-[10px] text-slate-600 mt-1">Leave empty to auto-load sample live customer feedback.</p>
+            </div>
+
+            <div id="syncProgressWrap" class="hidden space-y-1.5">
+                <div class="sync-progress-track">
+                    <div id="syncProgressFill" class="sync-progress-fill"></div>
+                </div>
+                <p class="text-[10px] text-slate-500 font-mono">Importing reviews…</p>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" onclick="toggleSyncModal()"
+                    class="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-400 text-xs font-bold rounded-xl transition uppercase tracking-wider font-mono">Cancel</button>
+                <button type="submit" class="btn-primary"><span>Import Reviews</span></button>
+            </div>
+        </form>
+
+        <div class="pt-3 border-t border-white/5 flex items-center gap-2 text-[10px] text-slate-600">
+            <span>Reviews are imported in real-time and analyzed by AI.</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_body %}
 <script>
-function toggleSyncModal() {
-    const modal = document.getElementById('syncModal');
-    modal.classList.toggle('hidden');
-}
-
-function copyReplyToClipboard(textareaId, buttonEl) {
-    const textarea = document.getElementById(textareaId);
-    if (!textarea) return;
-
-    textarea.select();
-    navigator.clipboard.writeText(textarea.value).then(() => {
-        const originalContent = buttonEl.innerHTML;
-        buttonEl.innerHTML = `<i class="fa-solid fa-check text-emerald-600"></i> <span class="text-emerald-600 font-semibold">Copied!</span>`;
-        setTimeout(() => {
-            buttonEl.innerHTML = originalContent;
-        }, 2000);
-    }).catch(err => {
-        console.error('Failed to copy text: ', err);
+    // ===== DROPDOWNS =====
+    function toggleDropdown(id) {
+        const menu = document.getElementById(id);
+        const wasOpen = menu.classList.contains('open');
+        document.querySelectorAll('.rb-dropdown-menu.open').forEach(m => m.classList.remove('open'));
+        if (!wasOpen) menu.classList.add('open');
+    }
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.rb-dropdown')) {
+            document.querySelectorAll('.rb-dropdown-menu.open').forEach(m => m.classList.remove('open'));
+        }
     });
-}
+
+    // ===== TOAST =====
+    function showToast(msg, success) {
+        const host = document.getElementById('toastHost');
+        const el = document.createElement('div');
+        el.className = 'toast' + (success ? ' success' : '');
+        el.innerHTML = `<span>${msg}</span>`;
+        host.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    }
+
+
+        function runInsightsAnalysis() {
+        var btn = document.getElementById('insightsBtn');
+        var empty = document.getElementById('insightsEmptyState');
+        var results = document.getElementById('insightsResults');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i><span>Analyzing…</span>';
+
+        var csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+
+        fetch('{% url "dashboard_insights" %}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-stars"></i><span>Re-analyze</span>';
+
+            if (data.error) {
+                showToast(data.error, false);
+                return;
+            }
+
+            empty.classList.add('hidden');
+            results.classList.remove('hidden');
+
+            document.getElementById('insightsSummary').textContent = data.summary;
+            document.getElementById('insightsTip').textContent = data.actionable_tip;
+
+            var list = document.getElementById('insightsIssuesList');
+            list.innerHTML = '';
+            if (!data.top_issues || data.top_issues.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-500">No recurring issues found — nice work.</p>';
+                return;
+            }
+            data.top_issues.forEach(function (issue) {
+                var sevColor = issue.severity === 'High' ? '#ef4444' : (issue.severity === 'Medium' ? '#f59e0b' : '#93A0B4');
+                var row = document.createElement('div');
+                row.className = 'p-3 rounded-xl';
+                row.style.cssText = 'background: rgba(var(--surface-rgb), 0.03); border: 1px solid rgba(var(--surface-rgb), 0.06);';
+                row.innerHTML =
+                    '<div class="flex items-center justify-between gap-2 flex-wrap">' +
+                        '<span class="text-xs font-bold text-white">' + issue.category + '</span>' +
+                        '<span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full" style="background:' + sevColor + '22; color:' + sevColor + ';">' + issue.severity + ' · ' + issue.mentions_count + ' mention' + (issue.mentions_count === 1 ? '' : 's') + '</span>' +
+                    '</div>' +
+                    '<p class="text-[11px] text-slate-400 italic mt-1">"' + issue.sample_quote + '"</p>';
+                list.appendChild(row);
+            });
+        })
+        .catch(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-stars"></i><span>Analyze Recurring Themes</span>';
+            showToast('Something went wrong analyzing themes.', false);
+        });
+    }
+
+
+    // ===== SYNC MODAL =====
+    function toggleSyncModal() {
+        const modal = document.getElementById('syncModal');
+        modal.classList.toggle('hidden');
+        document.body.classList.toggle('overflow-hidden');
+    }
+    function showSyncProgress() {
+        const wrap = document.getElementById('syncProgressWrap');
+        const fill = document.getElementById('syncProgressFill');
+        wrap.classList.remove('hidden');
+        requestAnimationFrame(() => { fill.style.width = '85%'; });
+    }
+
+    // ===== COPY TO CLIPBOARD =====
+    function copyReplyToClipboard(textareaId, buttonEl) {
+        const textarea = document.getElementById(textareaId);
+        if (!textarea) return;
+        textarea.select();
+        const done = () => {
+            const original = buttonEl.innerHTML;
+            buttonEl.innerHTML = `<i class="bi bi-check2"></i> <span class="text-emerald-500 font-bold">Copied!</span>`;
+            showToast('Draft copied to clipboard.', true);
+            setTimeout(() => { buttonEl.innerHTML = original; }, 2000);
+        };
+        navigator.clipboard.writeText(textarea.value).then(done).catch(() => { document.execCommand('copy'); done(); });
+    }
+
+    // ===== COPY TO CLIPBOARD (for manual posting) =====
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Reply copied to clipboard!', true);
+        }).catch(() => {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Reply copied to clipboard!', true);
+        });
+    }
+
+
+    // ===== GENERATE / REGENERATE AI DRAFT (POST via fetch, with visible progress) =====
+    function generateDraft(btn, force) {
+        const url = btn.getAttribute('data-draft-url');
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const body = new URLSearchParams();
+        if (force) body.append('force', '1');
+
+        const card = btn.closest('.review-card');
+        btn.disabled = true;
+
+        // Overlay lives on THIS card specifically, so if someone has
+        // several flagged reviews, it's obvious which one is working.
+        let seconds = 0;
+        const overlay = document.createElement('div');
+        overlay.className = 'generating-overlay';
+        overlay.innerHTML = `<i class="bi bi-arrow-repeat spin"></i><span>Generating reply… <span class="gen-seconds">0</span>s</span>`;
+        if (card) card.appendChild(overlay);
+
+        const secondsLabel = overlay.querySelector('.gen-seconds');
+        const timer = setInterval(() => {
+            seconds += 1;
+            secondsLabel.textContent = seconds;
+        }, 1000);
+
+        // Remember where we were, so the reload below doesn't dump us
+        // back at the top of a long review list.
+        sessionStorage.setItem('dashboardScrollY', window.scrollY);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: body.toString()
+        })
+            .then(r => r.json())
+            .then(data => {
+                clearInterval(timer);
+                if (!data.ok && data.reason) {
+                    sessionStorage.setItem('dashboardToast', data.reason);
+                }
+                location.reload();
+            })
+            .catch(() => {
+                clearInterval(timer);
+                overlay.remove();
+                btn.disabled = false;
+                showToast('Something went wrong generating the reply.', false);
+            });
+    }
+
+
+
+    // ===== SENTIMENT TREND CHART =====
+    (function () {
+        var canvas = document.getElementById('sentimentTrendChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        window.sentimentTrendChart = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: {{ sentiment_labels| safe }},
+    datasets: [
+        { label: 'Positive', data: {{ sentiment_positive| safe }}, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', fill: true, tension: 0.35, pointRadius: 2 },
+        { label: 'Neutral', data: {{ sentiment_neutral| safe }}, borderColor: '#93A0B4', backgroundColor: 'rgba(147,160,180,0.06)', fill: true, tension: 0.35, pointRadius: 2 },
+        { label: 'Negative', data: {{ sentiment_negative| safe }}, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)', fill: true, tension: 0.35, pointRadius: 2 }
+    ]
+            },
+    options: {
+        plugins: { legend: { position: 'bottom', labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--slate').trim(), font: { size: 10 }, boxWidth: 10 } } },
+        scales: {
+            y: { beginAtZero: true, ticks: { precision: 0, color: getComputedStyle(document.documentElement).getPropertyValue('--slate').trim() } },
+            x: { grid: { display: false }, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--slate').trim() } }
+        }
+    }
+        });
+
+        window.refreshSentimentTrendChartTheme = function () {
+            var chart = window.sentimentTrendChart;
+            if (!chart) return;
+            var slateColor = getComputedStyle(document.documentElement).getPropertyValue('--slate').trim();
+            chart.options.plugins.legend.labels.color = slateColor;
+            chart.options.scales.y.ticks.color = slateColor;
+            chart.options.scales.x.ticks.color = slateColor;
+            chart.update();
+        };
+    }) ();
+
+
+    // ===== COMPETITOR FORM TOGGLE =====
+    function toggleCompetitorForm() {
+        document.getElementById('competitorForm').classList.toggle('hidden');
+    }
+
+    function confirmDeleteCompetitor(btn) {
+        var form = btn.closest('.competitor-delete-form');
+        var name = form.getAttribute('data-name');
+        var overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,18,32,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML =
+            '<div style="background:var(--ink-2);border:1px solid rgba(var(--surface-rgb),0.08);border-radius:16px;padding:1.5rem;max-width:340px;width:90%;box-shadow:0 20px 40px rgba(0,0,0,0.5);">' +
+                '<p style="color:var(--paper);font-size:0.85rem;margin-bottom:1.25rem;">Remove "' + name + '" from benchmarking?</p>' +
+                '<div style="display:flex;justify-content:flex-end;gap:0.5rem;">' +
+                    '<button id="compCancelBtn" class="btn-ghost">Cancel</button>' +
+                    '<button id="compOkBtn" class="btn-primary">Remove</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+        overlay.querySelector('#compOkBtn').addEventListener('click', function () { overlay.remove(); form.submit(); });
+        overlay.querySelector('#compCancelBtn').addEventListener('click', function () { overlay.remove(); });
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+    }
+
+
+    // ===== SEARCH =====
+    function filterReviewsBySearch(query) {
+        const q = query.trim().toLowerCase();
+        const cards = document.querySelectorAll('#reviewsGrid .review-card');
+        let visible = 0;
+        cards.forEach(card => {
+            const haystack = card.getAttribute('data-search') || '';
+            const match = !q || haystack.includes(q);
+            card.classList.toggle('review-hidden', !match);
+            if (match) visible++;
+        });
+        document.getElementById('noSearchResults').classList.toggle('hidden', !(q && visible === 0));
+    }
+
+    // ===== GRID / LIST VIEW =====
+    function setView(mode) {
+        const grid = document.getElementById('reviewsGrid');
+        grid.classList.toggle('grid-view', mode === 'grid');
+        grid.classList.toggle('list-view', mode === 'list');
+        document.getElementById('viewGridBtn').classList.toggle('active', mode === 'grid');
+        document.getElementById('viewListBtn').classList.toggle('active', mode === 'list');
+    }
+
+    // ===== KEYBOARD SHORTCUT =====
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+            const active = document.activeElement;
+            if (active && active.classList.contains('draft-textarea')) {
+                const form = active.closest('form');
+                if (form) form.requestSubmit();
+            }
+        }
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('syncModal');
+            if (!modal.classList.contains('hidden')) toggleSyncModal();
+        }
+    });
+
+    // ===== SCROLL REVEAL + COUNTERS =====
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedScrollY = sessionStorage.getItem('dashboardScrollY');
+        if (savedScrollY !== null) {
+            window.scrollTo(0, parseInt(savedScrollY, 10));
+            sessionStorage.removeItem('dashboardScrollY');
+        }
+
+        const pendingToast = sessionStorage.getItem('dashboardToast');
+        if (pendingToast) {
+            showToast(pendingToast, false);
+            sessionStorage.removeItem('dashboardToast');
+        }
+
+        const revealEls = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+        revealEls.forEach(el => observer.observe(el));
+
+        document.querySelectorAll('.counter').forEach(el => {
+            const target = parseInt(el.getAttribute('data-target')) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+            function step(now) {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(eased * target);
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+
+        document.querySelectorAll('.counter-decimal').forEach(el => {
+            const target = parseFloat(el.getAttribute('data-target')) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+            function step(now) {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = (eased * target).toFixed(1);
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    });
 </script>
 {% endblock %}

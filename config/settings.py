@@ -10,10 +10,16 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security Settings
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-dev-secret-key')
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-local-dev-only-key'
+    else:
+        raise Exception("SECRET_KEY environment variable is not set. Refusing to start in production without it.")
 
-ALLOWED_HOSTS = ['*']  # Render will route traffic safely
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -100,15 +106,29 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+
+# Media files (user-uploaded content, e.g. business logos)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@reviewbooster.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # ==========================================
 # Demo Mode — toggle this OFF once a real business
@@ -128,29 +148,42 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': os.environ.get('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID'),
-            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET'),
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET'),
             'key': ''
         },
         'SCOPE': [
             'profile',
             'email',
-            'https://www.googleapis.com/auth/business.manage',  # Scope for Google Business Profile
         ],
         'AUTH_PARAMS': {
-            'access_type': 'offline',  # Ensures Google returns a Refresh Token for background tasks
-            'prompt': 'consent',       # Forces user consent to ensure refresh token is re-issued if needed
+            'access_type': 'online',
         }
     }
 }
 
-SOCIALACCOUNT_STORE_TOKENS = True   # Automatically stores access and refresh tokens in DB
-SOCIALACCOUNT_LOGIN_ON_GET = True   # Directly redirects to Google on login button click
+SOCIALACCOUNT_STORE_TOKENS = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 # Account settings (new allauth API)
-ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_LOGIN_METHODS = ['email', 'username']  # New: replaces ACCOUNT_AUTHENTICATION_METHOD
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Skip email verification for now
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_LOGOUT_ON_GET = False  # Show logout confirmation page
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_SESSION_REMEMBER = True
+
+SOCIALACCOUNT_STORE_TOKEN = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
+    
 
 # ==========================================
 # Celery & Redis Configuration
@@ -158,17 +191,21 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json' 
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_ALWAYS_EAGER = True
 
 # Transport options to force RESP2 compatibility with Redis 5.x
 CELERY_REDIS_BACKEND_TRANSPORT_OPTIONS = {'protocol_version': 2}
 CELERY_BROKER_TRANSPORT_OPTIONS = {'protocol_version': 2}
 
 CELERY_BEAT_SCHEDULE = {
-    'poll-google-reviews-every-15-min': {
+    'poll-google-reviews-every-5-min': {
         'task': 'reviews.tasks.poll_google_reviews',
-        'schedule': crontab(minute='*/15'),  # Runs every 15 minutes
+        'schedule': crontab(minute='*/5'),
     },
 }
+
+
+SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')

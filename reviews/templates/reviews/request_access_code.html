@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block page_title %}Request Access{% endblock %}
+{% block content %}
+<div class="w-full max-w-md mx-auto py-16 text-center space-y-6">
+    <div class="w-14 h-14 mx-auto bg-gold-10 rounded-full flex items-center justify-center text-gold text-2xl">
+        <i class="bi bi-gift"></i>
+    </div>
+    <h1 class="font-display text-2xl font-semibold text-white">Request Founding Partner Access</h1>
+    <p class="text-sm text-slate-400">Enter your business name and email — we'll send you a code instantly.</p>
+
+    {% if messages %}
+    <div class="space-y-2 text-left">
+        {% for message in messages %}
+        <div class="px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-900/20 text-emerald-400 border-emerald-800/30
+            {% else %}bg-rose-900/20 text-rose-400 border-rose-800/30{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-3 text-left">
+        {% csrf_token %}
+        <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Business Name</label>
+            <input type="text" name="business_name" required placeholder="e.g. Geneva Bistro"
+                class="w-full p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
+        </div>
+        <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label>
+            <input type="email" name="email" required placeholder="you@business.com"
+                class="w-full p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
+        </div>
+        <button type="submit" class="btn-primary w-full">Send me a code</button>
+    </form>
+
+    <a href="{% url 'account_signup' %}" class="block text-[11px] text-amber-400 hover:text-amber-300">Already have a code? Sign up, then redeem it →</a>
+</div>
+{% endblock %}

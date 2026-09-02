@@ -1,105 +1,1265 @@
 {% extends "base.html" %}
 
 {% block page_title %}Team &amp; Access Controls{% endblock %}
-{% block head_title %}Team Management | AI Review Booster{% endblock %}
+{% block head_title %}Team Management | SwissReply.AI{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --radius-lg: 14px;
+        --radius-md: 10px;
+        --shadow-card: 0 1px 2px rgba(11,18,32,0.04), 0 8px 24px -12px rgba(11,18,32,0.10);
+        --shadow-lift: 0 4px 10px rgba(11,18,32,0.06), 0 16px 32px -14px rgba(11,18,32,0.16);
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    h1, h2, h3, .font-display {
+        font-family: var(--font-display);
+        letter-spacing: -0.01em;
+    }
+
+    .font-mono {
+        font-family: var(--font-mono);
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.75;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .icon-sm { width: 13px; height: 13px; }
+    .icon-lg { width: 22px; height: 22px; }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.in-view {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .avatar-gradient {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink);
+        font-weight: 700;
+        font-family: var(--font-display);
+        flex-shrink: 0;
+        position: relative;
+    }
+    .avatar-owner {
+        background: linear-gradient(150deg, var(--gold), var(--gold-soft));
+        color: var(--ink);
+    }
+    .avatar-invite {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--slate);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .avatar-ring {
+        position: absolute;
+        inset: -3px;
+        border-radius: inherit;
+        border: 1.5px solid transparent;
+        transition: border-color 0.2s ease;
+    }
+    .member-row:hover .avatar-ring {
+        border-color: var(--gold);
+    }
+
+    .card {
+        background: var(--ink-2);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
+    }
+
+    .page-header-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: var(--gold);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .live-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        display: inline-block;
+        background: var(--teal);
+        animation: pulseDot 2s ease-in-out infinite;
+    }
+    @keyframes pulseDot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.35; }
+    }
+
+    .stat-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--ink-2);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--radius-lg);
+        padding: 0.9rem 1.1rem;
+        flex: 1;
+        min-width: 150px;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+    .stat-pill:hover {
+        box-shadow: var(--shadow-card);
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
+    }
+    .stat-pill .stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(232, 168, 60, 0.1);
+        color: var(--gold);
+        flex-shrink: 0;
+    }
+    .stat-pill .stat-num {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.35rem;
+        color: var(--paper);
+        line-height: 1;
+    }
+    .stat-pill .stat-lbl {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--slate);
+        margin-top: 3px;
+        font-family: var(--font-mono);
+    }
+
+    .info-banner {
+        background: rgba(232, 168, 60, 0.08);
+        border: 1px solid rgba(232, 168, 60, 0.15);
+        border-radius: var(--radius-lg);
+        padding: 0.9rem 1.1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .info-banner .icon {
+        color: var(--gold);
+        margin-top: 2px;
+    }
+    .info-banner p {
+        color: var(--slate);
+    }
+
+    .btn-primary, .btn-ghost, .btn-danger-ghost, .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+        font-size: 0.72rem;
+        padding: 0.65rem 1.1rem;
+        font-family: var(--font-body);
+    }
+    .btn-primary {
+        background: var(--gold);
+        color: var(--ink);
+        width: 100%;
+    }
+    .btn-primary:hover {
+        background: var(--gold-soft);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px -8px rgba(232, 168, 60, 0.45);
+        color: var(--ink);
+    }
+    .btn-primary:disabled {
+        opacity: 0.65;
+        cursor: default;
+        transform: none;
+        box-shadow: none;
+    }
+    .btn-ghost {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--slate);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: var(--paper);
+        text-decoration: none;
+    }
+    .btn-danger-ghost {
+        background: transparent;
+        color: #ef4444;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.68rem;
+        min-height: 30px;
+    }
+    .btn-danger-ghost:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+    }
+    .btn-danger {
+        background: #dc2626;
+        color: white;
+    }
+    .btn-danger:hover {
+        background: #ef4444;
+        color: white;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--slate);
+        margin-bottom: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-family: var(--font-mono);
+    }
+    .field-input, .field-select {
+        width: 100%;
+        padding: 0.65rem 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-md);
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--paper);
+        transition: all 0.15s ease;
+        font-family: var(--font-body);
+    }
+    .field-input::placeholder {
+        color: var(--slate-2);
+    }
+    .field-input:focus, .field-select:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 0 0 3px rgba(232, 168, 60, 0.08);
+    }
+
+    .field-select option {
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    .role-picker {
+        display: grid;
+        gap: 0.6rem;
+    }
+    .role-card {
+        position: relative;
+    }
+    .role-card input {
+        position: absolute;
+        opacity: 0;
+        inset: 0;
+        cursor: pointer;
+        margin: 0;
+    }
+    .role-card label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.7rem;
+        padding: 0.75rem 0.85rem;
+        border-radius: var(--radius-md);
+        border: 1.5px solid rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--paper);
+    }
+    .role-card label:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+    .role-card input:checked + label {
+        border-color: var(--gold);
+        background: rgba(232, 168, 60, 0.06);
+        box-shadow: 0 0 0 3px rgba(232, 168, 60, 0.06);
+    }
+    .role-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        margin-top: 5px;
+        flex-shrink: 0;
+    }
+    .role-dot.role-admin {
+        background: #8b5cf6;
+    }
+    .role-dot.role-reviewer {
+        background: var(--teal);
+    }
+    .role-dot.role-viewer {
+        background: var(--slate);
+    }
+    .role-card-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--paper);
+    }
+    .role-card-desc {
+        font-size: 0.68rem;
+        color: var(--slate);
+        margin-top: 1px;
+        line-height: 1.4;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-family: var(--font-mono);
+    }
+    .role-badge-admin {
+        background: rgba(139, 92, 246, 0.15);
+        color: #8b5cf6;
+    }
+    .role-badge-reviewer {
+        background: rgba(45, 212, 167, 0.15);
+        color: var(--teal);
+    }
+    .role-badge-viewer {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--slate);
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        background: rgba(232, 168, 60, 0.15);
+        color: var(--gold);
+        font-family: var(--font-mono);
+    }
+    .status-badge-owner {
+        background: rgba(232, 168, 60, 0.15);
+        color: var(--gold);
+    }
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gold);
+        animation: pulseDot 2s ease-in-out infinite;
+    }
+
+    .member-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 1rem 1.1rem;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .member-row:hover {
+        box-shadow: var(--shadow-card);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .member-row.hidden-row {
+        display: none !important;
+    }
+
+    #memberList.view-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 0.75rem;
+    }
+    #memberList.view-grid .member-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    #memberList.view-grid .member-row .row-action {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 0.6rem;
+    }
+    #memberList.view-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .search-wrap {
+        position: relative;
+    }
+    .search-wrap .icon {
+        position: absolute;
+        left: 0.7rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate-2);
+    }
+    .search-wrap input {
+        padding-left: 2.15rem;
+    }
+
+    .view-toggle {
+        display: inline-flex;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.03);
+    }
+    .view-toggle button {
+        border: none;
+        background: transparent;
+        padding: 0.5rem 0.65rem;
+        color: var(--slate);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all 0.15s ease;
+    }
+    .view-toggle button.active {
+        background: var(--gold);
+        color: var(--ink);
+    }
+    .view-toggle button:not(.active):hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--paper);
+    }
+
+    .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        font-size: 0.66rem;
+        font-weight: 700;
+        color: var(--slate);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+        font-family: var(--font-mono);
+    }
+    .filter-chip:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+    .filter-chip.active {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--ink);
+    }
+
+    .comp-bar-track {
+        display: flex;
+        height: 8px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .comp-bar-seg {
+        height: 100%;
+        transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .comp-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+    }
+    .comp-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.68rem;
+        color: var(--slate);
+        font-weight: 600;
+        font-family: var(--font-mono);
+    }
+    .comp-legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .guide-card {
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--radius-lg);
+        padding: 1.1rem;
+        background: rgba(255, 255, 255, 0.02);
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .guide-card:hover {
+        box-shadow: var(--shadow-card);
+        transform: translateY(-1px);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .guide-card-head {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.6rem;
+    }
+    .guide-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .guide-card .guide-card-title {
+        color: var(--paper);
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+    .guide-card p {
+        color: var(--slate);
+        font-size: 0.7rem;
+        line-height: 1.5;
+    }
+
+    .roadmap-item {
+        border: 1px dashed rgba(255, 255, 255, 0.06);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+    }
+    .roadmap-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.58rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--slate);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        font-family: var(--font-mono);
+    }
+    .roadmap-item .roadmap-title {
+        color: var(--paper);
+        font-weight: 700;
+        font-size: 0.7rem;
+        margin-top: 0.5rem;
+    }
+    .roadmap-item .roadmap-desc {
+        color: var(--slate);
+        font-size: 0.6rem;
+        margin-top: 0.25rem;
+        line-height: 1.4;
+    }
+
+    .modal-overlay {
+        background: rgba(11, 18, 32, 0.85);
+        backdrop-filter: blur(6px);
+    }
+    .modal-box {
+        animation: modalUp 0.25s cubic-bezier(0.16,1,0.3,1);
+        background: var(--ink-2);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    @keyframes modalUp {
+        from { opacity: 0; transform: translateY(20px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    #toastHost {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .toast {
+        background: var(--ink-2);
+        color: var(--paper);
+        padding: 0.7rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-lift);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: toastIn 0.25s cubic-bezier(0.16,1,0.3,1);
+    }
+    .toast.success {
+        background: rgba(45, 212, 167, 0.15);
+        border-color: rgba(45, 212, 167, 0.15);
+        color: var(--teal);
+    }
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateX(16px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Utility classes */
+    .text-gold { color: var(--gold); }
+    .text-slate { color: var(--slate); }
+    .text-slate-2 { color: var(--slate-2); }
+    .text-white { color: var(--paper); }
+    .text-teal { color: var(--teal); }
+    .border-white-10 { border-color: rgba(255, 255, 255, 0.06); }
+    .border-white-5 { border-color: rgba(255, 255, 255, 0.03); }
+    .bg-ink-2 { background: var(--ink-2); }
+    .bg-gold-10 { background: rgba(232, 168, 60, 0.1); }
+    .bg-teal-10 { background: rgba(45, 212, 167, 0.1); }
+    .bg-violet-10 { background: rgba(139, 92, 246, 0.1); }
+
+    @media (max-width: 640px) {
+        .card { padding: 1.15rem; }
+        .btn-danger-ghost, .btn-ghost, .btn-primary { min-height: 40px; }
+    }
+
+    html[data-theme="light"] .card,
+    html[data-theme="light"] .stat-pill,
+    html[data-theme="light"] .member-row,
+    html[data-theme="light"] .guide-card,
+    html[data-theme="light"] .roadmap-item,
+    html[data-theme="light"] .modal-box,
+    html[data-theme="light"] .toast {
+        background: var(--ink-2);
+        border-color: rgba(var(--surface-rgb), 0.08);
+    }
+    html[data-theme="light"] .avatar-invite {
+        background: rgba(var(--surface-rgb), 0.05);
+        border-color: rgba(var(--surface-rgb), 0.08);
+    }
+    html[data-theme="light"] .btn-ghost,
+    html[data-theme="light"] .field-input,
+    html[data-theme="light"] .field-select,
+    html[data-theme="light"] .view-toggle,
+    html[data-theme="light"] .filter-chip,
+    html[data-theme="light"] .role-card label {
+        background: rgba(var(--surface-rgb), 0.04);
+        border-color: rgba(var(--surface-rgb), 0.1);
+        color: var(--slate);
+    }
+    html[data-theme="light"] .btn-ghost:hover,
+    html[data-theme="light"] .filter-chip:hover {
+        background: rgba(var(--surface-rgb), 0.08);
+        color: var(--paper);
+    }
+    html[data-theme="light"] .view-toggle button:not(.active):hover {
+        background: rgba(var(--surface-rgb), 0.05);
+        color: var(--paper);
+    }
+    html[data-theme="light"] .role-card input:checked + label {
+        background: color-mix(in srgb, var(--gold) 6%, transparent);
+    }
+    html[data-theme="light"] .role-badge-viewer,
+    html[data-theme="light"] .status-badge:not(.status-badge-owner),
+    html[data-theme="light"] .roadmap-tag {
+        background: rgba(var(--surface-rgb), 0.05);
+    }
+    html[data-theme="light"] .info-banner,
+    html[data-theme="light"] .bg-gold-10 {
+        background: color-mix(in srgb, var(--gold) 8%, transparent);
+        border-color: color-mix(in srgb, var(--gold) 15%, transparent);
+    }
+    html[data-theme="light"] .stat-icon {
+        background: color-mix(in srgb, var(--gold) 10%, transparent);
+    }
+    html[data-theme="light"] .comp-bar-track {
+        background: rgba(var(--surface-rgb), 0.04);
+        border-color: rgba(var(--surface-rgb), 0.08);
+    }
+    html[data-theme="light"] .search-wrap .icon {
+        color: var(--slate);
+    }
+    html[data-theme="light"] .text-white {
+        color: var(--paper) !important;
+    }
+    html[data-theme="light"] .border-white-10 {
+        border-color: rgba(var(--surface-rgb), 0.06) !important;
+    }
+    html[data-theme="light"] .border-white-5 {
+        border-color: rgba(var(--surface-rgb), 0.03) !important;
+    }
+    html[data-theme="light"] [class*="bg-white/"],
+    html[data-theme="light"] [class*="hover:bg-white/"]:hover {
+        background-color: rgba(var(--surface-rgb), 0.05) !important;
+    }
+    html[data-theme="light"] [class*="border-white/"] {
+        border-color: rgba(var(--surface-rgb), 0.1) !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-5xl mx-auto space-y-8">
+<div id="toastHost"></div>
+<div class="w-full max-w-5xl mx-auto space-y-6">
+
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="reveal in-view flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-900/20 text-emerald-400 border-emerald-800/30
+            {% elif message.tags == 'warning' %}bg-amber-900/20 text-amber-400 border-amber-800/30
+            {% elif message.tags == 'error' %}bg-rose-900/20 text-rose-400 border-rose-800/30
+            {% else %}bg-blue-900/20 text-blue-400 border-blue-800/30{% endif %}">
+            <span class="flex items-center gap-2">
+                {% if message.tags == 'success' %}<svg class="icon"><use href="#i-check-circle"/></svg>
+                {% elif message.tags == 'warning' or message.tags == 'error' %}<svg class="icon"><use href="#i-alert"/></svg>
+                {% else %}<svg class="icon"><use href="#i-info"/></svg>{% endif %}
+                {{ message }}
+            </span>
+            <button type="button" onclick="this.closest('div.flex').remove()" class="opacity-60 hover:opacity-100 transition"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+        <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 16 9"/></symbol>
+        <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0z"/></symbol>
+        <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+        <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+        <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+        <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></symbol>
+        <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+        <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+        <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.17a2 2 0 0 0-.59-1.41L12 12l-4.41 4.42A2 2 0 0 0 7 17.83V22"/><path d="M7 2v4.17a2 2 0 0 0 .59 1.41L12 12l4.41-4.42A2 2 0 0 0 17 6.17V2"/></symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+        <symbol id="i-list" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+      </defs>
+    </svg>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
-                Team Roles &amp; Staff Approvals
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                Invite floor managers to edit and approve AI review drafts without granting access to your primary Google account.
-            </p>
-        </div>
-        <div>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                1 Active Seat
-            </span>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        <!-- Invite Staff Form -->
-        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 h-fit">
+    <div class="reveal flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
+        <div class="flex items-center gap-3.5">
+            <div class="page-header-icon"><svg class="icon-lg"><use href="#i-users"/></svg></div>
             <div>
-                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                    Invite Staff Member
-                </h2>
-                <p class="text-xs text-slate-500 mt-1">
-                    Send an invitation link to assign review moderation access.
+                <h1 class="font-display text-2xl font-semibold text-white tracking-tight">Team roles &amp; staff approvals</h1>
+                <p class="text-xs sm:text-sm text-slate mt-1 max-w-xl">
+                    Invite floor managers to edit and approve AI review drafts without granting access to your primary Google account.
                 </p>
             </div>
-
-            <form method="POST" class="space-y-4">
-                {% csrf_token %}
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Staff Email Address</label>
-                    <input type="email" name="invite_email" required placeholder="floormanager@restaurant.com" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-slate-50/50">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Assigned Role</label>
-                    <select name="role" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-slate-50/50 text-slate-800">
-                        <option value="reviewer">Review Approver (Can edit &amp; submit AI replies)</option>
-                        <option value="viewer">Read-Only Analyst (View dashboard analytics only)</option>
-                        <option value="admin">Store Admin (Full account settings access)</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-3 rounded-xl shadow transition">
-                    Send Team Invitation
-                </button>
-            </form>
         </div>
-
-        <!-- Active Team Members List -->
-        <div class="lg:col-span-7 space-y-4">
-            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">
-                Active Staff Accounts
-            </h2>
-
-            <!-- Account Owner -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs">
-                        {{ user.username|slice:":2"|upper }}
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-sm text-slate-900">{{ user.username }}</span>
-                            <span class="text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded">Owner</span>
-                        </div>
-                        <span class="text-xs text-slate-400 block">{{ user.email }}</span>
-                    </div>
-                </div>
-                <span class="text-xs font-medium text-slate-500">Primary Account</span>
-            </div>
-
-            <!-- Example Invited Member -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between opacity-80">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-xs border border-slate-200">
-                        FM
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-sm text-slate-800">Floor Manager</span>
-                            <span class="text-[10px] font-extrabold bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded">Approver</span>
-                        </div>
-                        <span class="text-xs text-slate-400 block">manager@genevabistro.ch</span>
-                    </div>
-                </div>
-                <button class="text-xs font-semibold text-rose-600 hover:underline">Revoke Access</button>
-            </div>
-        </div>
-
+        <a href="#invite-form" class="btn-ghost" style="width:auto;"><svg class="icon icon-sm"><use href="#i-users"/></svg>Invite a team member</a>
     </div>
 
+    <!-- Stat strip -->
+    <div class="reveal flex flex-wrap gap-3">
+        <div class="stat-pill">
+            <span class="stat-icon"><svg class="icon"><use href="#i-users"/></svg></span>
+            <div><div class="stat-num">{{ invites|length|add:1 }}</div><div class="stat-lbl">Team member{{ invites|length|add:1|pluralize }}</div></div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-icon" style="background: rgba(232, 168, 60, 0.1); color: var(--gold);"><svg class="icon"><use href="#i-clock"/></svg></span>
+            <div><div class="stat-num">{{ invites|length }}</div><div class="stat-lbl">Pending invite{{ invites|length|pluralize }}</div></div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-icon" style="background: rgba(45, 212, 167, 0.1); color: var(--teal);"><svg class="icon"><use href="#i-shield"/></svg></span>
+            <div><div class="stat-num">3</div><div class="stat-lbl">Roles available</div></div>
+        </div>
+    </div>
+
+    <!-- Info banner -->
+    <div class="reveal info-banner">
+        <svg class="icon"><use href="#i-info"/></svg>
+        <p class="text-xs leading-relaxed">
+            Invites are emailed automatically, and roles are enforced server-side — a Read-Only Analyst can't invite or approve, and only Owners and Store Admins can manage the team.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Invite Form -->
+        <div id="invite-form" class="reveal lg:col-span-5 card p-6 space-y-4 h-fit">
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 font-mono">
+                    <svg class="icon"><use href="#i-mail"/></svg>Invite staff member
+                </h2>
+                <p class="text-xs text-slate mt-1">Record who should have review moderation access.</p>
+            </div>
+
+            {% if role == 'owner' or role == 'admin' %}
+            <form method="POST" action="{% url 'competitors' %}" class="space-y-4" id="inviteForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <label class="field-label">Staff email address</label>
+                    <input type="email" name="invite_email" placeholder="floormanager@restaurant.com" class="field-input">
+                </div>
+
+                <div>
+                    <label class="field-label">Or paste multiple emails</label>
+                    <textarea name="bulk_emails" rows="3" placeholder="one@restaurant.com, two@restaurant.com&#10;three@restaurant.com" class="field-input"></textarea>
+                    <p class="text-[10px] text-slate-2 mt-1">Comma or newline separated.</p>
+                </div>
+
+                <div>
+                    <label class="field-label">Or upload a CSV</label>
+                    <input type="file" name="csv_file" accept=".csv" class="field-input">
+                    <p class="text-[10px] text-slate-2 mt-1">Uses the first column of each row as the email address.</p>
+                </div>
+
+                <div>
+                    <label class="field-label">Assigned role</label>
+                    <div class="role-picker">
+                        <div class="role-card">
+                            <input type="radio" id="role-reviewer" name="role" value="reviewer" checked>
+                            <label for="role-reviewer">
+                                <span class="role-dot role-reviewer"></span>
+                                <span>
+                                    <span class="role-card-title">Review Approver</span>
+                                    <span class="role-card-desc block">Can edit &amp; submit AI replies</span>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="role-card">
+                            <input type="radio" id="role-viewer" name="role" value="viewer">
+                            <label for="role-viewer">
+                                <span class="role-dot role-viewer"></span>
+                                <span>
+                                    <span class="role-card-title">Read-Only Analyst</span>
+                                    <span class="role-card-desc block">View dashboard analytics only</span>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="role-card">
+                            <input type="radio" id="role-admin" name="role" value="admin">
+                            <label for="role-admin">
+                                <span class="role-dot role-admin"></span>
+                                <span>
+                                    <span class="role-card-title">Store Admin</span>
+                                    <span class="role-card-desc block">Full account settings access</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="inviteSubmitBtn">
+                    <svg class="icon icon-sm"><use href="#i-mail"/></svg><span>Send team invitation</span>
+                </button>
+            </form>
+            {% else %}
+            <p class="text-xs text-slate-2">Only the Owner and Store Admins can invite team members.</p>
+            {% endif %}
+        </div>
+
+        <!-- Team List -->
+        <div class="reveal lg:col-span-7 space-y-4">
+
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">Active staff accounts</h2>
+                <div class="flex items-center gap-2">
+                    <button type="button" class="btn-ghost" style="padding:0.5rem 0.75rem;" onclick="exportRosterCSV()" title="Export the roster shown below">
+                        <svg class="icon icon-sm"><use href="#i-download"/></svg><span class="hidden sm:inline">Export CSV</span>
+                    </button>
+                    <div class="view-toggle">
+                        <button type="button" id="viewGridBtn" onclick="setView('grid')" title="Grid view"><svg class="icon icon-sm"><use href="#i-grid"/></svg></button>
+                        <button type="button" id="viewListBtn" class="active" onclick="setView('list')" title="List view"><svg class="icon icon-sm"><use href="#i-list"/></svg></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" class="filter-chip active" data-role-filter="all" onclick="setRoleFilter('all', this)">All</button>
+                    <button type="button" class="filter-chip" data-role-filter="owner" onclick="setRoleFilter('owner', this)">Owner</button>
+                    <button type="button" class="filter-chip" data-role-filter="reviewer" onclick="setRoleFilter('reviewer', this)">Approver</button>
+                    <button type="button" class="filter-chip" data-role-filter="viewer" onclick="setRoleFilter('viewer', this)">Analyst</button>
+                    <button type="button" class="filter-chip" data-role-filter="admin" onclick="setRoleFilter('admin', this)">Admin</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="search-wrap w-full sm:w-52">
+                        <svg class="icon"><use href="#i-search"/></svg>
+                        <input type="text" id="memberSearch" placeholder="Search by name or email..." oninput="filterMembers()" class="field-input">
+                    </div>
+                    <select id="sortSelect" class="field-select" style="width:auto;" onchange="sortMembers(this.value)">
+                        <option value="invited-desc">Newest invite</option>
+                        <option value="invited-asc">Oldest invite</option>
+                        <option value="name-asc">Name A–Z</option>
+                        <option value="role-asc">Role</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Composition bar -->
+            <div class="space-y-2">
+                <div class="comp-bar-track" id="compBarTrack"></div>
+                <div class="comp-legend" id="compLegend"></div>
+            </div>
+
+            <div id="memberList" class="view-list">
+                <!-- Account Owner -->
+                <div class="member-row" data-name="{{ user.username|lower }}" data-role="owner" data-invited="9999999999">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="avatar-gradient avatar-owner w-10 h-10 rounded-xl text-xs"><span class="avatar-ring"></span>{{ user.username.0|upper }}</div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-sm text-white">{{ user.username }}</span>
+                                <span class="status-badge status-badge-owner">Owner</span>
+                            </div>
+                            <span class="text-xs text-slate block truncate">{{ user.email }}</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-medium text-slate-2 whitespace-nowrap hidden sm:inline row-action">Primary account</span>
+                </div>
+
+                {% for invite in invites %}
+                <div class="member-row" data-name="{{ invite.email|lower }}" data-role="{{ invite.role }}" data-invited="{{ invite.created_at|date:'U' }}">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="avatar-gradient avatar-invite w-10 h-10 rounded-xl text-xs"><span class="avatar-ring"></span>{{ invite.email.0|upper }}</div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-sm text-white truncate">{{ invite.email }}</span>
+                                <span class="status-badge"><span class="status-dot"></span>Pending</span>
+                                <span class="role-badge
+                                    {% if invite.role == 'admin' %}role-badge-admin
+                                    {% elif invite.role == 'reviewer' %}role-badge-reviewer
+                                    {% else %}role-badge-viewer{% endif %}">{{ invite.get_role_display }}</span>
+                            </div>
+                            <span class="text-xs text-slate block">Invited {{ invite.created_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    {% if role == 'owner' or role == 'admin' %}
+                    <form action="{% url 'delete_invite' invite.id %}" method="POST" class="row-action revoke-form" data-email="{{ invite.email }}">
+                        {% csrf_token %}
+                        <button type="button" class="btn-danger-ghost" onclick="confirmRevoke(this)">Revoke</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="card p-6 text-center border-dashed border-white-5" id="emptyRosterState">
+                    <p class="text-xs text-slate-2">No staff invited yet — add someone using the form.</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="noMemberResults" class="hidden text-center py-6 text-xs text-slate-2">No team members match your filters.</div>
+        </div>
+    </div>
+
+    <!-- Role guide -->
+    <div class="reveal space-y-3">
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">What each role is meant for</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="guide-card">
+                <div class="guide-card-head">
+                    <span class="guide-icon" style="background: rgba(45, 212, 167, 0.1); color: var(--teal);"><svg class="icon"><use href="#i-edit"/></svg></span>
+                    <span class="guide-card-title">Review Approver</span>
+                </div>
+                <p>For staff who respond to guests day to day — editing and submitting AI-drafted replies.</p>
+            </div>
+            <div class="guide-card">
+                <div class="guide-card-head">
+                    <span class="guide-icon" style="background: rgba(255, 255, 255, 0.05); color: var(--slate);"><svg class="icon"><use href="#i-eye"/></svg></span>
+                    <span class="guide-card-title">Read-Only Analyst</span>
+                </div>
+                <p>For managers who just need visibility into ratings and volume, without touching replies.</p>
+            </div>
+            <div class="guide-card">
+                <div class="guide-card-head">
+                    <span class="guide-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><svg class="icon"><use href="#i-settings"/></svg></span>
+                    <span class="guide-card-title">Store Admin</span>
+                </div>
+                <p>For owners and partners who need full access to account and integration settings.</p>
+            </div>
+        </div>
+    </div>
+
+
+        <!-- Recent Activity -->
+    <div class="reveal space-y-3">
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">Recent activity</h2>
+        <div class="card p-6 space-y-3">
+            {% for log in recent_activity %}
+            <div class="flex items-start gap-3 {% if not forloop.last %}pb-3 border-b border-white-5{% endif %}">
+                <span class="stat-icon" style="width:28px;height:28px;background: rgba(232, 168, 60, 0.1); color: var(--gold); flex-shrink:0;">
+                    <svg class="icon icon-sm"><use href="#i-clock"/></svg>
+                </span>
+                <div class="min-w-0">
+                    <p class="text-xs font-semibold text-white">{{ log.get_action_display }}</p>
+                    {% if log.detail %}<p class="text-[11px] text-slate truncate">{{ log.detail }}</p>{% endif %}
+                    <p class="text-[10px] text-slate-2 mt-0.5">{{ log.created_at|timesince }} ago</p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-xs text-slate-2 text-center py-2">No activity recorded yet — changes you make will show up here.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <!-- Roadmap -->
+    <div class="reveal card p-6">
+        <div class="flex items-start gap-3 mb-4 pb-3 border-b border-white-5">
+            <div class="section-icon" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.03);color:var(--slate);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg class="icon"><use href="#i-hourglass"/></svg></div>
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Roadmap</h2>
+                <p class="text-xs text-slate mt-0.5">Planned controls — shown for context, not yet connected to a saved setting.</p>
+            </div>
+        </div>
+            <div class="roadmap-item">
+                <span class="roadmap-tag"><svg class="icon icon-sm"><use href="#i-hourglass"/></svg> Planned</span>
+                <div class="roadmap-title">2FA &amp; session controls</div>
+                <div class="roadmap-desc">Optional two-factor requirement and the ability to sign a device out remotely.</div>
+            </div>
+            <div class="roadmap-item">
+                <span class="roadmap-tag"><svg class="icon icon-sm"><use href="#i-hourglass"/></svg> Planned</span>
+                <div class="roadmap-title">Seats &amp; billing</div>
+                <div class="roadmap-desc">See plan limits and add seats as your team grows.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal flex items-center justify-center gap-1.5 text-[10.5px] text-slate pb-2">
+        <span class="live-dot"></span>
+        <span class="font-mono">{{ invites|length|add:1 }} team member{{ invites|length|add:1|pluralize }}</span>
+        <span>·</span>
+        <span class="font-mono">Team &amp; Access</span>
+    </div>
 </div>
+
+<!-- Revoke modal -->
+<div id="revokeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay" onclick="closeRevokeModal()"></div>
+    <div class="modal-box card max-w-sm w-full p-6 space-y-4 relative z-10">
+        <div class="flex items-start gap-3">
+            <div style="width:34px;height:34px;border-radius:10px;background:rgba(239,68,68,0.1);color:#ef4444;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg class="icon"><use href="#i-alert"/></svg></div>
+            <div>
+                <h3 class="text-sm font-bold text-white">Revoke this invitation?</h3>
+                <p class="text-xs text-slate mt-1">"<span id="revokeEmailLabel"></span>" will no longer be able to use the login link you shared with them.</p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+            <button type="button" class="btn-ghost" onclick="closeRevokeModal()">Cancel</button>
+            <button type="button" class="btn-primary btn-danger" style="width:auto;" onclick="submitRevoke()">Revoke invite</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+    function showToast(msg, success) {
+        var host = document.getElementById('toastHost');
+        var el = document.createElement('div');
+        el.className = 'toast' + (success ? ' success' : '');
+        el.innerHTML = (success
+            ? '<svg class="icon icon-sm"><use href="#i-check-circle"/></svg>'
+            : '<svg class="icon icon-sm"><use href="#i-info"/></svg>') + '<span>' + msg + '</span>';
+        host.appendChild(el);
+        setTimeout(function () { el.remove(); }, 3200);
+    }
+
+    var currentRoleFilter = 'all';
+
+    function setRoleFilter(role, btn) {
+        currentRoleFilter = role;
+        document.querySelectorAll('[data-role-filter]').forEach(function (c) { c.classList.remove('active'); });
+        btn.classList.add('active');
+        filterMembers();
+    }
+
+    function filterMembers() {
+        var q = (document.getElementById('memberSearch').value || '').trim().toLowerCase();
+        var rows = document.querySelectorAll('#memberList .member-row');
+        var visible = 0;
+        rows.forEach(function (row) {
+            var name = row.getAttribute('data-name') || '';
+            var role = row.getAttribute('data-role') || '';
+            var matchesSearch = !q || name.includes(q);
+            var matchesRole = currentRoleFilter === 'all' || role === currentRoleFilter;
+            var match = matchesSearch && matchesRole;
+            row.classList.toggle('hidden-row', !match);
+            if (match) visible++;
+        });
+        var empty = document.getElementById('emptyRosterState');
+        var hasEmptyState = !!empty;
+        document.getElementById('noMemberResults').classList.toggle('hidden', hasEmptyState || visible !== 0);
+    }
+
+    function setView(mode) {
+        var list = document.getElementById('memberList');
+        list.classList.remove('view-grid', 'view-list');
+        list.classList.add(mode === 'grid' ? 'view-grid' : 'view-list');
+        document.getElementById('viewGridBtn').classList.toggle('active', mode === 'grid');
+        document.getElementById('viewListBtn').classList.toggle('active', mode === 'list');
+    }
+
+    function sortMembers(mode) {
+        var list = document.getElementById('memberList');
+        var rows = Array.prototype.slice.call(list.querySelectorAll('.member-row'));
+        var owner = rows.find(function (r) { return r.getAttribute('data-role') === 'owner'; });
+        var rest = rows.filter(function (r) { return r.getAttribute('data-role') !== 'owner'; });
+
+        rest.sort(function (a, b) {
+            if (mode === 'invited-desc') return (b.getAttribute('data-invited') || 0) - (a.getAttribute('data-invited') || 0);
+            if (mode === 'invited-asc') return (a.getAttribute('data-invited') || 0) - (b.getAttribute('data-invited') || 0);
+            if (mode === 'name-asc') return (a.getAttribute('data-name') || '').localeCompare(b.getAttribute('data-name') || '');
+            if (mode === 'role-asc') return (a.getAttribute('data-role') || '').localeCompare(b.getAttribute('data-role') || '');
+            return 0;
+        });
+
+        if (owner) list.appendChild(owner);
+        rest.forEach(function (r) { list.appendChild(r); });
+        if (owner) list.prepend(owner);
+    }
+
+    function exportRosterCSV() {
+        var rows = document.querySelectorAll('#memberList .member-row');
+        var lines = [['Name / Email', 'Role', 'Status', 'Invited'].join(',')];
+        rows.forEach(function (row) {
+            var nameEl = row.querySelector('.font-bold');
+            var name = nameEl ? nameEl.textContent.trim() : '';
+            var role = row.getAttribute('data-role') || '';
+            var status = role === 'owner' ? 'Owner' : 'Pending';
+            var dateEl = row.querySelector('.text-slate');
+            var invited = dateEl ? dateEl.textContent.replace('Invited ', '').trim() : '';
+            lines.push(['"' + name.replace(/"/g, '""') + '"', role, status, invited].join(','));
+        });
+        var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'team-roster.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Roster exported.', true);
+    }
+
+    function buildCompositionBar() {
+        var track = document.getElementById('compBarTrack');
+        var legend = document.getElementById('compLegend');
+        if (!track || !legend) return;
+        var counts = { owner: 0, admin: 0, reviewer: 0, viewer: 0 };
+        document.querySelectorAll('#memberList .member-row').forEach(function (row) {
+            var role = row.getAttribute('data-role');
+            if (counts.hasOwnProperty(role)) counts[role]++;
+        });
+        var total = counts.owner + counts.admin + counts.reviewer + counts.viewer;
+        var segments = [
+            { key: 'owner', label: 'Owner', color: 'var(--gold)' },
+            { key: 'admin', label: 'Store Admin', color: '#8b5cf6' },
+            { key: 'reviewer', label: 'Review Approver', color: 'var(--teal)' },
+            { key: 'viewer', label: 'Read-Only Analyst', color: 'var(--slate)' }
+        ];
+        track.innerHTML = '';
+        legend.innerHTML = '';
+        segments.forEach(function (seg) {
+            var count = counts[seg.key];
+            if (!count) return;
+            var pct = total ? (count / total) * 100 : 0;
+            var bar = document.createElement('div');
+            bar.className = 'comp-bar-seg';
+            bar.style.width = pct + '%';
+            bar.style.background = seg.color;
+            track.appendChild(bar);
+
+            var item = document.createElement('div');
+            item.className = 'comp-legend-item';
+            item.innerHTML = '<span class="comp-legend-dot" style="background:' + seg.color + ';"></span>' + seg.label + ' · ' + count;
+            legend.appendChild(item);
+        });
+    }
+
+    var pendingRevokeForm = null;
+    function confirmRevoke(btn) {
+        pendingRevokeForm = btn.closest('.revoke-form');
+        document.getElementById('revokeEmailLabel').textContent = pendingRevokeForm.getAttribute('data-email') || 'this teammate';
+        document.getElementById('revokeModal').classList.remove('hidden');
+    }
+    function closeRevokeModal() {
+        document.getElementById('revokeModal').classList.add('hidden');
+        pendingRevokeForm = null;
+    }
+    function submitRevoke() {
+        if (pendingRevokeForm) pendingRevokeForm.submit();
+    }
+
+    var inviteForm = document.getElementById('inviteForm');
+    if (inviteForm) {
+        inviteForm.addEventListener('submit', function () {
+            var btn = document.getElementById('inviteSubmitBtn');
+            btn.disabled = true;
+            btn.querySelector('span').textContent = 'Sending invitation…';
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeRevokeModal();
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        buildCompositionBar();
+        var revealEls = document.querySelectorAll('.reveal');
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+        revealEls.forEach(function(el) { observer.observe(el); });
+    });
+</script>
 {% endblock %}

@@ -1,140 +1,1692 @@
 {% extends "base.html" %}
 
 {% block page_title %}AI &amp; Tone Settings{% endblock %}
-{% block head_title %}AI Settings | AI Review Booster{% endblock %}
+{% block head_title %}AI Settings | SwissReply.AI{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+<style>
+    :root {
+        --ink: #0B1220;
+        --ink-2: #111A2C;
+        --paper: #F7F5F0;
+        --gold: #E8A83C;
+        --gold-soft: #F4C871;
+        --teal: #2DD4A7;
+        --slate: #93A0B4;
+        --slate-2: #5C6B85;
+
+        --font-display: 'Fraunces', serif;
+        --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: 'IBM Plex Mono', monospace;
+
+        --radius-lg: 14px;
+        --radius-md: 10px;
+        --shadow-card: 0 1px 2px rgba(11, 18, 32, 0.04), 0 8px 24px -12px rgba(11, 18, 32, 0.10);
+        --shadow-lift: 0 4px 10px rgba(11, 18, 32, 0.06), 0 16px 32px -14px rgba(11, 18, 32, 0.16);
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    h1,
+    h2,
+    h3,
+    .font-display {
+        font-family: var(--font-display);
+        letter-spacing: -0.01em;
+    }
+
+    .font-mono {
+        font-family: var(--font-mono);
+    }
+
+    .text-gold {
+        color: var(--gold);
+    }
+
+    .text-slate {
+        color: var(--slate);
+    }
+
+    .text-slate-2 {
+        color: var(--slate-2);
+    }
+
+    .text-white {
+        color: var(--paper);
+    }
+
+    .text-teal {
+        color: var(--teal);
+    }
+
+    .bg-ink-2 {
+        background: var(--ink-2);
+    }
+
+    .bg-gold-10 {
+        background: color-mix(in srgb, var(--gold) 8%, transparent);
+    }
+    .bg-teal-10 {
+        background: color-mix(in srgb, var(--teal) 8%, transparent);
+    }
+
+    .bg-violet-10 {
+        background: rgba(139, 92, 246, 0.08);
+    }
+
+    .bg-amber-10 {
+        background: rgba(245, 158, 11, 0.08);
+    }
+
+    .bg-forest-10 {
+        background: rgba(16, 185, 129, 0.08);
+    }
+
+    .bg-rust-10 {
+        background: rgba(239, 68, 68, 0.08);
+    }
+
+    .bg-white-5 {
+        background: rgba(var(--surface-rgb), 0.03);
+    }
+
+    .border-white-10 {
+        border-color: rgba(var(--surface-rgb), 0.06);
+    }
+
+    .border-white-5 {
+        border-color: rgba(var(--surface-rgb), 0.03);
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.75;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .icon-sm {
+        width: 13px;
+        height: 13px;
+    }
+
+    .icon-lg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.in-view {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .card {
+        background: var(--ink-2);
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
+        padding: 1.75rem;
+    }
+
+    .card-head {
+        border-bottom: 1px solid rgba(var(--surface-rgb), 0.04);
+        padding-bottom: 0.85rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .section-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .page-header-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: var(--gold);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(var(--surface-rgb), 0.03);
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        color: var(--slate);
+        font-family: var(--font-mono);
+    }
+
+    .live-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--teal);
+        animation: pulseDot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.35;
+        }
+    }
+
+    .automation-card {
+        position: relative;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        border: 1.5px solid rgba(var(--surface-rgb), 0.06);
+        background: rgba(var(--surface-rgb), 0.02);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .automation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card);
+        border-color: rgba(var(--surface-rgb), 0.12);
+    }
+
+    .automation-card.selected {
+        border-color: var(--gold);
+        background: color-mix(in srgb, var(--gold) 6%, transparent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 6%, transparent);
+    }
+
+    .automation-card .card-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink);
+        margin-bottom: 0.6rem;
+    }
+
+    .recommended-tag {
+        position: absolute;
+        top: -10px;
+        right: 14px;
+        background: var(--gold);
+        color: var(--ink);
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-family: var(--font-mono);
+    }
+
+    .automation-card .card-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--paper);
+    }
+
+    .automation-card .card-subtitle {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--slate);
+        margin-top: 0.25rem;
+    }
+
+    .automation-card ul {
+        margin-top: 0.6rem;
+    }
+
+    .automation-card ul li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.4rem;
+        font-size: 0.7rem;
+        color: var(--slate);
+        line-height: 1.5;
+        margin-bottom: 0.25rem;
+    }
+
+    .automation-card ul li .icon {
+        color: var(--teal);
+        margin-top: 2px;
+    }
+
+    .tone-card {
+        border: 1.5px solid rgba(var(--surface-rgb), 0.06);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        background: rgba(var(--surface-rgb), 0.02);
+    }
+
+    .tone-card:hover {
+        border-color: rgba(var(--surface-rgb), 0.12);
+        transform: translateY(-2px);
+    }
+
+    .tone-card.selected {
+        border-color: var(--gold);
+        background: color-mix(in srgb, var(--gold) 6%, transparent);
+    }
+
+    .tone-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink);
+        margin-bottom: 0.5rem;
+    }
+
+    .tone-card .tone-name {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--paper);
+    }
+
+    .tone-card .tone-example {
+        font-size: 0.6rem;
+        color: var(--slate);
+        margin-top: 0.25rem;
+        font-style: italic;
+    }
+
+    .code-editor {
+        display: flex;
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        background: var(--ink);
+    }
+
+    .code-editor .gutter {
+        padding: 0.85rem 0.65rem;
+        background: rgba(var(--surface-rgb), 0.03);
+        color: var(--slate-2);
+        font-family: 'Menlo', 'Consolas', monospace;
+        font-size: 0.72rem;
+        line-height: 1.65;
+        text-align: right;
+        user-select: none;
+        min-width: 34px;
+    }
+
+    .code-editor textarea {
+        flex: 1;
+        background: var(--ink);
+        color: var(--gold);
+        font-family: 'Menlo', 'Consolas', monospace;
+        font-size: 0.78rem;
+        line-height: 1.65;
+        padding: 0.85rem 1rem;
+        border: none;
+        resize: vertical;
+        min-height: 130px;
+    }
+
+    .code-editor textarea:focus {
+        outline: none;
+    }
+
+    .code-editor textarea::placeholder {
+        color: var(--slate-2);
+    }
+
+    .char-track {
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(var(--surface-rgb), 0.03);
+        overflow: hidden;
+    }
+
+    .char-fill {
+        height: 100%;
+        background: var(--gold);
+        width: 0%;
+        transition: width 0.2s ease;
+        border-radius: 999px;
+    }
+
+    .prompt-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        background: rgba(var(--surface-rgb), 0.02);
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--slate);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: var(--font-mono);
+    }
+
+    .prompt-chip:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: color-mix(in srgb, var(--gold) 6%, transparent);
+    }
+
+    .pro-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.55rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+        color: var(--ink);
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+        vertical-align: middle;
+    }
+
+    .seo-tag-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        align-items: center;
+        padding: 0.55rem 0.7rem;
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        border-radius: var(--radius-md);
+        background: rgba(var(--surface-rgb), 0.03);
+        transition: all 0.15s ease;
+    }
+
+    .seo-tag-wrap:focus-within {
+        border-color: #f59e0b;
+        background: rgba(var(--surface-rgb), 0.06);
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+    }
+
+    .seo-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.5rem 0.25rem 0.65rem;
+        border-radius: 999px;
+        background: rgba(245, 158, 11, 0.12);
+        color: #f59e0b;
+        font-size: 0.7rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .seo-tag button {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        opacity: 0.7;
+    }
+
+    .seo-tag button:hover {
+        opacity: 1;
+    }
+
+    .seo-tag-entry {
+        flex: 1;
+        min-width: 140px;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 0.8rem;
+        color: var(--paper);
+        font-family: var(--font-body);
+        padding: 0.2rem 0;
+    }
+
+    .seo-tag-entry::placeholder {
+        color: var(--slate-2);
+    }
+
+    .roadmap-item {
+        border: 1px dashed rgba(var(--surface-rgb), 0.06);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        background: rgba(var(--surface-rgb), 0.02);
+    }
+
+    .roadmap-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.58rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--slate);
+        background: rgba(var(--surface-rgb), 0.03);
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        font-family: var(--font-mono);
+    }
+
+    .btn-primary,
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        font-size: 0.72rem;
+        padding: 0.65rem 1.1rem;
+        font-family: var(--font-body);
+    }
+
+    .btn-primary {
+        background: var(--gold);
+        color: var(--ink);
+    }
+
+    .btn-primary:hover {
+        background: var(--gold-soft);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--gold) 45%, transparent);
+        color: var(--ink);
+    }
+
+    .btn-ghost {
+        background: rgba(var(--surface-rgb), 0.03);
+        color: var(--slate);
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+    }
+
+    .btn-ghost:hover {
+        background: rgba(var(--surface-rgb), 0.06);
+        border-color: rgba(var(--surface-rgb), 0.12);
+        color: var(--paper);
+    }
+
+    .field-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--slate);
+        margin-bottom: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-family: var(--font-mono);
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 0.65rem 0.8rem;
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        border-radius: var(--radius-md);
+        font-size: 0.8rem;
+        background: rgba(var(--surface-rgb), 0.03);
+        color: var(--paper);
+        transition: all 0.15s ease;
+        font-family: var(--font-body);
+    }
+
+    .field-input::placeholder {
+        color: var(--slate-2);
+    }
+
+    .field-input:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(var(--surface-rgb), 0.06);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 6%, transparent);
+    }
+
+    #toastHost {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .toast {
+        background: var(--ink-2);
+        color: var(--paper);
+        padding: 0.7rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-lift);
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.success {
+        background: rgba(45, 212, 167, 0.15);
+        border-color: rgba(45, 212, 167, 0.15);
+        color: var(--teal);
+    }
+        .field-input option {
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    @keyframes toastIn {
+        from {
+            opacity: 0;
+            transform: translateX(16px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .modal-overlay {
+        background: rgba(11, 18, 32, 0.85);
+        backdrop-filter: blur(6px);
+    }
+
+    .modal-box {
+        animation: modalUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        background: var(--ink-2);
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+    }
+
+    @keyframes modalUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    kbd {
+        font-family: var(--font-body);
+        background: rgba(var(--surface-rgb), 0.05);
+        border: 1px solid rgba(var(--surface-rgb), 0.06);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        padding: 0.05rem 0.35rem;
+        font-size: 0.62rem;
+        color: var(--slate);
+    }
+
+    @media (max-width: 640px) {
+        .card {
+            padding: 1.15rem;
+        }
+    }
+
+    /* Tailwind's CDN-generated .text-white utility (literal white) can
+       load after this file's own .text-white (color: var(--paper)) and
+       win the specificity tie, making text invisible in light mode.
+       !important forces the theme-aware color to always win. */
+    html[data-theme="light"] .text-white {
+        color: var(--paper) !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
+<div id="toastHost"></div>
 <div class="w-full max-w-5xl mx-auto space-y-6">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-                <i class="fa-solid fa-robot text-blue-600"></i>
-                <span>AI Auto-Pilot & Brand Voice Configuration</span>
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                Customize how your AI assistant crafts automated replies and manages Google Business Profile reviews.
-            </p>
-        </div>
-        
-        <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Engine Active
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="reveal in-view flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-900/20 text-emerald-400 border-emerald-800/30
+            {% elif message.tags == 'warning' %}bg-amber-900/20 text-amber-400 border-amber-800/30
+            {% elif message.tags == 'error' %}bg-rose-900/20 text-rose-400 border-rose-800/30
+            {% else %}bg-blue-900/20 text-blue-400 border-blue-800/30{% endif %}">
+            <span class="flex items-center gap-2">
+                {% if message.tags == 'success' %}<svg class="icon">
+                    <use href="#i-check-circle" />
+                </svg>
+                {% elif message.tags == 'warning' or message.tags == 'error' %}<svg class="icon">
+                    <use href="#i-alert" />
+                </svg>
+                {% else %}<svg class="icon">
+                    <use href="#i-info" />
+                </svg>{% endif %}
+                {{ message }}
             </span>
+            <button type="button" onclick="this.closest('div.flex').remove()"
+                class="opacity-60 hover:opacity-100 transition"><svg class="icon icon-sm">
+                    <use href="#i-x" />
+                </svg></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <symbol id="i-x" viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </symbol>
+            <symbol id="i-check-circle" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <polyline points="8.5 12 11 14.5 16 9" />
+            </symbol>
+            <symbol id="i-alert" viewBox="0 0 24 24">
+                <path d="M12 9v4" />
+                <path d="M12 17h.01" />
+                <path d="M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0z" />
+            </symbol>
+            <symbol id="i-info" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+            </symbol>
+            <symbol id="i-bot" viewBox="0 0 24 24">
+                <rect x="3" y="8" width="18" height="12" rx="2" />
+                <circle cx="8.5" cy="14" r="1.25" />
+                <circle cx="15.5" cy="14" r="1.25" />
+                <path d="M12 8V4" />
+                <circle cx="12" cy="3" r="1" />
+                <path d="M3 13H1" />
+                <path d="M23 13h-2" />
+            </symbol>
+            <symbol id="i-bolt" viewBox="0 0 24 24">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </symbol>
+            <symbol id="i-shield" viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </symbol>
+            <symbol id="i-rocket" viewBox="0 0 24 24">
+                <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                <path
+                    d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+            </symbol>
+            <symbol id="i-user-check" viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <polyline points="17 11 19 13 23 9" />
+            </symbol>
+            <symbol id="i-sliders" viewBox="0 0 24 24">
+                <line x1="4" y1="21" x2="4" y2="14" />
+                <line x1="4" y1="10" x2="4" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12" y2="3" />
+                <line x1="20" y1="21" x2="20" y2="16" />
+                <line x1="20" y1="12" x2="20" y2="3" />
+                <line x1="1" y1="14" x2="7" y2="14" />
+                <line x1="9" y1="8" x2="15" y2="8" />
+                <line x1="17" y1="16" x2="23" y2="16" />
+            </symbol>
+            <symbol id="i-heart" viewBox="0 0 24 24">
+                <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </symbol>
+            <symbol id="i-briefcase" viewBox="0 0 24 24">
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </symbol>
+            <symbol id="i-chat" viewBox="0 0 24 24">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </symbol>
+            <symbol id="i-journal" viewBox="0 0 24 24">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </symbol>
+            <symbol id="i-download" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </symbol>
+            <symbol id="i-eye" viewBox="0 0 24 24">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                <circle cx="12" cy="12" r="3" />
+            </symbol>
+            <symbol id="i-save" viewBox="0 0 24 24">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+            </symbol>
+            <symbol id="i-signpost" viewBox="0 0 24 24">
+                <path d="M12 3v18" />
+                <path d="M4 6h11l3 3-3 3H4z" />
+            </symbol>
+            <symbol id="i-hourglass" viewBox="0 0 24 24">
+                <path d="M5 22h14" />
+                <path d="M5 2h14" />
+                <path d="M17 22v-4.17a2 2 0 0 0-.59-1.41L12 12l-4.41 4.42A2 2 0 0 0 7 17.83V22" />
+                <path d="M7 2v4.17a2 2 0 0 0 .59 1.41L12 12l4.41-4.42A2 2 0 0 0 17 6.17V2" />
+            </symbol>
+            <symbol id="i-sparkles" viewBox="0 0 24 24">
+                <path
+                    d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" />
+            </symbol>
+            <symbol id="i-map-pin" viewBox="0 0 24 24">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+            </symbol>
+            <symbol id="i-link" viewBox="0 0 24 24">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- Header -->
+    <div
+        class="reveal flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white-5 pb-5">
+        <div class="flex items-center gap-3.5">
+            <div class="page-header-icon"><svg class="icon-lg">
+                    <use href="#i-bot" />
+                </svg></div>
+            <div>
+                <h1 class="font-display text-2xl font-semibold text-white tracking-tight">AI Auto-Pilot &amp; Brand
+                    Voice</h1>
+                <p class="text-xs sm:text-sm text-slate mt-1 max-w-md">Configure how your AI assistant crafts automated
+                    replies to Google Business Profile reviews.</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <span class="status-chip"><span class="live-dot"></span> Engine Active</span>
+            <span class="status-chip"><svg class="icon icon-sm">
+                    <use href="#i-sparkles" />
+                </svg> Powered by Gemini</span>
         </div>
     </div>
 
     <!-- Main Settings Form -->
-    <form action="{% url 'update_settings' %}" method="POST" class="space-y-6">
+    <form action="{% url 'update_settings' %}" method="POST" id="settingsForm" class="space-y-6">
         {% csrf_token %}
 
         <!-- Section 1: Automation Strategy -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-            <div class="border-b border-slate-100 pb-3">
-                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-bolt text-amber-500"></i>
-                    <span>Automation Mode</span>
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Control when AI responses are published directly to Google versus saved as drafts for review.</p>
+        <div class="reveal card">
+            <div class="card-head flex items-start gap-3">
+                <div class="section-icon" style="background: color-mix(in srgb, var(--gold) 8%, transparent); color: var(--gold);"><svg
+                        class="icon">
+                        <use href="#i-bolt" />
+                    </svg></div>
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Automation Mode</h2>
+                    <p class="text-xs text-slate mt-0.5">Control when AI responses are published directly to Google
+                        versus saved as drafts for review.</p>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Option 1: Positive Only -->
-                <label class="relative flex flex-col p-4 bg-slate-50 border-2 rounded-xl cursor-pointer hover:border-blue-500 transition focus-within:ring-2 focus-within:ring-blue-500
-                    {% if profile.automation_mode == 'positive_only' %}border-blue-600 bg-blue-50/30{% else %}border-slate-200{% endif %}">
+                <label class="automation-card {% if profile.automation_mode == 'positive_only' %}selected{% endif %}"
+                    data-automation-card>
+                    <span class="recommended-tag">Recommended</span>
                     <input type="radio" name="automation_mode" value="positive_only" class="sr-only" {% if profile.automation_mode == 'positive_only' %}checked{% endif %}>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold text-slate-900">Smart Guardrail</span>
-                        <i class="fa-solid fa-shield-halved text-blue-600 text-sm"></i>
-                    </div>
-                    <p class="text-xs font-semibold text-slate-800">Auto-publish 4-5★ Reviews</p>
-                    <p class="text-[11px] text-slate-500 mt-1">1-3 star negative reviews are routed to your inbox as pending drafts for human review.</p>
+                    <div class="card-icon" style="background: var(--gold);"><svg class="icon">
+                            <use href="#i-shield" />
+                        </svg></div>
+                    <div class="card-title">Smart Guardrail</div>
+                    <div class="card-subtitle">Auto-publish 4-5★ reviews</div>
+                    <ul>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> Positive reviews get replies instantly</li>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> 1-3★ reviews routed to your inbox as drafts</li>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> A human always reviews sensitive feedback</li>
+                    </ul>
                 </label>
 
                 <!-- Option 2: Full Auto -->
-                <label class="relative flex flex-col p-4 bg-slate-50 border-2 rounded-xl cursor-pointer hover:border-blue-500 transition focus-within:ring-2 focus-within:ring-blue-500
-                    {% if profile.automation_mode == 'all' %}border-blue-600 bg-blue-50/30{% else %}border-slate-200{% endif %}">
+                <label class="automation-card {% if profile.automation_mode == 'all' %}selected{% endif %}"
+                    data-automation-card>
                     <input type="radio" name="automation_mode" value="all" class="sr-only" {% if profile.automation_mode == 'all' %}checked{% endif %}>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold text-slate-900">Hands-Free</span>
-                        <i class="fa-solid fa-rocket text-purple-600 text-sm"></i>
-                    </div>
-                    <p class="text-xs font-semibold text-slate-800">Auto-publish ALL Ratings</p>
-                    <p class="text-[11px] text-slate-500 mt-1">100% automated response handling. AI generates and posts replies instantly.</p>
+                    <div class="card-icon" style="background: #8b5cf6;"><svg class="icon">
+                            <use href="#i-rocket" />
+                        </svg></div>
+                    <div class="card-title">Hands-Free</div>
+                    <div class="card-subtitle">Auto-approve ALL ratings</div>
+                    <ul>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> Every reply is auto-approved instantly</li>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> One-click copy to Google — direct auto-posting activates once Google's API access is
+                            approved</li>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> Zero manual approval needed</li>
+                    </ul>
+                    <p class="text-[10.5px] mt-2 pt-2"
+                        style="color: var(--gold); border-top: 1px dashed rgba(255,255,255,0.08);">
+                        ⚠ We recommend reviewing your first 10 auto-posted replies before fully trusting this mode.
+                    </p>
                 </label>
 
                 <!-- Option 3: Manual Approval -->
-                <label class="relative flex flex-col p-4 bg-slate-50 border-2 rounded-xl cursor-pointer hover:border-blue-500 transition focus-within:ring-2 focus-within:ring-blue-500
-                    {% if profile.automation_mode == 'manual' %}border-blue-600 bg-blue-50/30{% else %}border-slate-200{% endif %}">
+                <label class="automation-card {% if profile.automation_mode == 'manual' %}selected{% endif %}"
+                    data-automation-card>
                     <input type="radio" name="automation_mode" value="manual" class="sr-only" {% if profile.automation_mode == 'manual' %}checked{% endif %}>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold text-slate-900">Copilot Mode</span>
-                        <i class="fa-solid fa-user-check text-slate-600 text-sm"></i>
-                    </div>
-                    <p class="text-xs font-semibold text-slate-800">Manual Approval Required</p>
-                    <p class="text-[11px] text-slate-500 mt-1">AI generates draft responses, but nothing is posted until you click Approve.</p>
+                    <div class="card-icon" style="background: var(--slate);"><svg class="icon">
+                            <use href="#i-user-check" />
+                        </svg></div>
+                    <div class="card-title">Copilot Mode</div>
+                    <div class="card-subtitle">Manual approval required</div>
+                    <ul>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> AI drafts every response for you</li>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> Nothing posts until you click Approve</li>
+                        <li><svg class="icon icon-sm">
+                                <use href="#i-check-circle" />
+                            </svg> Full control over every reply</li>
+                    </ul>
                 </label>
             </div>
         </div>
 
         <!-- Section 2: Brand Voice Tone -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-            <div class="border-b border-slate-100 pb-3">
-                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-indigo-600"></i>
-                    <span>Brand Personality & Voice</span>
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Select the overall style and language tone for public responses.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="reveal card">
+            <div class="card-head flex items-start gap-3">
+                <div class="section-icon" style="background: rgba(139, 92, 246, 0.08); color: #8b5cf6;"><svg
+                        class="icon">
+                        <use href="#i-sliders" />
+                    </svg></div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Preset Voice Tone</label>
-                    <select name="brand_tone" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-800 bg-slate-50/50">
-                        <option value="friendly" {% if profile.brand_tone == 'friendly' %}selected{% endif %}>😊 Warm, Welcoming & Friendly</option>
-                        <option value="professional" {% if profile.brand_tone == 'professional' %}selected{% endif %}>💼 Professional, Formal & Polished</option>
-                        <option value="casual" {% if profile.brand_tone == 'casual' %}selected{% endif %}>😎 Casual, Modern & Upbeat</option>
-                    </select>
-                </div>
-
-                <div class="sm:col-span-2">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Standard Response Signature / Sign-off</label>
-                    <input type="text" name="signature" value="{{ profile.signature|default:'' }}" placeholder="e.g. - Marc Rossi, Store Manager" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <p class="text-[11px] text-slate-400 mt-1">Automatically appended to the end of generated responses.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Brand Personality &amp;
+                        Voice</h2>
+                    <p class="text-xs text-slate mt-0.5">Select the overall style and language tone for public
+                        responses.</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Section 3: Custom Business Context Instructions -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-            <div class="border-b border-slate-100 pb-3">
-                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-brain text-purple-600"></i>
-                    <span>Custom Business Knowledge Base</span>
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Provide key facts for the AI engine so responses include accurate venue information.</p>
+            <select name="brand_tone" id="brandToneSelect" class="hidden">
+                <option value="friendly" {% if profile.brand_tone == 'friendly' %}selected{% endif %}>Warm &amp; Friendly
+                </option>
+                <option value="professional" {% if profile.brand_tone == 'professional' %}selected{% endif %}>Professional
+                    &amp; Formal</option>
+                <option value="casual" {% if profile.brand_tone == 'casual' %}selected{% endif %}>Casual &amp; Modern
+                </option>
+            </select>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <button type="button"
+                    class="tone-card {% if profile.brand_tone == 'friendly' or not profile.brand_tone %}selected{% endif %}"
+                    data-tone-card data-tone="friendly">
+                    <div class="tone-icon" style="background: var(--gold);"><svg class="icon">
+                            <use href="#i-heart" />
+                        </svg></div>
+                    <div class="tone-name">Warm &amp; Friendly</div>
+                    <div class="tone-example">"Thanks so much for the kind words — it means a lot to our team!"</div>
+                </button>
+                <button type="button" class="tone-card {% if profile.brand_tone == 'professional' %}selected{% endif %}"
+                    data-tone-card data-tone="professional">
+                    <div class="tone-icon" style="background: var(--slate);"><svg class="icon">
+                            <use href="#i-briefcase" />
+                        </svg></div>
+                    <div class="tone-name">Professional &amp; Formal</div>
+                    <div class="tone-example">"Thank you for taking the time to share your feedback with us."</div>
+                </button>
+                <button type="button" class="tone-card {% if profile.brand_tone == 'casual' %}selected{% endif %}"
+                    data-tone-card data-tone="casual">
+                    <div class="tone-icon" style="background: var(--teal);"><svg class="icon">
+                            <use href="#i-chat" />
+                        </svg></div>
+                    <div class="tone-name">Casual &amp; Modern</div>
+                    <div class="tone-example">"You're awesome, thank you! Come see us again soon."</div>
+                </button>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Special Rules & Context Prompt</label>
-                <textarea name="custom_prompt" rows="4" placeholder="e.g. Always remind unhappy guests that we offer free parking behind the bakery. Mention our signature homemade sourdough bread when customers praise our pastries." class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-800 bg-slate-50/50 leading-relaxed">{{ profile.custom_prompt|default:'' }}</textarea>
-                <div class="flex items-center gap-2 mt-2 text-[11px] text-slate-500">
-                    <i class="fa-solid fa-circle-info text-blue-500"></i>
-                    <span>This context is dynamically fed into Gemini models during response synthesis.</span>
+                <label class="field-label">Standard Response Signature / Sign-off</label>
+                <input type="text" name="signature" value="{{ profile.signature|default:'' }}"
+                    placeholder="e.g. - Marc Rossi, Store Manager" class="field-input">
+                <p class="text-[11px] text-slate-2 mt-1">Automatically appended to the end of generated responses.</p>
+            </div>
+        </div>
+
+        <!-- Section: Response Length & Creativity -->
+        <div class="reveal card">
+            <div class="card-head flex items-start gap-3">
+                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                        class="icon">
+                        <use href="#i-sliders" />
+                    </svg></div>
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Response Length &amp;
+                        Creativity</h2>
+                    <p class="text-xs text-slate mt-0.5">How many sentences the AI writes, and how much wording varies
+                        between similar replies.</p>
+                </div>
+            </div>
+
+            <select name="response_length" id="responseLengthSelect" class="hidden">
+                <option value="short" {% if profile.response_length == 'short' %}selected{% endif %}>Concise (1-2
+                    sentences)</option>
+                <option value="medium" {% if profile.response_length == 'medium' or not profile.response_length %}selected{% endif %}>Balanced (2-4 sentences)</option>
+                <option value="long" {% if profile.response_length == 'long' %}selected{% endif %}>Detailed (4-6
+                    sentences)</option>
+            </select>
+
+            <p class="field-label">Response Length</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <button type="button" class="tone-card {% if profile.response_length == 'short' %}selected{% endif %}"
+                    data-length-card data-length="short">
+                    <div class="tone-name">Concise</div>
+                    <div class="tone-example">1-2 sentences — quick and direct.</div>
+                </button>
+                <button type="button"
+                    class="tone-card {% if profile.response_length == 'medium' or not profile.response_length %}selected{% endif %}"
+                    data-length-card data-length="medium">
+                    <div class="tone-name">Balanced</div>
+                    <div class="tone-example">2-4 sentences — the default, works for most businesses.</div>
+                </button>
+                <button type="button" class="tone-card {% if profile.response_length == 'long' %}selected{% endif %}"
+                    data-length-card data-length="long">
+                    <div class="tone-name">Detailed</div>
+                    <div class="tone-example">4-6 sentences — warmer, more personal.</div>
+                </button>
+            </div>
+
+            <select name="creativity_level" id="creativitySelect" class="hidden">
+                <option value="low" {% if profile.creativity_level == 'low' %}selected{% endif %}>Precise &amp; Consistent
+                </option>
+                <option value="medium" {% if profile.creativity_level == 'medium' or not profile.creativity_level %}selected{% endif %}>Balanced</option>
+                <option value="high" {% if profile.creativity_level == 'high' %}selected{% endif %}>Creative &amp; Varied
+                </option>
+            </select>
+
+            <p class="field-label">Creativity</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button type="button" class="tone-card {% if profile.creativity_level == 'low' %}selected{% endif %}"
+                    data-creativity-card data-creativity="low">
+                    <div class="tone-name">Precise</div>
+                    <div class="tone-example">Same reliable phrasing every time.</div>
+                </button>
+                <button type="button"
+                    class="tone-card {% if profile.creativity_level == 'medium' or not profile.creativity_level %}selected{% endif %}"
+                    data-creativity-card data-creativity="medium">
+                    <div class="tone-name">Balanced</div>
+                    <div class="tone-example">Natural variation, still on-brand.</div>
+                </button>
+                <button type="button" class="tone-card {% if profile.creativity_level == 'high' %}selected{% endif %}"
+                    data-creativity-card data-creativity="high">
+                    <div class="tone-name">Creative</div>
+                    <div class="tone-example">More personality, less repetition.</div>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Section: Blacklisted Words -->
+        <div class="reveal card">
+            <div class="card-head flex items-start gap-3">
+                <div class="section-icon" style="background: rgba(239, 68, 68, 0.08); color: #ef4444;"><svg
+                        class="icon">
+                        <use href="#i-shield" />
+                    </svg></div>
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Blacklisted Words</h2>
+                    <p class="text-xs text-slate mt-0.5">Words or phrases the AI must never use in a public reply —
+                        competitor names, informal slang, or anything sensitive to your brand.</p>
+                </div>
+            </div>
+
+            <label class="field-label">Forbidden Words (comma-separated)</label>
+            <input type="text" name="blacklisted_words" id="blacklistedWords"
+                value="{{ profile.blacklisted_words|default:'' }}" placeholder="e.g. cheap, discount, [competitor name]"
+                class="field-input">
+            <p class="text-[11px] text-slate-2 mt-2">Checked twice: the AI is instructed to avoid these, and every draft
+                is scanned afterward — if one slips through, it's automatically rewritten before you ever see it.</p>
+        </div>
+
+
+        <!-- Section: Local SEO Keyword Reinforcement (GEO/AEO) -->
+        <div class="reveal card">
+            <div class="card-head flex items-start justify-between gap-3 flex-wrap">
+                <div class="flex items-start gap-3">
+                    <div class="section-icon" style="background: rgba(245, 158, 11, 0.08); color: #f59e0b;"><svg
+                            class="icon">
+                            <use href="#i-map-pin" />
+                        </svg></div>
+                    <div>
+                        <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2 flex-wrap">
+                            <span>Local SEO Keyword Reinforcement</span>
+                            <span class="pro-badge"><svg class="icon icon-sm">
+                                    <use href="#i-sparkles" />
+                                </svg> Pro</span>
+                        </h2>
+                        <p class="text-xs text-slate mt-0.5">Helps AI search engines (Gemini, ChatGPT, Perplexity) and
+                            Google Maps describe your business accurately. The AI weaves in ONE phrase only when a
+                            review genuinely supports it — never forced, never stuffed.</p>
+                    </div>
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                    <input type="checkbox" name="geo_seo_enabled" {% if profile.geo_seo_enabled %}checked{% endif %}
+                        style="width:16px;height:16px;accent-color:#f59e0b;">
+                    <span class="text-xs font-semibold text-white">Enabled</span>
+                </label>
+            </div>
+
+            <label class="field-label">Target Local Phrases</label>
+            <div class="seo-tag-wrap" id="seoTagWrap">
+                <input type="text" id="seoTagEntry" class="seo-tag-entry"
+                    placeholder="Type a phrase, press Enter…">
+            </div>
+            <input type="hidden" name="seo_keywords" id="seoKeywordsHidden"
+                value="{{ profile.seo_keywords|default:'' }}">
+            <p class="text-[11px] text-slate-2 mt-2">A reply using none of these is completely normal — it only
+                appears when the review's own wording naturally supports it.</p>
+
+            <p class="text-[11px] font-semibold text-slate uppercase tracking-wider mb-2 mt-4 font-mono">Quick-insert
+                suggestions</p>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" class="prompt-chip" data-seo-insert="terrace near Lake Geneva">
+                    <svg class="icon icon-sm">
+                        <use href="#i-plus" />
+                    </svg> Terrace near Lake Geneva
+                </button>
+                <button type="button" class="prompt-chip" data-seo-insert="authentic fondue Old Town">
+                    <svg class="icon icon-sm">
+                        <use href="#i-plus" />
+                    </svg> Authentic fondue Old Town
+                </button>
+                <button type="button" class="prompt-chip" data-seo-insert="family-friendly restaurant Geneva">
+                    <svg class="icon icon-sm">
+                        <use href="#i-plus" />
+                    </svg> Family-friendly Geneva
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Section: Automated Upselling & Action Links -->
+        <div class="reveal card">
+            <div class="card-head flex items-start justify-between gap-3 flex-wrap">
+                <div class="flex items-start gap-3">
+                    <div class="section-icon" style="background: rgba(99, 102, 241, 0.08); color: #6366f1;"><svg
+                            class="icon">
+                            <use href="#i-link" />
+                        </svg></div>
+                    <div>
+                        <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2 flex-wrap">
+                            <span>Automated Upselling &amp; Action Links</span>
+                            <span class="pro-badge"><svg class="icon icon-sm">
+                                    <use href="#i-sparkles" />
+                                </svg> Pro</span>
+                        </h2>
+                        <p class="text-xs text-slate mt-0.5">Invite your happiest reviewers to book a table, check out
+                            an event, or shop online — the AI mentions it naturally, then the real link is added
+                            automatically. Never shown to unhappy customers.</p>
+                    </div>
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                    <input type="checkbox" name="action_link_enabled" {% if profile.action_link_enabled %}checked{% endif %}
+                        style="width:16px;height:16px;accent-color:#6366f1;">
+                    <span class="text-xs font-semibold text-white">Enabled</span>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="field-label">Link URL</label>
+                    <input type="url" name="action_link_url" value="{{ profile.action_link_url|default:'' }}"
+                        placeholder="https://your-booking-page.com" class="field-input">
+                </div>
+                <div>
+                    <label class="field-label">What to call it (plain words)</label>
+                    <input type="text" name="action_link_label" value="{{ profile.action_link_label|default:'' }}"
+                        placeholder="our autumn wine tasting event" class="field-input">
+                </div>
+            </div>
+
+            <label class="field-label">Only offer to reviews rated</label>
+            <select name="action_link_min_rating" class="field-input" style="max-width: 220px;">
+                <option value="5" {% if profile.action_link_min_rating == 5 %}selected{% endif %}>5★ only</option>
+                <option value="4" {% if profile.action_link_min_rating == 4 or not profile.action_link_min_rating %}selected{% endif %}>4★ and up</option>
+                <option value="3" {% if profile.action_link_min_rating == 3 %}selected{% endif %}>3★ and up</option>
+            </select>
+            <p class="text-[11px] text-slate-2 mt-2">The AI never writes the link itself — only a natural, one-sentence
+                mention. The exact URL is always appended automatically, so it can never be broken or mistyped.</p>
+        </div>
+
+
+        <!-- Section: Quiet Hours -->
+        <div class="reveal card">
+            <div class="card-head flex items-start gap-3">
+                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                        class="icon">
+                        <use href="#i-hourglass" />
+                    </svg></div>
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Quiet Hours</h2>
+                    <p class="text-xs text-slate mt-0.5">Hold negative-review email alerts outside business hours and
+                        send them at the next opening time instead of waking you up at 3am.</p>
+                </div>
+            </div>
+
+            <label class="flex items-center gap-3 mb-4 cursor-pointer">
+                <input type="checkbox" name="quiet_hours_enabled" {% if profile.quiet_hours_enabled %}checked{% endif %}
+                    style="width:16px;height:16px;accent-color:var(--gold);">
+                <span class="text-xs font-semibold text-white">Enable quiet hours</span>
+            </label>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="field-label">Opens at</label>
+                    <select name="business_hours_start" class="field-input">
+                        {% for h in hour_choices %}
+                        <option value="{{ h }}" {% if profile.business_hours_start|time:'H:i' == h %}selected{% endif %}>{{ h }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Closes at</label>
+                    <select name="business_hours_end" class="field-input">
+                    {% for h in hour_choices %}
+                    <option value="{{ h }}" {% if profile.business_hours_end|time:'H:i' == h %}selected{% endif %}>{{ h }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Timezone</label>
+                    <select name="timezone_name" class="field-input">
+                        <option value="Europe/Zurich" {% if profile.timezone_name == 'Europe/Zurich' %}selected{% endif %}>Europe/Zurich</option>
+                        <option value="Europe/Paris" {% if profile.timezone_name == 'Europe/Paris' %}selected{% endif %}>
+                            Europe/Paris</option>
+                        <option value="Europe/London" {% if profile.timezone_name == 'Europe/London' %}selected{% endif %}>Europe/London</option>
+                    </select>
                 </div>
             </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="flex justify-end pt-2">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2">
-                <i class="fa-solid fa-floppy-disk"></i>
-                <span>Save AI Configuration</span>
+
+        <!-- Section: AI Training -->
+        <div class="reveal card">
+            <div class="card-head flex items-start gap-3">
+                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                        class="icon">
+                        <use href="#i-sparkles" />
+                    </svg></div>
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">AI Training</h2>
+                    <p class="text-xs text-slate mt-0.5">Learns from your manual edits over time so future drafts start
+                        closer to your real voice.</p>
+                </div>
+            </div>
+
+            {% if profile.learned_patterns %}
+            <div class="bg-white-5 border border-white-10 rounded-xl p-3 mb-4">
+                <p class="text-[11px] font-semibold text-teal uppercase tracking-wider font-mono mb-1">Current Learned
+                    Style</p>
+                <p class="text-xs text-slate leading-relaxed">{{ profile.learned_patterns }}</p>
+                {% if profile.last_training_run %}
+                <p class="text-[10.5px] text-slate-2 mt-2">Last trained {{ profile.last_training_run|timesince }} ago.
+                </p>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-2 mb-4">No patterns learned yet — approve and edit a few AI drafts first, then
+                run training.</p>
+            {% endif %}
+        </div>
+
+        <!-- Section 3: Custom Business Knowledge Base -->
+        <div class="reveal card">
+            <div class="card-head flex items-start gap-3">
+                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                        class="icon">
+                        <use href="#i-journal" />
+                    </svg></div>
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Custom Business
+                        Knowledge Base</h2>
+                    <p class="text-xs text-slate mt-0.5">Provide key facts for the AI engine so responses include
+                        accurate venue information.</p>
+                </div>
+            </div>
+
+            <label class="field-label">Special Rules &amp; Context Prompt</label>
+            <div class="code-editor mb-2">
+                <div class="gutter" id="promptGutter">1</div>
+                <textarea name="custom_prompt" id="customPrompt" maxlength="2000"
+                    placeholder="e.g. Always remind unhappy guests that we offer free parking behind the bakery. Mention our signature homemade sourdough bread when customers praise our pastries.">{{ profile.custom_prompt|default:'' }}</textarea>
+            </div>
+            <div class="flex items-center justify-between gap-3 mb-4">
+                <div class="char-track flex-1">
+                    <div class="char-fill" id="charFill"></div>
+                </div>
+                <span class="text-[10.5px] text-slate-2 font-mono whitespace-nowrap"><span
+                        id="charCount">0</span>/2000</span>
+            </div>
+
+            <p class="text-[11px] font-semibold text-slate uppercase tracking-wider mb-2 font-mono">Quick-insert
+                suggestions</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+                <button type="button" class="prompt-chip" data-insert="Always mention that we offer free parking. ">
+                    <svg class="icon icon-sm">
+                        <use href="#i-plus" />
+                    </svg> Free parking
+                </button>
+                <button type="button" class="prompt-chip" data-insert="Mention our loyalty program when appropriate. ">
+                    <svg class="icon icon-sm">
+                        <use href="#i-plus" />
+                    </svg> Loyalty program
+                </button>
+                <button type="button" class="prompt-chip" data-insert="Emphasize our family-friendly atmosphere. ">
+                    <svg class="icon icon-sm">
+                        <use href="#i-plus" />
+                    </svg> Family-friendly
+                </button>
+                <button type="button" class="prompt-chip" data-insert="Promote our happy hour specials when relevant. ">
+                    <svg class="icon icon-sm">
+                        <use href="#i-plus" />
+                    </svg> Happy hour
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-[11px] text-slate">
+                <svg class="icon icon-sm" style="color: var(--gold);">
+                    <use href="#i-info" />
+                </svg>
+                <span>This context is dynamically fed into Gemini models during response synthesis.</span>
+            </div>
+        </div>
+
+        <!-- Submit Row -->
+        <div class="reveal flex flex-wrap justify-end items-center gap-3 pt-1">
+            <button type="button" onclick="exportSettingsJSON()" class="btn-ghost">
+                <svg class="icon icon-sm">
+                    <use href="#i-download" />
+                </svg><span>Export Settings (JSON)</span>
+            </button>
+            <button type="button" id="previewBtn" onclick="openPreviewModal()" class="btn-ghost">
+                <svg class="icon icon-sm">
+                    <use href="#i-eye" />
+                </svg><span>Preview with Sample Review</span>
+            </button>
+            <button type="submit" class="btn-primary">
+                <svg class="icon icon-sm">
+                    <use href="#i-save" />
+                </svg><span>Save AI Configuration</span>
             </button>
         </div>
     </form>
 
+    <form action="{% url 'run_ai_training' %}" method="POST" class="reveal flex justify-end">
+        {% csrf_token %}
+        <button type="submit" class="btn-ghost">
+            <svg class="icon icon-sm">
+                <use href="#i-sparkles" />
+            </svg>
+            <span>Run AI Training Now</span>
+        </button>
+    </form>
+
+    <!-- Roadmap -->
+    <div class="reveal card">
+        <div class="card-head flex items-start gap-3">
+            <div class="section-icon" style="background: rgba(var(--surface-rgb), 0.03); color: var(--slate);"><svg
+                    class="icon">
+                    <use href="#i-signpost" />
+                </svg></div>
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Roadmap</h2>
+                <p class="text-xs text-slate mt-0.5">Planned controls — shown for context, not yet connected to a saved
+                    setting.</p>
+            </div>
+        </div>
+        <div class="roadmap-item" style="opacity: 0.55; cursor: not-allowed;">
+            <span class="roadmap-tag"><svg class="icon icon-sm">
+                    <use href="#i-hourglass" />
+                </svg> Coming Soon</span>
+            <p class="text-xs font-bold text-white mt-2">Advanced Rules Pro</p>
+            <p class="text-[11px] text-slate mt-1">Response delay timing unlocks once your Google Business Profile
+                is connected.</p>
+        </div>
+    </div>
 </div>
+
+<div class="reveal flex items-center justify-center gap-1.5 text-[10.5px] text-slate-2 pb-2">
+    <span class="live-dot" style="background: var(--teal);"></span>
+    <span class="font-mono">System online</span>
+    <span>·</span>
+    <span class="font-mono">v1.0</span>
+    <span>·</span>
+    <span><kbd>Ctrl</kbd>+<kbd>S</kbd> to save</span>
+</div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay" onclick="closePreviewModal()"></div>
+    <div class="modal-box card max-w-2xl w-full space-y-4 relative z-10">
+        <div class="flex justify-between items-center">
+            <h3 class="text-base font-display font-semibold text-white flex items-center gap-2">
+                <svg class="icon" style="color: var(--gold);">
+                    <use href="#i-sparkles" />
+                </svg>
+                <span>Preview with Current Settings</span>
+            </h3>
+            <button onclick="closePreviewModal()" class="text-slate hover:text-white"><svg class="icon">
+                    <use href="#i-x" />
+                </svg></button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-2">
+                <p class="text-[11px] font-semibold text-slate uppercase tracking-wider font-mono">🇬🇧 English — Sample (3★)</p>
+                <div class="bg-white-5 border border-white-10 rounded-xl p-3">
+                    <p class="text-xs text-slate italic" id="sampleEnText">"Food was good but we waited almost 20 minutes for a table even though it wasn't that busy. Staff were friendly once we sat down though."</p>
+                </div>
+                <p class="text-[11px] font-semibold text-gold uppercase tracking-wider font-mono">AI Draft</p>
+                <div id="previewOutputEn" class="w-full min-h-[90px] p-3 border border-white-10 rounded-xl text-xs text-slate bg-white-5 leading-relaxed">
+                    <span class="text-slate-2">Generating preview…</span>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <p class="text-[11px] font-semibold text-slate uppercase tracking-wider font-mono">🇫🇷 Français — Exemple (3★)</p>
+                <div class="bg-white-5 border border-white-10 rounded-xl p-3">
+                    <p class="text-xs text-slate italic" id="sampleFrText">"La nourriture était bonne mais nous avons attendu presque 20 minutes pour une table alors que ce n'était pas si occupé. Le personnel était sympathique une fois assis."</p>
+                </div>
+                <p class="text-[11px] font-semibold text-gold uppercase tracking-wider font-mono">Brouillon IA</p>
+                <div id="previewOutputFr" class="w-full min-h-[90px] p-3 border border-white-10 rounded-xl text-xs text-slate bg-white-5 leading-relaxed">
+                    <span class="text-slate-2">Génération en cours…</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-[11px] text-slate-2">This uses your current unsaved selections above — save the form to keep
+            them. Same tone and settings, applied automatically in both languages.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+    function showToast(msg, success) {
+        var host = document.getElementById('toastHost');
+        var el = document.createElement('div');
+        el.className = 'toast' + (success ? ' success' : '');
+        el.innerHTML = (success
+            ? '<svg class="icon icon-sm"><use href="#i-check-circle"/></svg>'
+            : '<svg class="icon icon-sm"><use href="#i-info"/></svg>') + '<span>' + msg + '</span>';
+        host.appendChild(el);
+        setTimeout(function () { el.remove(); }, 3200);
+    }
+
+    document.querySelectorAll('[data-automation-card]').forEach(function (card) {
+        card.addEventListener('click', function () {
+            var input = card.querySelector('input[type="radio"]');
+            input.checked = true;
+            document.querySelectorAll('[data-automation-card]').forEach(function (c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+        });
+    });
+
+    var brandToneSelect = document.getElementById('brandToneSelect');
+    document.querySelectorAll('[data-tone-card]').forEach(function (card) {
+        card.addEventListener('click', function () {
+            brandToneSelect.value = card.getAttribute('data-tone');
+            document.querySelectorAll('[data-tone-card]').forEach(function (c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+        });
+    });
+
+    var responseLengthSelect = document.getElementById('responseLengthSelect');
+    document.querySelectorAll('[data-length-card]').forEach(function (card) {
+        card.addEventListener('click', function () {
+            responseLengthSelect.value = card.getAttribute('data-length');
+            document.querySelectorAll('[data-length-card]').forEach(function (c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+        });
+    });
+
+    var creativitySelect = document.getElementById('creativitySelect');
+    document.querySelectorAll('[data-creativity-card]').forEach(function (card) {
+        card.addEventListener('click', function () {
+            creativitySelect.value = card.getAttribute('data-creativity');
+            document.querySelectorAll('[data-creativity-card]').forEach(function (c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+        });
+    });
+
+    var promptEl = document.getElementById('customPrompt');
+    var charCount = document.getElementById('charCount');
+    var charFill = document.getElementById('charFill');
+    function updateCharCount() {
+        var len = promptEl.value.length;
+        charCount.textContent = len;
+        charFill.style.width = Math.min(100, (len / 2000) * 100) + '%';
+    }
+    promptEl.addEventListener('input', updateCharCount);
+    updateCharCount();
+
+    document.querySelectorAll('[data-insert]').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            var text = chip.getAttribute('data-insert');
+            if (promptEl.value.length + text.length > 2000) {
+                showToast('That would exceed the 2000 character limit.');
+                return;
+            }
+            promptEl.value += (promptEl.value.length && !promptEl.value.endsWith(' ') ? ' ' : '') + text;
+            updateCharCount();
+            promptEl.focus();
+        });
+    });
+
+    // ===== LOCAL SEO KEYWORD TAG INPUT =====
+    var seoTagWrap = document.getElementById('seoTagWrap');
+    var seoTagEntry = document.getElementById('seoTagEntry');
+    var seoHiddenInput = document.getElementById('seoKeywordsHidden');
+    var seoTags = (seoHiddenInput.value || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+
+    function renderSeoTags() {
+        seoTagWrap.querySelectorAll('.seo-tag').forEach(function (el) { el.remove(); });
+        seoTags.forEach(function (tag, idx) {
+            var pill = document.createElement('span');
+            pill.className = 'seo-tag';
+            pill.innerHTML = '<span></span><button type="button" aria-label="Remove"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>';
+            pill.querySelector('span').textContent = tag;
+            pill.querySelector('button').addEventListener('click', function () {
+                seoTags.splice(idx, 1);
+                renderSeoTags();
+            });
+            seoTagWrap.insertBefore(pill, seoTagEntry);
+        });
+        seoHiddenInput.value = seoTags.join(', ');
+    }
+
+    function addSeoTag(raw) {
+        var text = raw.trim();
+        if (!text) return;
+        var exists = seoTags.some(function (t) { return t.toLowerCase() === text.toLowerCase(); });
+        if (!exists) {
+            seoTags.push(text);
+            renderSeoTags();
+        }
+        seoTagEntry.value = '';
+    }
+
+    seoTagEntry.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addSeoTag(seoTagEntry.value);
+        } else if (e.key === 'Backspace' && !seoTagEntry.value && seoTags.length) {
+            seoTags.pop();
+            renderSeoTags();
+        }
+    });
+    seoTagEntry.addEventListener('blur', function () {
+        if (seoTagEntry.value.trim()) addSeoTag(seoTagEntry.value);
+    });
+
+    document.querySelectorAll('[data-seo-insert]').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            addSeoTag(chip.getAttribute('data-seo-insert'));
+        });
+    });
+
+    renderSeoTags();
+
+    function exportSettingsJSON() {
+        var data = {
+            automation_mode: document.querySelector('input[name="automation_mode"]:checked') ? document.querySelector('input[name="automation_mode"]:checked').value : null,
+            brand_tone: brandToneSelect.value,
+            response_length: responseLengthSelect.value,
+            creativity_level: creativitySelect.value,
+            signature: document.querySelector('input[name="signature"]').value,
+            custom_prompt: promptEl.value
+        };
+        var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'ai-review-booster-settings.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Settings exported.', true);
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+            e.preventDefault();
+            document.getElementById('settingsForm').requestSubmit();
+        }
+        if (e.key === 'Escape') closePreviewModal();
+    });
+
+    function openPreviewModal() {
+        document.getElementById('previewModal').classList.remove('hidden');
+        runPreview();
+    }
+    function closePreviewModal() {
+        document.getElementById('previewModal').classList.add('hidden');
+    }
+    function runPreview() {
+        var outputEn = document.getElementById('previewOutputEn');
+        var outputFr = document.getElementById('previewOutputFr');
+        outputEn.innerHTML = '<span class="text-slate-2">Generating preview…</span>';
+        outputFr.innerHTML = '<span class="text-slate-2">Génération en cours…</span>';
+
+        var formData = new FormData();
+        formData.append('brand_tone', brandToneSelect.value);
+        formData.append('custom_prompt', promptEl.value);
+        formData.append('signature', document.querySelector('input[name="signature"]').value);
+        formData.append('response_length', responseLengthSelect.value);
+        formData.append('creativity_level', creativitySelect.value);
+        formData.append('blacklisted_words', document.getElementById('blacklistedWords').value);
+
+        var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+        fetch('{% url "preview_ai_response" %}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.draft_en) {
+                    outputEn.textContent = data.draft_en;
+                } else {
+                    outputEn.innerHTML = '<span style="color: #ef4444;">Could not generate this one. Try again.</span>';
+                }
+                if (data.draft_fr) {
+                    outputFr.textContent = data.draft_fr;
+                } else {
+                    outputFr.innerHTML = '<span style="color: #ef4444;">Échec de la génération. Réessayez.</span>';
+                }
+                if (data.error) {
+                    outputEn.innerHTML = '<span style="color: #ef4444;">' + data.error + '</span>';
+                    outputFr.innerHTML = '<span style="color: #ef4444;">' + data.error + '</span>';
+                }
+            })
+            .catch(function () {
+                outputEn.innerHTML = '<span style="color: #ef4444;">Something went wrong.</span>';
+                outputFr.innerHTML = '<span style="color: #ef4444;">Une erreur s\'est produite.</span>';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var revealEls = document.querySelectorAll('.reveal');
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+        revealEls.forEach(function (el) { observer.observe(el); });
+    });
+</script>
 {% endblock %}

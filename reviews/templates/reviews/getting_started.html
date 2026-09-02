@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started | SwissReply.AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0B1220; color: #F7F5F0; }
+        .font-display { font-family: 'Fraunces', serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        h2 { font-family: 'Fraunces', serif; color: #F7F5F0; }
+        a { color: #E8A83C; }
+        .step-card {
+            background: #111A2C;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        .step-num {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: #E8A83C;
+            color: #0B1220;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800;
+            font-family: 'IBM Plex Mono', monospace;
+            flex-shrink: 0;
+        }
+        .toc a { color: #93A0B4; text-decoration: none; }
+        .toc a:hover { color: #E8A83C; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="max-w-3xl mx-auto px-6 py-16">
+        <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'home' %}{% endif %}" class="text-sm text-amber-400 hover:text-amber-300">&larr; Back to {% if user.is_authenticated %}Dashboard{% else %}SwissReply.AI{% endif %}</a>
+
+        <h1 class="font-display text-4xl font-semibold mt-6 mb-2">Getting Started</h1>
+        <p class="text-slate-400 mb-10">Everything you need to go from signup to your first AI-drafted reply.</p>
+
+        <!-- Table of contents -->
+        <div class="toc bg-[#111A2C] border border-white/10 rounded-2xl p-5 mb-10">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider font-mono mb-3">On this page</p>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#step1">1. Connect your business</a></li>
+                <li><a href="#step2">2. Configure AI &amp; Tone Settings</a></li>
+                <li><a href="#step3">3. Understand the Dashboard</a></li>
+                <li><a href="#step4">4. Set up QR Code Booster</a></li>
+                <li><a href="#step5">5. Connect TripAdvisor &amp; Webhooks</a></li>
+                <li><a href="#step6">6. Try the Review Simulator</a></li>
+                <li><a href="#faq-tips">Quick tips &amp; troubleshooting</a></li>
+            </ul>
+        </div>
+
+        <div class="space-y-8">
+
+            <div class="step-card" id="step1">
+                <div class="flex items-start gap-4">
+                    <div class="step-num">1</div>
+                    <div>
+                        <h2 class="text-lg font-semibold mb-2">Connect your business</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">From your Dashboard, click <strong>Sync Reviews</strong> in the top action bar. Enter your business name exactly as it appears on Google, and optionally your Google Place ID for a precise match.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Once synced, your real reviews appear in the Customer Reviews Feed, and your Total Reviews, Avg Rating, and Response Rate stats populate automatically.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="step2">
+                <div class="flex items-start gap-4">
+                    <div class="step-num">2</div>
+                    <div>
+                        <h2 class="text-lg font-semibold mb-2">Configure AI &amp; Tone Settings</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Head to <strong>AI &amp; Tone Settings</strong> to control how replies are generated:</p>
+                        <ul class="list-disc pl-6 text-slate-300 text-sm space-y-1.5 mb-3">
+                            <li><strong>Automation Mode</strong> — choose Smart Guardrail (auto-post 4-5★, hold 1-3★ for review), Hands-Free (auto-approve everything), or Copilot (manual approval on every reply).</li>
+                            <li><strong>Brand Voice</strong> — pick Warm &amp; Friendly, Professional &amp; Formal, or Casual &amp; Modern, plus a signature sign-off.</li>
+                            <li><strong>Response Length &amp; Creativity</strong> — control how long replies are and how much wording varies.</li>
+                            <li><strong>Blacklisted Words</strong> — words the AI should never use (competitor names, etc.) — checked and auto-rewritten if one slips through.</li>
+                            <li><strong>Custom Business Knowledge Base</strong> — tell the AI facts about your business (parking, signature dishes, policies) so replies never sound generic.</li>
+                        </ul>
+                        <p class="text-slate-300 text-sm leading-relaxed">Use <strong>Preview with Sample Review</strong> to see exactly how your current settings would respond, in both English and French, before saving.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="step3">
+                <div class="flex items-start gap-4">
+                    <div class="step-num">3</div>
+                    <div>
+                        <h2 class="text-lg font-semibold mb-2">Understand the Dashboard</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Your Dashboard is the daily control center:</p>
+                        <ul class="list-disc pl-6 text-slate-300 text-sm space-y-1.5">
+                            <li>Filter reviews by status (Pending, Approved, Posted, Flagged) or jump straight to Negative reviews.</li>
+                            <li>Click <strong>Generate AI Response</strong> on any review without a draft yet.</li>
+                            <li>Edit any AI draft directly in the text box before clicking <strong>Approve &amp; Post</strong>.</li>
+                            <li><strong>Competitor Benchmarking</strong> lets you track your rating against nearby businesses.</li>
+                            <li><strong>Recurring Complaint Themes</strong> uses AI to cluster your 1-3★ reviews into patterns worth fixing.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="step4">
+                <div class="flex items-start gap-4">
+                    <div class="step-num">4</div>
+                    <div>
+                        <h2 class="text-lg font-semibold mb-2">Set up QR Code Booster</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Generate a trackable QR code that links straight to your Google review box — print it on table tents, receipts, or stickers.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Add a <strong>Private Feedback URL</strong> (like a simple Google Form) to enable the <strong>Smart Rating Gate</strong>: customers are asked "How was your visit?" first — 4-5★ routes to your public Google review, 1-3★ routes privately to you instead, so upset customers reach you before the public review page.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="step5">
+                <div class="flex items-start gap-4">
+                    <div class="step-num">5</div>
+                    <div>
+                        <h2 class="text-lg font-semibold mb-2">Connect TripAdvisor &amp; Webhooks</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">In <strong>Integrations</strong>, sync your TripAdvisor listing the same way as Google — reviews from both sources land side by side in your dashboard.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">For custom sources (a booking system, POS, or your own form), use your unique <strong>Webhook Endpoint</strong> — POST a review as JSON and it gets the same AI drafting and automation as any synced review. You can test it directly from the Integrations page before going live.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="step6">
+                <div class="flex items-start gap-4">
+                    <div class="step-num">6</div>
+                    <div>
+                        <h2 class="text-lg font-semibold mb-2">Try the Review Simulator</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed">Not ready to sync real reviews yet? Use the <strong>Review Simulator</strong> to inject test reviews and watch the full AI pipeline — spam filtering, sentiment analysis, drafting, and automation routing — happen live, without touching your real Google Business Profile.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="faq-tips" style="border-color: rgba(232,168,60,0.2); background: rgba(232,168,60,0.04);">
+                <h2 class="text-lg font-semibold mb-3 flex items-center gap-2"><i class="bi bi-lightbulb text-amber-400"></i> Quick tips</h2>
+                <ul class="list-disc pl-6 text-slate-300 text-sm space-y-2">
+                    <li>Daily AI generation has a limit shown in the top bar (e.g. "9/50 AI today") — this resets at midnight.</li>
+                    <li>If a review is <strong>Flagged</strong>, it likely failed an authenticity or spam check — you can still click "Generate anyway" to override it.</li>
+                    <li>Run <strong>AI Training</strong> (in AI &amp; Tone Settings) after you've manually edited a few drafts — it helps future replies start closer to your real voice.</li>
+                    <li>Use the theme toggle (sun/moon icon) in the header to switch between dark and light mode — your preference is remembered.</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-white/10 text-sm text-slate-400">
+            Still stuck? Email us at <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request">azizovjasur2007@gmail.com</a> — we read every message.
+        </div>
+    </div>
+</body>
+</html>

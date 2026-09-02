@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service | SwissReply.AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0B1220; color: #F7F5F0; }
+        .font-display { font-family: 'Fraunces', serif; }
+        h2 { font-family: 'Fraunces', serif; color: #F7F5F0; }
+        a { color: #E8A83C; }
+        .section { border-bottom: 1px solid rgba(255,255,255,0.06); padding: 2rem 0; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="max-w-3xl mx-auto px-6 py-16">
+        <a href="{% url 'home' %}" class="text-sm text-amber-400 hover:text-amber-300">&larr; Back to SwissReply.AI</a>
+
+        <h1 class="font-display text-4xl font-semibold mt-6 mb-2">Terms of Service</h1>
+        <p class="text-slate-400 text-sm mb-10">Last updated: September 1, 2026</p>
+
+        <div class="space-y-1 text-slate-300 leading-relaxed">
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">1. Agreement to terms</h2>
+                <p>By creating an account or using SwissReply.AI ("the Service"), you agree to these Terms of Service. If you do not agree, do not use the Service. SwissReply.AI is currently operated as an individual project by its founder, not a registered company. Contact: <a href="mailto:azizovjasur2007@gmail.com">azizovjasur2007@gmail.com</a>.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">2. What the Service does</h2>
+                <p>SwissReply.AI connects to your Google Business Profile (and optionally TripAdvisor and custom webhook sources) to import customer reviews, uses Google's Gemini AI to draft suggested replies, and — based on your configured settings — either posts approved replies automatically or holds them for your manual review before posting.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">3. Your account</h2>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>You must sign in using a valid Google account. You are responsible for maintaining the security of that account.</li>
+                    <li>You are responsible for all activity that occurs through your SwissReply.AI account, including actions taken by team members you invite.</li>
+                    <li>You must provide accurate information about your business when configuring your profile.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">4. AI-generated content</h2>
+                <p class="mb-3">SwissReply.AI uses AI (Google's Gemini) to generate suggested reply text. You acknowledge and agree that:</p>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>AI-generated drafts may occasionally be inaccurate, off-tone, or inappropriate for a given review.</li>
+                    <li>You are solely responsible for reviewing, editing, and approving any reply before it is posted publicly — whether posted manually or through automated "auto-post" settings you have configured.</li>
+                    <li>We are not liable for the content of any AI-generated reply that you approve or that is posted automatically under settings you configured, including replies enabled through our "Smart Guardrail" automation.</li>
+                    <li>You can disable automatic posting at any time and switch to manual approval for all replies.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">5. Acceptable use</h2>
+                <p class="mb-3">You agree not to use SwissReply.AI to:</p>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>Post fake, misleading, or fraudulent reviews or replies</li>
+                    <li>Violate Google's Business Profile policies, TripAdvisor's terms, or any third-party platform's terms of service</li>
+                    <li>Attempt to reverse-engineer, abuse, or overload the Service's infrastructure, including our AI generation endpoints</li>
+                    <li>Use the Service for any unlawful purpose</li>
+                </ul>
+                <p class="mt-3">We reserve the right to suspend or terminate accounts that violate these terms.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">6. Pricing and billing</h2>
+                <p>Current pricing tiers (Starter, Growth, Multi-Site) are displayed on our pricing page and are subject to change with notice. As we are in early stages, some billing enforcement and plan limits may not yet be fully automated — pricing displayed represents our intended plan structure. Free trial terms, where offered, will be clearly stated at signup.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">7. Cancellation</h2>
+                <p>You may cancel your account at any time from your account settings or by contacting us. Upon cancellation, we immediately stop accessing your connected Google Business Profile and other integrations. You retain full ownership and control of your Google Business Profile at all times — SwissReply.AI only assists with drafting and posting replies while connected.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">8. Service availability</h2>
+                <p>SwissReply.AI is provided on an "as is" and "as available" basis. We do not guarantee uninterrupted access, and features depending on third-party services (Google, Gemini AI, SerpAPI/TripAdvisor) may be affected by those providers' availability, rate limits, or policy changes outside our control.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">9. Limitation of liability</h2>
+                <p>To the fullest extent permitted by law, SwissReply.AI and its operator shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service, including damages related to AI-generated content, reputational impact from posted replies, or third-party service interruptions.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="text-xl font-semibold mb-3">10. Changes to these terms</h2>
+                <p>We may update these Terms of Service from time to time. Continued use of the Service after changes are posted constitutes acceptance of the revised terms.</p>
+            </div>
+
+            <div class="section" style="border-bottom: none;">
+                <h2 class="text-xl font-semibold mb-3">11. Contact</h2>
+                <p>Questions about these terms? Email <a href="mailto:azizovjasur2007@gmail.com">azizovjasur2007@gmail.com</a>.</p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

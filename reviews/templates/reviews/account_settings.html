@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block page_title %}Account Settings{% endblock %}
+{% block head_title %}Account Settings | SwissReply.AI{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-3xl mx-auto space-y-6">
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
+        <div>
+            <h1 class="font-display text-2xl font-semibold text-white tracking-tight">Account Settings</h1>
+            <p class="text-xs sm:text-sm text-slate mt-1">Manage your account details and connected services.</p>
+        </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="bg-ink-2 rounded-2xl border border-white/10 p-6 space-y-4">
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">Profile Information</h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="text-[10px] font-bold text-slate-2 uppercase tracking-wider font-mono block">Username</label>
+                <p class="text-sm text-white font-medium mt-1">{{ user.username }}</p>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-2 uppercase tracking-wider font-mono block">Email</label>
+                <p class="text-sm text-white font-medium mt-1">{{ user.email }}</p>
+            </div>
+        </div>
+        
+        <div>
+            <label class="text-[10px] font-bold text-slate-2 uppercase tracking-wider font-mono block">Account Created</label>
+            <p class="text-sm text-white font-medium mt-1">{{ user.date_joined|date:"F d, Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Connected Accounts -->
+    <div class="bg-ink-2 rounded-2xl border border-white/10 p-6 space-y-4">
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">Connected Accounts</h2>
+        
+        <div class="space-y-2">
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white text-sm font-bold">G</span>
+                    <div>
+                        <span class="text-sm font-medium text-white">Google</span>
+                        <p class="text-xs text-slate-2">Connected via Google OAuth</p>
+                    </div>
+                </div>
+                <span class="text-xs font-mono text-emerald-400">✓ Connected</span>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10 opacity-60">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center text-white text-sm font-bold">GH</span>
+                    <div>
+                        <span class="text-sm font-medium text-white">GitHub</span>
+                        <p class="text-xs text-slate-2">Not connected</p>
+                    </div>
+                </div>
+                <button class="text-xs font-mono text-gold hover:text-gold-soft transition">Connect</button>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10 opacity-60">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-blue-800 flex items-center justify-center text-white text-sm font-bold">MS</span>
+                    <div>
+                        <span class="text-sm font-medium text-white">Microsoft</span>
+                        <p class="text-xs text-slate-2">Not connected</p>
+                    </div>
+                </div>
+                <button class="text-xs font-mono text-gold hover:text-gold-soft transition">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security -->
+    <div class="bg-ink-2 rounded-2xl border border-white/10 p-6 space-y-4">
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">Security</h2>
+        
+        <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+            <div>
+                <span class="text-sm font-medium text-white">Password</span>
+                <p class="text-xs text-slate-2">Set or change your password</p>
+            </div>
+            <a href="{% url 'account_change_password' %}" class="text-xs font-mono text-gold hover:text-gold-soft transition">Change Password</a>
+        </div>
+        
+        <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+            <div>
+                <span class="text-sm font-medium text-white">Two-Factor Authentication</span>
+                <p class="text-xs text-slate-2">Add an extra layer of security</p>
+            </div>
+            <span class="text-xs font-mono text-slate-2">Coming Soon</span>
+        </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="bg-ink-2 rounded-2xl border border-white/10 p-6 space-y-3">
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">Active Sessions</h2>
+        <p class="text-xs text-slate-2 -mt-2">Devices currently signed in to your account.</p>
+
+        {% for s in sessions %}
+        <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+            <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-white truncate">{{ s.user_agent|truncatechars:50|default:"Unknown device" }}</span>
+                    {% if s.session_key == current_session_key %}
+                    <span class="text-[10px] font-mono text-emerald-400 border border-emerald-800/30 rounded-full px-2 py-0.5">This device</span>
+                    {% endif %}
+                </div>
+                <p class="text-xs text-slate-2 mt-0.5">{{ s.ip_address|default:"Unknown IP" }} · Last active {{ s.last_activity|timesince }} ago</p>
+            </div>
+            {% if s.session_key != current_session_key %}
+            <form action="{% url 'revoke_session' s.session_key %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="text-xs font-mono text-rose-400 hover:text-rose-300 transition">Sign out</button>
+            </form>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-xs text-slate-2">No tracked sessions yet.</p>
+        {% endfor %}
+
+        <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10 mt-2">
+            <div>
+                <span class="text-sm font-medium text-white">Sign Out</span>
+                <p class="text-xs text-slate-2">Sign out of your current session</p>
+            </div>
+            <a href="{% url 'account_logout' %}" class="text-xs font-mono text-rose-400 hover:text-rose-300 transition">Sign Out</a>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-center gap-1.5 text-[10.5px] text-slate-2 pb-2">
+        <span class="font-mono">v1.0</span>
+        <span>·</span>
+        <span class="font-mono">SwissReply.AI</span>
+    </div>
+</div>
+{% endblock %}

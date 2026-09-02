@@ -1,133 +1,1483 @@
 {% extends "base.html" %}
 
 {% block page_title %}QR Code Booster{% endblock %}
-{% block head_title %}QR Code Booster | AI Review Booster{% endblock %}
+{% block head_title %}QR Code Booster | SwissReply.AI{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+    :root {
+        --ink: #0B1220;
+        --ink-2: #111A2C;
+        --paper: #F7F5F0;
+        --gold: #E8A83C;
+        --gold-soft: #F4C871;
+        --teal: #2DD4A7;
+        --slate: #93A0B4;
+        --slate-2: #5C6B85;
+
+        --font-display: 'Fraunces', serif;
+        --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    h1,
+    h2,
+    h3,
+    .font-display {
+        font-family: var(--font-display);
+        letter-spacing: -0.01em;
+    }
+
+    .font-mono {
+        font-family: var(--font-mono);
+    }
+
+    .text-gold {
+        color: var(--gold);
+    }
+
+    .text-slate {
+        color: var(--slate);
+    }
+
+    .text-slate-2 {
+        color: var(--slate-2);
+    }
+
+    .bg-ink-2 {
+        background: var(--ink-2);
+    }
+
+    .border-white-10 {
+        border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .border-white-5 {
+        border-color: rgba(255, 255, 255, 0.03);
+    }
+
+    .qr-hero {
+        position: relative;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--paper);
+    }
+
+    .qr-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 14px 14px;
+        opacity: 0.6;
+    }
+
+    .qr-hero>* {
+        position: relative;
+        z-index: 1;
+    }
+
+    .qr-hero-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: var(--gold);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1.25rem;
+    }
+
+    .qr-card:has(.rb-dropdown-menu.open) {
+        z-index: 20;
+    }
+
+    .hero-stat {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 0.85rem 1.1rem;
+    }
+
+    .hero-stat .val {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--paper);
+    }
+
+    .hero-stat .val.val-empty {
+        color: var(--slate-2);
+        opacity: 0.6;
+    }
+
+    .hero-stat .lbl {
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--slate);
+        margin-top: 0.3rem;
+    }
+
+    .rb-dropdown {
+        position: relative;
+    }
+
+    .rb-dropdown-menu {
+        position: fixed;
+        min-width: 220px;
+        background: var(--ink-2);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+        padding: 0.5rem;
+        z-index: 50;
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+        pointer-events: none;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rb-dropdown-menu.open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .rb-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.625rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--slate);
+        text-decoration: none;
+        transition: background 0.15s ease;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+    }
+
+    .rb-dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--paper);
+        text-decoration: none;
+    }
+
+    .rb-dropdown-menu.open {
+        z-index: 9999 !important;
+    }
+
+    .qr-hero {
+        z-index: 30;
+    }
+
+    .settings-card {
+        background: var(--ink-2);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 1.75rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .step-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.62rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--gold);
+        margin-bottom: 0.85rem;
+        font-family: var(--font-mono);
+    }
+
+    .step-num {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--gold);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: 800;
+    }
+
+    .qr-preview-frame {
+        border-radius: 14px;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .qr-preview-frame img {
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: white;
+    }
+
+    .swatch {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        border: 2px solid var(--ink-2);
+        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .swatch:hover {
+        transform: translateY(-1px);
+    }
+
+    .swatch.active {
+        box-shadow: 0 0 0 2px var(--gold);
+    }
+
+    .swatch.active::after {
+        content: '✓';
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    }
+
+    .qr-card {
+        background: var(--ink-2);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 1.4rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        position: relative;
+    }
+
+    .qr-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px -16px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .hot-badge {
+        position: absolute;
+        top: -9px;
+        right: 14px;
+        background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+        color: var(--ink);
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        padding: 0.22rem 0.55rem;
+        border-radius: 9999px;
+        box-shadow: 0 4px 10px -3px rgba(232, 168, 60, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-family: var(--font-mono);
+    }
+
+    .gate-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: var(--gold);
+        background: rgba(232, 168, 60, 0.08);
+        border: 1px solid rgba(232, 168, 60, 0.15);
+        border-radius: 6px;
+        padding: 0.15rem 0.45rem;
+        font-family: var(--font-mono);
+    }
+
+
+    .funnel-stage {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .funnel-stage:last-child {
+        margin-bottom: 0;
+    }
+
+    .funnel-label {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--paper);
+    }
+
+    .funnel-num {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .funnel-bar-track {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        overflow: hidden;
+    }
+
+    .funnel-bar {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .funnel-outcome {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0.9rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .funnel-outcome i {
+        font-size: 1.15rem;
+    }
+
+    .funnel-outcome-good i {
+        color: var(--teal);
+    }
+
+    .funnel-outcome-shield i {
+        color: var(--gold);
+    }
+
+    .funnel-outcome-num {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--paper);
+        line-height: 1;
+    }
+
+    .funnel-outcome-lbl {
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: var(--slate);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-top: 2px;
+    }
+
+
+    .btn-dark {
+        background: var(--gold);
+        color: var(--ink);
+        padding: 0.55rem 1rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-family: var(--font-body);
+    }
+
+    .btn-dark:hover {
+        background: var(--gold-soft);
+        color: var(--ink);
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+    .btn-line {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--slate);
+        padding: 0.55rem 1rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-decoration: none;
+        font-family: var(--font-body);
+    }
+
+    .btn-line:hover {
+        background: rgba(255, 255, 255, 0.08);
+        text-decoration: none;
+        color: var(--paper);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary-grad {
+        background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+        color: var(--ink);
+        padding: 0.75rem 1.4rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        font-family: var(--font-body);
+    }
+
+    .btn-primary-grad:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px -8px rgba(232, 168, 60, 0.4);
+    }
+
+    .mini-select {
+        font-size: 0.66rem;
+        font-weight: 600;
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--slate);
+        font-family: var(--font-body);
+    }
+
+    .mini-select option {
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    .bulk-bar {
+        position: sticky;
+        top: 0.5rem;
+        z-index: 10;
+        background: var(--ink);
+        color: var(--paper);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.6rem 1rem;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.4);
+    }
+
+    .bulk-bar.show {
+        display: flex;
+    }
+
+    .roadmap-item {
+        border: 1px dashed rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        opacity: 0.85;
+    }
+
+    .roadmap-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.58rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--slate);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.2rem 0.5rem;
+        border-radius: 9999px;
+        font-family: var(--font-mono);
+    }
+
+    #toastHost {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .toast {
+        background: var(--ink-2);
+        color: var(--paper);
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .toast.success {
+        background: rgba(45, 212, 167, 0.15);
+        border-color: rgba(45, 212, 167, 0.15);
+        color: var(--teal);
+    }
+
+    .toast.danger {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    input[type="text"],
+    input[type="url"] {
+        width: 100%;
+        padding: 0.65rem 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--paper);
+        transition: all 0.15s ease;
+        font-family: var(--font-body);
+    }
+
+    input[type="text"]::placeholder,
+    input[type="url"]::placeholder {
+        color: var(--slate-2);
+    }
+
+    input[type="text"]:focus,
+    input[type="url"]:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 0 0 3px rgba(232, 168, 60, 0.08);
+    }
+
+    input[type="time"],
+    input[type="date"] {
+        width: 100%;
+        padding: 0.65rem 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--paper);
+        font-family: var(--font-body);
+        color-scheme: dark;
+    }
+
+    input[type="time"]:focus,
+    input[type="date"]:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 0 0 3px rgba(232, 168, 60, 0.08);
+    }
+
+    label {
+        color: var(--slate);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .help-details summary {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        cursor: pointer;
+        list-style: none;
+        font-family: var(--font-mono);
+    }
+
+    .help-details summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .help-details summary::before {
+        content: '+ ';
+    }
+
+    .help-details[open] summary::before {
+        content: '– ';
+    }
+
+    .help-details p {
+        font-size: 11px;
+        color: var(--slate);
+        margin-top: 0.4rem;
+        line-height: 1.5;
+        padding-left: 0.75rem;
+        border-left: 2px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .help-details a {
+        color: var(--gold);
+    }
+
+    @media (max-width: 640px) {
+
+        .settings-card,
+        .qr-card {
+            padding: 1.1rem;
+        }
+
+        .qr-hero {
+            padding: 1.4rem;
+        }
+    }
+
+    html[data-theme="light"] input[type="time"],
+    html[data-theme="light"] input[type="date"] {
+        color-scheme: light;
+    }
+
+    html[data-theme="light"] .hero-stat,
+    html[data-theme="light"] .qr-preview-frame,
+    html[data-theme="light"] .funnel-outcome,
+    html[data-theme="light"] .roadmap-item {
+        background: rgba(var(--surface-rgb), 0.04);
+    }
+
+    html[data-theme="light"] input[type="text"],
+    html[data-theme="light"] input[type="url"],
+    html[data-theme="light"] .mini-select,
+    html[data-theme="light"] .btn-line {
+        background: rgba(var(--surface-rgb), 0.05);
+    }
+
+    html[data-theme="light"] .funnel-bar-track {
+        background: rgba(var(--surface-rgb), 0.08);
+    }
+
+    html[data-theme="light"] .hero-stat,
+    html[data-theme="light"] .settings-card,
+    html[data-theme="light"] .qr-card,
+    html[data-theme="light"] .qr-preview-frame,
+    html[data-theme="light"] .rb-dropdown-menu,
+    html[data-theme="light"] .roadmap-item,
+    html[data-theme="light"] .toast,
+    html[data-theme="light"] .bulk-bar,
+    html[data-theme="light"] .funnel-outcome,
+    html[data-theme="light"] input[type="text"],
+    html[data-theme="light"] input[type="url"],
+    html[data-theme="light"] .mini-select,
+    html[data-theme="light"] .btn-line {
+        border-color: rgba(var(--surface-rgb), 0.12);
+    }
+
+    html[data-theme="light"] [class*="bg-white/"] {
+        background-color: rgba(var(--surface-rgb), 0.05) !important;
+    }
+
+    html[data-theme="light"] .border-white-10,
+    html[data-theme="light"] .border-white-5,
+    html[data-theme="light"] [class*="border-white"] {
+        border-color: rgba(var(--surface-rgb), 0.12) !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-6xl mx-auto space-y-8">
+<div id="toastHost"></div>
+<div class="w-full max-w-6xl mx-auto space-y-6">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
-                QR Code Booster
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                Generate dynamic, trackable QR codes for print media to direct offline customers to your Google Business Profile.
-            </p>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                Production Ready
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-900/20 text-emerald-400 border-emerald-800/30
+            {% elif message.tags == 'warning' %}bg-amber-900/20 text-amber-400 border-amber-800/30
+            {% elif message.tags == 'error' %}bg-rose-900/20 text-rose-400 border-rose-800/30
+            {% else %}bg-blue-900/20 text-blue-400 border-blue-800/30{% endif %}">
+            <span class="flex items-center gap-2">
+                {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>
+                {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+                {% elif message.tags == 'error' %}<i class="bi bi-x-circle-fill"></i>
+                {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+                {{ message }}
             </span>
+            <button type="button" onclick="this.closest('div.flex').remove()"
+                class="opacity-60 hover:opacity-100 transition"><i class="bi bi-x-lg"></i></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===== HERO ===== -->
+    <div class="qr-hero">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+            <div class="flex items-start gap-3.5">
+                <div class="qr-hero-icon"><i class="bi bi-qr-code-scan"></i></div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap mb-1">
+                        <h1 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-white">QR Code
+                            Booster</h1>
+                        <span
+                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/5 border border-white-10 font-mono text-gold">Production
+                            Ready</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate max-w-lg">Print these on table tents, receipts, or stickers
+                        — a customer scans, and lands straight on your Google review box instead of never bothering to
+                        leave one.</p>
+                </div>
+            </div>
+
+            <div class="rb-dropdown">
+                <button type="button" onclick="toggleQrMenu('quickActionsMenu')" class="btn-line">
+                    <i class="bi bi-lightning-charge-fill"></i> Quick Actions <i
+                        class="bi bi-chevron-down text-[9px]"></i>
+                </button>
+                <div id="quickActionsMenu" class="rb-dropdown-menu">
+                    <a href="#generatorForm" class="rb-dropdown-item"><i class="bi bi-plus-circle text-gold"></i>
+                        Generate QR code</a>
+                    <button type="button" onclick="exportAnalyticsCSV()" class="rb-dropdown-item"><i
+                            class="bi bi-download text-slate"></i> Export analytics (CSV)</button>
+                    {% if qr_codes %}
+                    <a href="{% url 'qr_print_template' qr_codes.first.slug %}?template=tent"
+                        class="rb-dropdown-item"><i class="bi bi-printer text-slate"></i>
+                        Print latest ({{ qr_codes.first.title|truncatechars:20 }})</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
+            <div class="hero-stat">
+                <div class="val" id="statTotalCodes">0</div>
+                <div class="lbl">QR Codes Generated</div>
+            </div>
+            <div class="hero-stat">
+                <div class="val" id="statTotalScans">0</div>
+                <div class="lbl">Total Scans Tracked</div>
+            </div>
+            <div class="hero-stat">
+                <div class="val" id="statAvgScans">0</div>
+                <div class="lbl">Avg Scans / Code</div>
+            </div>
         </div>
     </div>
 
+    <!-- How it works -->
+    <div class="bg-ink-2 border border-white-10 rounded-2xl p-4 flex items-start gap-3">
+        <i class="bi bi-info-circle-fill text-gold mt-0.5"></i>
+        <div class="text-xs text-slate leading-relaxed">
+            <span class="font-semibold text-white">How it works:</span> generate a QR code below, print it, and place it
+            somewhere customers see it after a good experience.
+            Add a <span class="font-semibold text-gold">Private Feedback URL</span> too, and scanning first asks "How
+            was your visit?" — 4-5★ sends them to Google,
+            1-3★ routes privately to you instead, so upset customers reach you before they reach the public.
+        </div>
+    </div>
+
+
+    <!-- ===== BUSINESS LOGO ===== -->
+    <div class="settings-card">
+        <div class="flex items-start gap-3 border-b border-white-5 pb-3 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-teal-10 text-teal flex items-center justify-center flex-shrink-0"
+                style="background: rgba(45,212,167,0.08);"><i class="bi bi-shield-check"></i></div>
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Business Logo</h2>
+                <p class="text-xs text-slate mt-0.5">Embedded in the center of every QR code you generate.</p>
+            </div>
+        </div>
+        <form action="{% url 'update_settings' %}" method="POST" enctype="multipart/form-data"
+            class="flex flex-col sm:flex-row sm:items-center gap-4">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="qr_booster">
+            {% if profile.logo %}
+            <img src="{{ profile.logo.url }}" alt="Current logo"
+                class="w-14 h-14 rounded-lg object-cover border border-white-10 flex-shrink-0">
+            {% endif %}
+            <input type="file" name="logo" accept="image/png,image/jpeg" class="flex-1"
+                style="color: var(--slate); font-size: 0.8rem;">
+            <button type="submit" class="btn-dark whitespace-nowrap">Upload Logo</button>
+        </form>
+        <p class="text-[11px] text-slate-2 mt-2">PNG or JPG, square images work best. Existing QR codes update
+            automatically.</p>
+    </div>
+
+
+    <!-- ===== SCAN ANALYTICS ===== -->
+    {% if has_scan_data %}
+    <div class="settings-card">
+        <div class="flex items-start gap-3 border-b border-white-5 pb-3 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-teal-10 text-teal flex items-center justify-center flex-shrink-0"
+                style="background: rgba(45,212,167,0.08);"><i class="bi bi-graph-up"></i></div>
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Scan Analytics</h2>
+                <p class="text-xs text-slate mt-0.5">Trends across all your QR campaigns, last 14 days.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div>
+                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Daily Scans</p>
+                <canvas id="dailyTrendChart" height="140"></canvas>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Device Type</p>
+                <canvas id="deviceChart" height="140"></canvas>
+            </div>
+        </div>
+
+        <div>
+            <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Time of Day</p>
+            <div class="flex items-end gap-[3px] h-16" id="hourlyHeatmap"></div>
+            <div class="flex justify-between text-[9px] text-slate-2 font-mono mt-1">
+                <span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span>
+            </div>
+            {% if funnel.scanned > 0 %}
+            <div class="border-t border-white-5 mt-6 pt-6">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-1">
+                    <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono">
+                        Conversion Funnel <span class="text-slate-2 font-normal normal-case">— Smart Rating Gate
+                            codes</span>
+                    </p>
+                    {% if funnel.non_gated_scans %}
+                    <span class="text-[10px] text-slate-2 font-mono">+{{ funnel.non_gated_scans }} scan{{ funnel.non_gated_scans|pluralize }} on non-gated codes went straight to Google</span>
+                    {% endif %}
+                </div>
+
+                <div class="funnel-stage">
+                    <div class="funnel-label"><span class="funnel-num">{{ funnel.scanned }}</span> Scanned</div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar" style="width:100%; background: var(--gold);"></div>
+                    </div>
+                </div>
+                <div class="funnel-stage">
+                    <div class="funnel-label"><span class="funnel-num">{{ funnel.rated }}</span> Rated <span
+                            class="text-slate-2 font-normal">({{ funnel.rated_pct }}%)</span></div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar" style="width:{{ funnel.rated_pct }}%; background: var(--gold-soft);">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                    <div class="funnel-outcome funnel-outcome-good">
+                        <i class="bi bi-google"></i>
+                        <div>
+                            <div class="funnel-outcome-num">{{ funnel.to_google }}</div>
+                            <div class="funnel-outcome-lbl">Sent to Google (4-5★)</div>
+                        </div>
+                    </div>
+                    <div class="funnel-outcome funnel-outcome-shield">
+                        <i class="bi bi-shield-check"></i>
+                        <div>
+                            <div class="funnel-outcome-num">{{ funnel.to_private }}</div>
+                            <div class="funnel-outcome-lbl">Caught privately (1-3★)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        <!-- Generator Form -->
-        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <!-- ===== Generator Form ===== -->
+        <div id="generatorForm" class="lg:col-span-5 settings-card space-y-6">
             <div>
-                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                    Create New QR Code
-                </h2>
-                <p class="text-xs text-slate-500 mt-1">
-                    Configure a target landing page and custom URL slug for your print campaigns.
-                </p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Create New QR Code</h2>
+                <p class="text-xs text-slate mt-1">Configure a target landing page and custom URL slug for your print
+                    campaigns.</p>
             </div>
 
-            <form action="{% url 'create_qr' %}" method="POST" class="space-y-4">
+            <form action="{% url 'create_qr' %}" method="POST" class="space-y-5">
                 {% csrf_token %}
-                
+
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Campaign Label
-                    </label>
-                    <input type="text" name="name" required placeholder="e.g. Table Tents - Main Dining" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none text-slate-900 bg-slate-50/50">
-                    <p class="text-[11px] text-slate-400 mt-1">Internal name to identify scan sources.</p>
+                    <div class="step-label"><span class="step-num">1</span> Campaign Details</div>
+                    <label>Campaign Label</label>
+                    <input type="text" name="name" required placeholder="e.g. Table Tents - Main Dining" id="fieldName"
+                        class="w-full">
+                    <p class="text-[11px] text-slate-2 mt-1">Internal name to identify scan sources.</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Target Google Review URL
-                    </label>
-                    <input type="url" name="target_url" required placeholder="https://g.page/r/your-google-review-link" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none text-slate-900 bg-slate-50/50">
-                    <p class="text-[11px] text-slate-400 mt-1">Direct destination link to your Google Business Profile review dialog.</p>
+                    <label>Target Google Review URL</label>
+                    <input type="url" name="target_url" required value="{{ profile.google_review_url|default:'' }}"
+                        placeholder="https://g.page/r/your-google-review-link" class="w-full">
+                    {% if profile.google_review_url %}
+                    <p class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1"><i class="bi bi-check-lg"></i>
+                        Auto-filled from {{ profile.business_name }}'s synced Google listing — edit if needed.</p>
+                    {% else %}
+                    <p class="text-[11px] text-slate-2 mt-1">Sync this business on the Dashboard first to auto-fill
+                        this, or paste your review link directly.</p>
+                    {% endif %}
+                    <details class="help-details mt-1.5">
+                        <summary>Where do I find this?</summary>
+                        <p>Search your business on Google, click "Write a review" on your own listing, then copy the URL
+                            from your browser's address bar. It usually starts with <span
+                                class="font-mono">g.page/r/</span>
+                            or <span class="font-mono">search.google.com/local/writereview</span>.</p>
+                    </details>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Custom URL Slug (Optional)
-                    </label>
-                    <div class="flex items-center">
-                        <span class="px-3 py-2.5 bg-slate-100 border border-r-0 border-slate-300 rounded-l-xl text-xs text-slate-500">
-                            /qr/
-                        </span>
-                        <input type="text" name="slug" placeholder="main-table-1" class="w-full p-2.5 border border-slate-300 rounded-r-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none text-slate-900 bg-slate-50/50">
+                <div class="pt-1">
+                    <div class="step-label">
+                        <span class="step-num">2</span> Smart Rating Gate
+                        <span
+                            class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-white/5 border border-white-10 text-slate-2 font-normal normal-case"
+                            style="font-size: 9px; letter-spacing: 0;">optional</span>
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-1">Leave blank for auto-generated short ID.</p>
+                    <label>Private Feedback URL</label>
+                    <input type="url" name="private_feedback_url"
+                        placeholder="https://forms.gle/your-private-feedback-form" class="w-full">
+                    <p class="text-[11px] text-slate-2 mt-1">If set, customers see a quick "How was your visit?" star
+                        picker first — 1-3★ comes here instead of Google.</p>
+                    <details class="help-details mt-1.5">
+                        <summary>Don't have one yet?</summary>
+                        <p>Create a free 2-question form at <a href="https://forms.google.com" target="_blank"
+                                rel="noopener noreferrer">forms.google.com</a> — ask "What went wrong?" and "How can we
+                            make it right?" — then paste the shareable link here. Or just leave this blank; the gate
+                            simply won't be used.</p>
+                    </details>
+                </div>
+
+                <div>
+                    <label>Custom URL Slug <span class="text-slate-2 font-normal">(optional)</span></label>
+                    <div class="flex items-center">
+                        <span
+                            class="px-3 py-2.5 bg-ink border border-r-0 border-white-10 rounded-l-xl text-xs text-slate-2 font-mono">/qr/</span>
+                        <input type="text" name="slug" id="fieldSlug" placeholder="main-table-1"
+                            class="w-full rounded-r-xl">
+                    </div>
+                    <p class="text-[11px] text-slate-2 mt-1">Leave blank for auto-generated short ID.</p>
+                </div>
+
+                <!-- Live preview -->
+                <div class="qr-preview-frame">
+                    <img id="livePreviewImg"
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&color=99999&data=preview"
+                        alt="Live QR preview" width="120" height="120">
+                    <span class="text-[10px] text-slate-2 font-mono">Live preview — updates as you type a slug</span>
+                </div>
+
+                <div>
+                    <label>QR Color</label>
+                    <div class="flex items-center gap-2">
+                        <span class="swatch active" data-color="000000" style="background:#000000"
+                            onclick="setPreviewColor(this)" title="Black"></span>
+                        <span class="swatch" data-color="E8A83C" style="background:#E8A83C"
+                            onclick="setPreviewColor(this)" title="Gold"></span>
+                        <span class="swatch" data-color="0f172a" style="background:#0f172a"
+                            onclick="setPreviewColor(this)" title="Slate"></span>
+                        <span class="swatch" data-color="2DD4A7" style="background:#2DD4A7"
+                            onclick="setPreviewColor(this)" title="Teal"></span>
+                    </div>
+                </div>
+
+                <div class="pt-1">
+                    <div class="step-label"><span class="step-num">3</span> Team & Scheduling
+                        <span
+                            class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-white/5 border border-white-10 text-slate-2 font-normal normal-case"
+                            style="font-size: 9px; letter-spacing: 0;">optional</span>
+                    </div>
+                    <label>Assign to teammate</label>
+                    <select name="assigned_to" class="w-full mini-select"
+                        style="padding:0.65rem 0.8rem; font-size:0.8rem;">
+                        <option value="">Unassigned</option>
+                        {% for member in team_members %}
+                        <option value="{{ member.id }}">{{ member.username }}{% if member == request.user %} (you){% endif %}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="flex items-center gap-2 mt-3">
+                        <input type="checkbox" name="active_hours_enabled" id="activeHoursToggle" style="width:auto;">
+                        <label for="activeHoursToggle" style="margin:0;">Only active during set hours</label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <input type="time" name="active_hours_start" class="w-full">
+                        <input type="time" name="active_hours_end" class="w-full">
+                    </div>
+
+                    <label class="block mt-3">Expires on <span
+                            class="text-slate-2 font-normal">(optional)</span></label>
+                    <input type="date" name="expires_at" class="w-full">
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-3 rounded-xl shadow transition text-center">
-                        Generate Trackable QR Code
+                    <button type="submit" class="btn-primary-grad">
+                        <i class="bi bi-qr-code-scan"></i> Generate Trackable QR Code
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Active QR Codes & Analytics List -->
+        <!-- ===== Active QR Codes & Analytics ===== -->
         <div class="lg:col-span-7 space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Active Campaign QR Codes
-                </h2>
-                <span class="text-xs text-slate-400 font-medium">
-                    Total Scans Tracked
-                </span>
+            <div class="bulk-bar" id="bulkBar">
+                <span class="text-xs font-semibold"><span id="bulkCount">0</span> selected</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="clearBulkSelection()"
+                        class="text-xs font-semibold text-slate hover:text-white">Cancel</button>
+                    <button type="button" onclick="bulkDeleteSelected()"
+                        class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition"><i
+                            class="bi bi-trash3"></i> Delete selected</button>
+                </div>
             </div>
 
-            {% for qr in qr_codes %}
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 mb-1.5">
-                            Slug: /qr/{{ qr.slug }}
-                        </span>
-                        <h3 class="font-bold text-base text-slate-900">{{ qr.title }}</h3>
-                        <p class="text-xs text-slate-500 truncate max-w-md mt-0.5">{{ qr.google_review_url }}</p>
-                    </div>
+            <div class="flex justify-between items-center border-b border-white-5 pb-3">
+                <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">Active Campaign QR Codes
+                </h2>
+                <span class="text-xs text-slate-2 font-mono">{{ qr_codes|length }} campaign{{ qr_codes|length|pluralize }}</span>
+            </div>
 
-                    <div class="text-left sm:text-right bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-100">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase block">Total Scans</span>
-                        <span class="text-2xl font-black text-slate-900">{{ qr.scans_count|default:"0" }}</span>
+            {% if qr_codes %}
+            <div class="settings-card" style="padding: 1.25rem 1.5rem;">
+                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Scans by Campaign
+                </p>
+                <canvas id="scansChart" height="90"></canvas>
+            </div>
+            {% endif %}
+
+            {% for qr in qr_codes %}
+            <div class="qr-card" data-scans="{{ qr.total_scans|default:0 }}" data-title="{{ qr.title|escapejs }}">
+                <div class="flex items-start gap-3 mb-4">
+                    <input type="checkbox" class="qr-select mt-1.5" data-delete-url="{% url 'delete_qr' qr.id %}"
+                        data-name="{{ qr.title|escapejs }}" onchange="updateBulkBar()">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-1">
+                        <div class="flex items-start gap-4">
+                            <img src="{% url 'qr_image' qr.slug %}?size=200" alt="QR code for {{ qr.title }}"
+                                class="w-[72px] h-[72px] rounded-lg border border-white-10 flex-shrink-0 qr-card-img"
+                                data-slug="{{ qr.slug }}">
+                            <div>
+                                <span
+                                    class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold bg-white/5 text-slate border border-white-10 font-mono mb-1.5">Slug:
+                                    /qr/{{ qr.slug }}</span>
+                                <h3 class="font-display font-semibold text-base text-white">{{ qr.title }}</h3>
+                                <p class="text-xs text-slate truncate max-w-md mt-0.5">{{ qr.google_review_url }}</p>
+                                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                    {% if qr.private_feedback_url %}
+                                    <span class="gate-badge"><i class="bi bi-shield-check"></i> Smart Rating Gate
+                                        active</span>
+                                    {% endif %}
+                                    {% if qr.private_feedback_url and qr.funnel_scanned %}
+                                    <span class="text-[10px] text-slate-2 font-mono">{{ qr.funnel_rated_pct }}% rated · {{ qr.funnel_to_google }} → Google</span>
+                                    {% endif %}
+                                    {% if qr.created_at %}
+                                    <span class="text-[10px] text-slate-2 font-mono">Created {{ qr.created_at|timesince }} ago</span>
+                                    {% endif %}
+                                    {% if qr.assigned_to %}
+                                    <span class="text-[10px] text-slate-2 font-mono">· Assigned: {{ qr.assigned_to.username }}</span>
+                                    {% endif %}
+                                    {% if qr.expires_at %}
+                                    <span class="text-[10px] text-slate-2 font-mono">· Expires {{ qr.expires_at|date:"M, d, Y" }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="text-left sm:text-right bg-ink/50 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-white-10 relative">
+                            {% if qr.total_scans > 0 %}<span class="hot-badge qr-hot-slot" style="display:none;"><i
+                                    class="bi bi-fire"></i> Hot</span>{% endif %}
+                            <span class="text-[10px] font-bold text-slate uppercase font-mono block">Total Scans</span>
+                            <span class="text-2xl font-display font-semibold text-white">{{ qr.total_scans|default:"0" }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="border-t border-slate-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="text-xs text-slate-400">
-                        Created: {{ qr.created_at|date:"M d, Y"|default:"Recently" }}
-                    </div>
+                <div class="border-t border-white-5 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="text-xs text-slate-2 font-mono">{{ qr.created_at|date:"M d, Y H:i" }}</div>
 
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <a href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ request.scheme }}://{{ request.get_host }}/qr/{{ qr.slug }}" target="_blank" download="qr-{{ qr.slug }}.png" class="flex-1 sm:flex-initial text-center px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
-                            Download PNG
-                        </a>
-                        <a href="https://api.qrserver.com/v1/create-qr-code/?size=500x500&format=svg&data={{ request.scheme }}://{{ request.get_host }}/qr/{{ qr.slug }}" target="_blank" download="qr-{{ qr.slug }}.svg" class="flex-1 sm:flex-initial text-center px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition">
-                            Download Vector SVG
-                        </a>
+                    <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                        <button type="button" class="btn-line qr-duplicate-btn" data-name="{{ qr.title|escapejs }}"
+                            data-url="{{ qr.google_review_url|escapejs }}"
+                            data-feedback="{{ qr.private_feedback_url|default:''|escapejs }}"><i class="bi bi-copy"></i>
+                            Duplicate</button>
+                        <select class="mini-select qr-size-select" data-slug="{{ qr.slug }}">
+                            <option value="300">Small</option>
+                            <option value="500" selected>Medium</option>
+                            <option value="900">Large</option>
+                        </select>
+                        <a href="{% url 'qr_image' qr.slug %}?size=500" target="_blank" download="qr-{{ qr.slug }}.png"
+                            class="qr-download-png btn-line">PNG</a>
+                        <div class="rb-dropdown">
+                            <button type="button" onclick="toggleQrMenu('printMenu{{ qr.id }}')" class="btn-line"><i
+                                    class="bi bi-printer"></i> Print</button>
+                            <div id="printMenu{{ qr.id }}" class="rb-dropdown-menu">
+                                <a href="{% url 'qr_print_template' qr.slug %}?template=tent"
+                                    class="rb-dropdown-item"><i class="bi bi-file-earmark-text text-gold"></i> Table
+                                    Tent (A5)</a>
+                                <a href="{% url 'qr_print_template' qr.slug %}?template=stickers"
+                                    class="rb-dropdown-item"><i class="bi bi-grid-3x3-gap text-gold"></i> Sticker Sheet
+                                    (6-up)</a>
+                                <a href="{% url 'qr_print_template' qr.slug %}?template=sign"
+                                    class="rb-dropdown-item"><i class="bi bi-signpost text-gold"></i> Door Sign (A4)</a>
+                            </div>
+                        </div>
+
+                        <form action="{% url 'delete_qr' qr.id %}" method="POST"
+                            onsubmit="return confirm('Delete this QR code? Printed copies will stop working.');">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="px-3 py-2 border border-rose-800/30 text-rose-400 hover:bg-rose-900/20 rounded-xl text-xs font-semibold transition"
+                                title="Delete"><i class="bi bi-trash3"></i></button>
+                        </form>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div class="bg-white p-12 rounded-2xl text-center border border-slate-200 space-y-3">
-                <p class="text-sm font-semibold text-slate-700">No active QR codes generated yet.</p>
-                <p class="text-xs text-slate-400 max-w-sm mx-auto">Fill out the campaign form to create your first print media review link.</p>
+            <div class="settings-card text-center space-y-3">
+                <div
+                    class="w-14 h-14 mx-auto bg-gold-10 rounded-full flex items-center justify-center text-gold text-2xl">
+                    <i class="bi bi-qr-code"></i>
+                </div>
+                <p class="text-sm font-semibold text-white">No active QR codes generated yet.</p>
+                <p class="text-xs text-slate max-w-sm mx-auto">Fill out the campaign form to create your first print
+                    media review link.</p>
             </div>
             {% endfor %}
         </div>
-
     </div>
 
+    <!-- ===== ROADMAP ===== -->
+    <div class="settings-card">
+        <div class="flex items-start gap-3 border-b border-white-5 pb-3 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-white/5 text-slate flex items-center justify-center flex-shrink-0"><i
+                    class="bi bi-signpost-split-fill"></i></div>
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Roadmap</h2>
+                <p class="text-xs text-slate mt-0.5">Planned features — shown for context, not yet built.</p>
+            </div>
+        </div>
+        <div class="roadmap-item"><span class="roadmap-tag"><i class="bi bi-hourglass-split"></i> Planned</span>
+            <p class="text-xs font-bold text-white mt-2">Custom Domain &amp; Embed</p>
+            <p class="text-[11px] text-slate mt-1">qr.yourbrand.com short links, and an embeddable website widget.
+            </p>
+        </div>
+    </div>
 </div>
+</div>
+
+<script>
+    // ===== BULLETPROOF DROPDOWNS (portal to body, fixed position) =====
+    // NOTE: named toggleQrMenu / closeAllQrMenus (not toggleQrDropdown / closeAllDropdowns)
+    // on purpose -- base.html declares its own global toggleQrDropdown() for the header
+    // profile menu, and since base.html's <script> runs *after* this block in document
+    // order, an identically-named function here would get silently overwritten, stripping
+    // out the getBoundingClientRect()-based positioning below. Keep this name unique.
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.rb-dropdown-menu').forEach(function (menu) {
+            var wrapper = menu.closest('.rb-dropdown');
+            var btn = wrapper ? wrapper.querySelector('button') : null;
+            if (!btn) return; // skip safely instead of crashing
+            menu._triggerBtn = btn;
+            document.body.appendChild(menu);
+            menu.style.position = 'fixed';
+            menu.style.zIndex = '99999';
+        });
+    });
+
+    function closeAllQrMenus() {
+        document.querySelectorAll('.rb-dropdown-menu.open').forEach(function (m) {
+            m.classList.remove('open');
+        });
+    }
+
+    function toggleQrMenu(id) {
+        var menu = document.getElementById(id);
+        if (!menu) return;
+        var wasOpen = menu.classList.contains('open');
+        closeAllQrMenus();
+        if (!wasOpen && menu._triggerBtn) {
+            var rect = menu._triggerBtn.getBoundingClientRect();
+            menu.style.top = (rect.bottom + 8) + 'px';
+            menu.style.left = 'auto';
+            menu.style.right = (window.innerWidth - rect.right) + 'px';
+            menu.classList.add('open');
+        }
+    }
+
+
+    function repositionOpenMenu() {
+        var menu = document.querySelector('.rb-dropdown-menu.open');
+        if (!menu || !menu._triggerBtn) return;
+        var rect = menu._triggerBtn.getBoundingClientRect();
+        menu.style.top = (rect.bottom + 8) + 'px';
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+    }
+    window.addEventListener('scroll', repositionOpenMenu, true); // capture:true catches nested scroll containers too
+    window.addEventListener('resize', repositionOpenMenu);
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.rb-dropdown') && !e.target.closest('.rb-dropdown-menu')) {
+            closeAllQrMenus();
+        }
+    });
+
+    function showToast(msg, type) {
+        var host = document.getElementById('toastHost');
+        var el = document.createElement('div');
+        el.className = 'toast' + (type ? ' ' + type : '');
+        var icon = type === 'success' ? 'bi-check-circle-fill' : (type === 'danger' ? 'bi-exclamation-circle-fill' : 'bi-info-circle-fill');
+        el.innerHTML = '<i class="bi ' + icon + '"></i><span>' + msg + '</span>';
+        host.appendChild(el);
+        setTimeout(function () { el.remove(); }, 3200);
+    }
+
+    // ===== LIVE QR PREVIEW =====
+    var origin = "{{ request.scheme }}://{{ request.get_host }}";
+    var previewColor = '000000';
+    function updateLivePreview() {
+        var slug = document.getElementById('fieldSlug').value.trim();
+        var data = slug ? (origin + '/qr/' + encodeURIComponent(slug)) : 'preview';
+        document.getElementById('livePreviewImg').src = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&color=' + previewColor + '&data=' + encodeURIComponent(data);
+    }
+    document.getElementById('fieldSlug').addEventListener('input', updateLivePreview);
+    function setPreviewColor(el) {
+        document.querySelectorAll('.swatch').forEach(function (s) { s.classList.remove('active'); });
+        el.classList.add('active');
+        previewColor = el.getAttribute('data-color');
+        updateLivePreview();
+    }
+    updateLivePreview();
+
+    // ===== PER-CARD SIZE SELECTOR =====
+    document.querySelectorAll('.qr-size-select').forEach(function (sel) {
+        sel.addEventListener('change', function () {
+            var card = sel.closest('.qr-card');
+            var slug = sel.getAttribute('data-slug');
+            var size = sel.value;
+            var data = encodeURIComponent(origin + '/qr/' + slug);
+            card.querySelector('.qr-download-png').href = '/qr-image/' + slug + '.png?size=' + size;
+        });
+    });
+
+    document.querySelectorAll('.qr-duplicate-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.getElementById('fieldName').value = btn.getAttribute('data-name') + ' (Copy)';
+            document.querySelector('input[name="target_url"]').value = btn.getAttribute('data-url');
+            document.querySelector('input[name="private_feedback_url"]').value = btn.getAttribute('data-feedback');
+            document.getElementById('fieldSlug').value = '';
+            updateLivePreview();
+            document.getElementById('generatorForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showToast('Campaign duplicated — adjust the label and slug, then generate.', 'success');
+        });
+    });
+
+    // ===== HEADER STATS =====
+    (function () {
+        var cards = document.querySelectorAll('.qr-card');
+        var total = 0;
+        cards.forEach(function (c) { total += parseInt(c.getAttribute('data-scans'), 10) || 0; });
+        var statCodesEl = document.getElementById('statTotalCodes');
+        var statScansEl = document.getElementById('statTotalScans');
+        var statAvgEl = document.getElementById('statAvgScans');
+        statCodesEl.textContent = cards.length;
+        statScansEl.textContent = total;
+        statAvgEl.textContent = cards.length ? Math.round(total / cards.length) : 0;
+        [statCodesEl, statScansEl, statAvgEl].forEach(function (el) {
+            el.classList.toggle('val-empty', el.textContent === '0');
+        });
+
+        if (cards.length > 1) {
+            var max = 0, maxCard = null;
+            cards.forEach(function (c) {
+                var s = parseInt(c.getAttribute('data-scans'), 10) || 0;
+                if (s > max) { max = s; maxCard = c; }
+            });
+            if (maxCard && max > 0) {
+                var slot = maxCard.querySelector('.qr-hot-slot');
+                if (slot) slot.style.display = 'flex';
+            }
+        }
+    })();
+
+    // ===== THEME-AWARE CHART COLOR HELPER =====
+    function qrChartTextColor() {
+        return getComputedStyle(document.documentElement).getPropertyValue('--slate').trim() || '#93A0B4';
+    }
+
+    // ===== SCANS BY CAMPAIGN CHART =====
+    (function () {
+        var canvas = document.getElementById('scansChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        var cards = document.querySelectorAll('.qr-card');
+        var labels = [], data = [];
+        cards.forEach(function (c) {
+            labels.push(c.getAttribute('data-title'));
+            data.push(parseInt(c.getAttribute('data-scans'), 10) || 0);
+        });
+        window.scansChart = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: { labels: labels, datasets: [{ data: data, backgroundColor: '#E8A83C', borderRadius: 6, maxBarThickness: 34 }] },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0, color: qrChartTextColor() } },
+                    x: { grid: { display: false }, ticks: { color: qrChartTextColor() } }
+                }
+            }
+        });
+    })();
+
+
+    // ===== DAILY TREND CHART =====
+    (function () {
+        var canvas = document.getElementById('dailyTrendChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        var labels = {{ daily_labels| safe }};
+    var values = {{ daily_values| safe }};
+    window.dailyTrendChart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                borderColor: '#E8A83C',
+                backgroundColor: 'rgba(232,168,60,0.1)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointBackgroundColor: '#E8A83C'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0, color: qrChartTextColor() } },
+                x: { grid: { display: false }, ticks: { color: qrChartTextColor() } }
+            }
+        }
+    });
+    }) ();
+
+    // ===== DEVICE TYPE CHART =====
+    (function () {
+        var canvas = document.getElementById('deviceChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        var labels = {{ device_labels | safe }};
+    var values = {{ device_values | safe }};
+    window.deviceChart = new Chart(canvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{ data: values, backgroundColor: ['#E8A83C', '#2DD4A7', '#8b5cf6', '#93A0B4'] }]
+        },
+        options: {
+            plugins: { legend: { position: 'bottom', labels: { color: qrChartTextColor(), font: { size: 10 }, boxWidth: 10 } } }
+        }
+    });
+    }) ();
+
+    window.refreshQrBoosterChartsTheme = function () {
+        var color = qrChartTextColor();
+        [window.scansChart, window.dailyTrendChart, window.deviceChart].forEach(function (chart) {
+            if (!chart) return;
+            if (chart.options.scales && chart.options.scales.y) chart.options.scales.y.ticks.color = color;
+            if (chart.options.scales && chart.options.scales.x) chart.options.scales.x.ticks.color = color;
+            if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                chart.options.plugins.legend.labels.color = color;
+            }
+            chart.update();
+        });
+    };
+
+    // ===== HOURLY HEATMAP =====
+    (function () {
+        var container = document.getElementById('hourlyHeatmap');
+        if (!container) return;
+        var values = {{ hourly_values | safe }};
+    var max = Math.max.apply(null, values.concat([1]));
+    values.forEach(function (v) {
+        var bar = document.createElement('div');
+        var pct = Math.max(4, Math.round((v / max) * 100));
+        bar.style.cssText = 'flex:1; height:' + pct + '%; border-radius:2px; background:' + (v > 0 ? '#E8A83C' : 'rgba(255,255,255,0.06)') + ';';
+        bar.title = v + ' scan' + (v === 1 ? '' : 's');
+        container.appendChild(bar);
+    });
+    }) ();
+
+
+    // ===== BULK SELECT + DELETE =====
+    function updateBulkBar() {
+        var checked = document.querySelectorAll('.qr-select:checked');
+        document.getElementById('bulkCount').textContent = checked.length;
+        document.getElementById('bulkBar').classList.toggle('show', checked.length > 0);
+    }
+    function clearBulkSelection() {
+        document.querySelectorAll('.qr-select:checked').forEach(function (cb) { cb.checked = false; });
+        updateBulkBar();
+    }
+    function bulkDeleteSelected() {
+        var checked = Array.from(document.querySelectorAll('.qr-select:checked'));
+        if (!checked.length) return;
+        if (!confirm('Delete ' + checked.length + ' QR code(s)? Printed copies will stop working.')) return;
+        var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        var done = 0;
+        checked.forEach(function (cb) {
+            fetch(cb.getAttribute('data-delete-url'), { method: 'POST', headers: { 'X-CSRFToken': csrfToken } })
+                .then(function () {
+                    done++;
+                    if (done === checked.length) { showToast('Deleted ' + done + ' QR code(s).', 'success'); setTimeout(function () { location.reload(); }, 600); }
+                })
+                .catch(function () { showToast('Some deletions failed — refresh to check.', 'danger'); });
+        });
+    }
+
+    // ===== EXPORT ANALYTICS CSV =====
+    function exportAnalyticsCSV() {
+        var rows = [['Campaign', 'Slug', 'Total Scans', 'Smart Gate']];
+        document.querySelectorAll('.qr-card').forEach(function (c) {
+            var title = c.getAttribute('data-title');
+            var scans = c.getAttribute('data-scans');
+            var img = c.querySelector('.qr-card-img');
+            var slug = img ? img.getAttribute('data-slug') : '';
+            var gate = c.querySelector('.gate-badge') ? 'Active' : 'Off';
+            rows.push([title, slug, scans, gate]);
+        });
+        var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+        var blob = new Blob([csv], { type: 'text/csv' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'qr-analytics.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Analytics exported.', 'success');
+    }
+</script>
 {% endblock %}

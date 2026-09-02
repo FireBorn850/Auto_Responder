@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-100">
+<html lang="en" class="h-full">
 
 <head>
+    <script>
+        (function () {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block head_title %}AI Review Booster{% endblock %}</title>
+    <title>{% block head_title %}SwissReply.AI{% endblock %}</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,224 +18,776 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
     {% block extra_head %}{% endblock %}
+
+    <style>
+        :root {
+            --ink: #0B1220;
+            --ink-2: #111A2C;
+            --paper: #F7F5F0;
+            --gold: #E8A83C;
+            --gold-soft: #F4C871;
+            --teal: #2DD4A7;
+            --slate: #93A0B4;
+            --slate-2: #5C6B85;
+            --surface-rgb: 255, 255, 255;
+
+            --font-display: 'Fraunces', serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        html[data-theme="light"] {
+            --ink: #F3F5F8;
+            --ink-2: #FFFFFF;
+            --paper: #0F2A4A;
+            --gold: #1E3A5F;
+            --gold-soft: #2C5282;
+            --teal: #0F766E;
+            --slate: #3D5170;
+            --slate-2: #64748B;
+            --surface-rgb: 15, 42, 74;
+        }
+
+        html[data-theme="light"] body {
+            background: var(--ink);
+        }
+
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .font-mono {
+            font-family: var(--font-mono);
+        }
+
+        .text-gold {
+            color: var(--gold);
+        }
+
+        .text-slate {
+            color: var(--slate);
+        }
+
+        .text-slate-2 {
+            color: var(--slate-2);
+        }
+
+        .bg-ink-2 {
+            background: var(--ink-2);
+        }
+
+        .border-white-10 {
+            border-color: rgba(var(--surface-rgb), 0.06);
+        }
+
+        .border-white-5 {
+            border-color: rgba(var(--surface-rgb), 0.03);
+        }
+
+        .nav-sidebar {
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .nav-sidebar::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .nav-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .nav-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+        }
+
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--slate);
+            text-decoration: none;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            margin-bottom: 2px;
+        }
+
+        .nav-link-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--paper);
+            text-decoration: none;
+        }
+
+        .nav-link-item.active {
+            background: rgba(232, 168, 60, 0.08);
+            color: var(--gold);
+            border-color: rgba(232, 168, 60, 0.12);
+        }
+
+        .nav-link-item .nav-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-link-item.active .nav-icon {
+            stroke: var(--gold);
+        }
+
+        .nav-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--slate-2);
+            padding: 0.75rem 0.9rem 0.4rem;
+            font-family: var(--font-mono);
+        }
+
+        .mobile-nav-toggle {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .nav-sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                height: auto;
+                max-height: 60vh;
+                background: var(--ink);
+                border-top: 1px solid rgba(255, 255, 255, 0.06);
+                padding: 0.5rem 1rem 1rem;
+                z-index: 30;
+                transform: translateY(100%);
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                overflow-y: auto;
+                border-radius: 16px 16px 0 0;
+            }
+
+            .nav-sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-nav-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 10px;
+                padding: 0.5rem 1rem;
+                color: var(--slate);
+                font-size: 0.7rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.15s ease;
+                width: 100%;
+                font-family: var(--font-body);
+            }
+
+            .mobile-nav-toggle:hover {
+                background: rgba(255, 255, 255, 0.08);
+                color: var(--paper);
+            }
+
+            .main-content {
+                padding-bottom: 80px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-nav-toggle {
+                display: none !important;
+            }
+        }
+
+        .grain {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 3px 3px;
+        }
+
+        .rb-header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(11, 18, 32, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .rb-header {
+            --ink: #0B1220;
+            --ink-2: #111A2C;
+            --paper: #F7F5F0;
+            --gold: #E8A83C;
+            --gold-soft: #F4C871;
+            --slate: #93A0B4;
+            --slate-2: #5C6B85;
+            --surface-rgb: 255, 255, 255;
+            background: rgba(11, 18, 32, 0.92) !important;
+        }
+
+        .rb-logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--gold) 30%, transparent);
+            flex-shrink: 0;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--ink);
+        }
+
+        .avatar-gradient {
+            background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink);
+            font-weight: 700;
+            font-family: var(--font-display);
+            flex-shrink: 0;
+        }
+
+        .rb-dropdown {
+            position: relative;
+        }
+
+        .rb-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 220px;
+            background: var(--ink-2);
+            border: 1px solid rgba(var(--surface-rgb), 0.08);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            z-index: 50;
+            opacity: 0;
+            transform: translateY(-6px) scale(0.98);
+            pointer-events: none;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .rb-dropdown-menu.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .rb-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.5rem 0.625rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--slate);
+            text-decoration: none;
+            transition: background 0.15s ease;
+        }
+
+        .rb-dropdown-item:hover {
+            background: rgba(var(--surface-rgb), 0.05);
+            color: var(--paper);
+            text-decoration: none;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--slate);
+            background: rgba(var(--surface-rgb), 0.03);
+            border: 1px solid rgba(var(--surface-rgb), 0.06);
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .icon-btn:hover {
+            background: rgba(var(--surface-rgb), 0.08);
+            color: var(--paper);
+            border-color: rgba(var(--surface-rgb), 0.12);
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 3px;
+            border-radius: 9999px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--ink);
+        }
+
+        .btn-ghost {
+            background: rgba(var(--surface-rgb), 0.05);
+            color: var(--slate);
+            padding: 0.5rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(var(--surface-rgb), 0.06);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: var(--font-body);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(var(--surface-rgb), 0.1);
+            color: var(--paper);
+            text-decoration: none;
+            border-color: rgba(var(--surface-rgb), 0.12);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+            color: var(--ink);
+            padding: 0.55rem 1.05rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: var(--font-body);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px -8px color-mix(in srgb, var(--gold) 40%, transparent);
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.85);
+            }
+        }
+
+        /* ===== LIGHT MODE FIXES — applies site-wide, not just dashboard ===== */
+        html[data-theme="light"] .bg-ink-2 {
+            background: var(--ink-2);
+        }
+
+        html[data-theme="light"] [class*="bg-white/"] {
+            background-color: rgba(var(--surface-rgb), 0.05) !important;
+        }
+
+        html[data-theme="light"] [class*="border-white/"] {
+            border-color: rgba(var(--surface-rgb), 0.12) !important;
+        }
+
+        html[data-theme="light"] .text-white {
+            color: var(--paper) !important;
+        }
+
+        html[data-theme="light"] .text-slate-300,
+        html[data-theme="light"] .text-slate-400,
+        html[data-theme="light"] .text-slate-500,
+        html[data-theme="light"] .text-slate-600 {
+            color: var(--slate) !important;
+        }
+
+        html[data-theme="light"] ::-webkit-scrollbar-thumb {
+            background: rgba(var(--surface-rgb), 0.15);
+        }
+
+        /* Theme icon swap handled by CSS, not JS — the icon is correct
+           on first paint instead of flashing the wrong one until
+           DOMContentLoaded fires. */
+        html[data-theme="light"] #themeIconMoon {
+            display: none;
+        }
+
+        html:not([data-theme="light"]) #themeIconSun {
+            display: none;
+        }
+
+        html[data-theme="light"] .text-white,
+        html[data-theme="light"] .text-slate-300 {
+            color: var(--paper) !important;
+        }
+
+        html[data-theme="light"] .text-slate-400,
+        html[data-theme="light"] .text-slate-500,
+        html[data-theme="light"] .text-slate-600 {
+            color: var(--slate) !important;
+        }
+    </style>
 </head>
 
-<body class="h-full bg-slate-100 font-sans text-slate-800 antialiased">
+<body class="antialiased">
 
-    {% if request.user.is_authenticated %}
+    <div class="fixed inset-0 grain pointer-events-none z-0"></div>
 
-    <!-- ========================================== -->
-    <!-- 1. PERMANENT LEFT SIDEBAR (DESKTOP)        -->
-    <!-- ========================================== -->
-    <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-30 bg-slate-950 border-r border-slate-800">
-        <!-- Brand / Logo -->
-        <div class="h-16 px-6 bg-slate-900 border-b border-slate-800 flex items-center gap-3">
-            <div
-                class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow">
-                <i class="fa-solid fa-star"></i>
-            </div>
-            <span class="font-bold text-lg text-white tracking-wide">ReviewBooster</span>
-        </div>
-
-        <!-- Navigation Links -->
-        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-            <a href="{% url 'dashboard' %}"
-                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-900">
-                <i class="fa-solid fa-chart-pie w-5 text-center text-blue-500"></i>
-                <span>Dashboard & Reviews</span>
-            </a>
-
-            <a href="{% url 'ai_settings' %}"
-                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
-                <i class="fa-solid fa-sliders w-5 text-center text-indigo-400"></i>
-                <span>AI & Tone Settings</span>
-            </a>
-
-            <a href="{% url 'qr_booster' %}"
-                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
-                <i class="fa-solid fa-qrcode w-5 text-center text-emerald-400"></i>
-                <span>QR Code Booster</span>
-            </a>
-
-            <a href="{% url 'competitors' %}"
-                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
-                <i class="fa-solid fa-users-viewfinder w-5 text-center text-amber-400"></i>
-                <span>Competitor Insights</span>
-            </a>
-
-            <a href="{% url 'integrations' %}"
-                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
-                <i class="fa-solid fa-plug w-5 text-center text-purple-400"></i>
-                <span>Integrations</span>
-            </a>
-
-            <a href="{% url 'review_simulator' %}"
-                class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-900">
-                <i class="fa-solid fa-vial w-5 text-center text-rose-400"></i>
-                <span>Review Simulator</span>
-            </a>
-        </nav>
-
-        <!-- User Profile Footer -->
-        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3 truncate">
-                    <div
-                        class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
-                        {{ user.username|slice:":2"|upper|default:"U" }}
-                    </div>
-                    <div class="truncate">
-                        <p class="text-xs font-semibold text-slate-200 truncate">{{ user.username }}</p>
-                        <p class="text-[11px] text-slate-400 truncate">{{ user.email }}</p>
+    <!-- ===== HEADER ===== -->
+    <header class="rb-header z-40 relative">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="rb-logo-mark">SR</div>
+                <div class="hidden sm:block">
+                    <span
+                        class="font-display font-semibold text-white text-[15px] tracking-tight leading-none">Swiss<span
+                            class="text-gold">Reply</span><span class="text-white">.AI</span></span>
+                    <div class="flex items-center gap-1 mt-0.5">
+                        <span class="live-dot"></span>
+                        <span
+                            class="text-[9px] font-bold text-emerald-500 uppercase tracking-wider font-mono">Live</span>
                     </div>
                 </div>
-                <a href="{% url 'account_logout' %}" title="Logout"
-                    class="text-slate-400 hover:text-red-400 p-1.5 transition">
-                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
-                </a>
             </div>
-        </div>
-    </aside>
 
-    <!-- ========================================== -->
-    <!-- 2. MOBILE TOP NAVIGATION & DRAWER          -->
-    <!-- ========================================== -->
-    <div
-        class="md:hidden flex items-center justify-between h-16 px-4 bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800">
-        <div class="flex items-center gap-3">
-            <button id="openMobileMenuBtn" class="p-2 text-slate-300 hover:text-white rounded-lg focus:outline-none">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
             <div class="flex items-center gap-2">
-                <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
-                    <i class="fa-solid fa-star"></i>
+                {% if user.is_authenticated %}
+                <button type="button" class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+                    <svg id="themeIconMoon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                    <svg id="themeIconSun" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                </button>
+                <span class="text-xs text-slate-2 hidden md:inline font-mono">Workspace</span>
+                <div class="rb-dropdown">
+                    <button type="button" onclick="toggleDropdown('profileMenu')"
+                        class="avatar-gradient w-8 h-8 rounded-lg text-xs cursor-pointer flex items-center justify-center">
+                        {{ user.username.0|upper }}
+                    </button>
+                    <div id="profileMenu" class="rb-dropdown-menu">
+                        <div class="px-2.5 py-2 border-b border-white/5 mb-1">
+                            <div class="text-xs font-bold text-white truncate">{{ user.username }}</div>
+                            <div class="text-[10px] text-slate-2 font-mono">{{ user.email }}</div>
+                        </div>
+                        <a href="{% url 'dashboard' %}" class="rb-dropdown-item">Dashboard</a>
+                        <a href="{% url 'account_settings' %}" class="rb-dropdown-item">Account settings</a>
+                        <a href="{% url 'account_logout' %}" class="rb-dropdown-item text-rose-500">Sign out</a>
+                    </div>
                 </div>
-                <span class="font-bold text-base tracking-wide">ReviewBooster</span>
+                {% else %}
+                <a href="{% url 'account_login' %}"
+                    class="text-xs font-semibold text-slate hover:text-white transition px-3 py-2">Sign In</a>
+                <a href="{% url 'account_signup' %}" class="btn-primary text-xs">Start Free Trial</a>
+                {% endif %}
             </div>
         </div>
-        <span
-            class="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            GBP Live
-        </span>
-    </div>
+    </header>
 
-    <!-- Mobile Menu Drawer (Hidden on Desktop) -->
-    <div id="mobileOverlay"
-        class="fixed inset-0 bg-black/60 z-50 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm md:hidden">
-    </div>
-    <aside id="mobileDrawer"
-        class="fixed top-0 left-0 h-full w-64 bg-slate-950 text-slate-200 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col md:hidden">
-        <div class="h-16 px-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-            <span class="font-bold text-white text-sm">Navigation</span>
-            <button id="closeMobileMenuBtn" class="p-2 text-slate-400 hover:text-white">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-        </div>
-        <nav class="flex-1 px-4 py-4 space-y-2">
-            <a href="{% url 'dashboard' %}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Dashboard &
-                Reviews</a>
+    <!-- ===== MAIN LAYOUT ===== -->
+    <div class="flex max-w-7xl mx-auto px-4 sm:px-6 gap-6 relative z-10">
+
+        {% if user.is_authenticated %}
+        <nav class="nav-sidebar hidden md:block w-56 flex-shrink-0">
+            <div class="nav-label">Main</div>
+
+            <a href="{% url 'dashboard' %}" class="nav-link-item {% if active_tab == 'dashboard' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Dashboard &amp; Reviews
+            </a>
+
             <a href="{% url 'ai_settings' %}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">AI & Tone
-                Settings</a>
-            <a href="{% url 'qr_booster' %}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">QR Code
-                Booster</a>
+                class="nav-link-item {% if active_tab == 'ai_settings' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
+                    <circle cx="9" cy="15" r="1" />
+                    <circle cx="15" cy="15" r="1" />
+                </svg>
+                AI &amp; Tone Settings
+            </a>
+
+            <a href="{% url 'qr_booster' %}" class="nav-link-item {% if active_tab == 'qr_booster' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                </svg>
+                QR Code Booster
+            </a>
+
             <a href="{% url 'competitors' %}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Team &amp;
-                Access</a>
+                class="nav-link-item {% if active_tab == 'competitors' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Team &amp; Access
+            </a>
+
             <a href="{% url 'integrations' %}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Integrations</a>
+                class="nav-link-item {% if active_tab == 'integrations' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" />
+                    <line x1="8" y1="2" x2="8" y2="22" />
+                    <line x1="16" y1="2" x2="16" y2="22" />
+                    <line x1="2" y1="8" x2="22" y2="8" />
+                    <line x1="2" y1="16" x2="22" y2="16" />
+                </svg>
+                Integrations
+            </a>
+
             <a href="{% url 'review_simulator' %}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900">Notifications
-                &amp; Alerts</a>
+                class="nav-link-item {% if active_tab == 'review_simulator' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Review Simulator
+            </a>
         </nav>
-    </aside>
 
-    {% endif %}
+        <button class="mobile-nav-toggle fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-sm"
+            onclick="toggleMobileNav()">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+            Menu
+        </button>
 
-    <!-- ========================================== -->
-    <!-- 3. MAIN WORKSPACE CONTENT (OFFSETS RIGHT)  -->
-    <!-- ========================================== -->
-    <div class="{% if request.user.is_authenticated %}md:pl-64{% endif %} flex flex-col min-h-screen">
-
-        {% if request.user.is_authenticated %}
-        <!-- Desktop Top Header Bar -->
-        <header
-            class="hidden md:flex h-16 bg-white border-b border-slate-200 px-8 items-center justify-between sticky top-0 z-20">
-            <!-- Dynamic Breadcrumb -->
-            <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-                <span>Workspace</span>
-                <span>/</span>
-                <span class="text-slate-900 font-semibold text-sm">
-                    {% block page_title %}Dashboard{% endblock %}
-                </span>
+        <nav id="mobileSidebar" class="nav-sidebar md:hidden">
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-white-5">
+                <span class="text-xs font-bold text-slate-2 uppercase tracking-wider font-mono">Menu</span>
+                <button onclick="toggleMobileNav()" class="text-slate-2 hover:text-white transition">✕</button>
             </div>
+            <div class="nav-label">Main</div>
 
-            <!-- Header Right Controls -->
-            <div class="flex items-center gap-3">
-                <!-- Active Business Name (read-only until multi-location support exists) -->
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200">
-                    <i class="fa-solid fa-store text-slate-400"></i>
-                    <span>{{ request.user.profile.business_name|default:"My Business" }}</span>
-                </div>
+            <a href="{% url 'dashboard' %}" class="nav-link-item {% if active_tab == 'dashboard' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Dashboard &amp; Reviews
+            </a>
 
-                <!-- Live Status Badge -->
-                <span
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Google Business Live
-                </span>
+            <a href="{% url 'ai_settings' %}"
+                class="nav-link-item {% if active_tab == 'ai_settings' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
+                    <circle cx="9" cy="15" r="1" />
+                    <circle cx="15" cy="15" r="1" />
+                </svg>
+                AI &amp; Tone Settings
+            </a>
 
-                <div class="h-4 w-px bg-slate-200 mx-1"></div>
+            <a href="{% url 'qr_booster' %}" class="nav-link-item {% if active_tab == 'qr_booster' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                </svg>
+                QR Code Booster
+            </a>
 
-                <!-- Help & Documentation Link -->
-                <a href="https://support.google.com/business/" target="_blank" rel="noopener noreferrer"
-                    class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
-                    title="Help & Documentation">
-                    <i class="fa-regular fa-circle-question text-base"></i>
-                </a>
-            </div>
-        </header>
+            <a href="{% url 'competitors' %}"
+                class="nav-link-item {% if active_tab == 'competitors' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Team &amp; Access
+            </a>
+
+            <a href="{% url 'integrations' %}"
+                class="nav-link-item {% if active_tab == 'integrations' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" />
+                    <line x1="8" y1="2" x2="8" y2="22" />
+                    <line x1="16" y1="2" x2="16" y2="22" />
+                    <line x1="2" y1="8" x2="22" y2="8" />
+                    <line x1="2" y1="16" x2="22" y2="16" />
+                </svg>
+                Integrations
+            </a>
+
+            <a href="{% url 'review_simulator' %}"
+                class="nav-link-item {% if active_tab == 'review_simulator' %}active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Review Simulator
+            </a>
+        </nav>
         {% endif %}
 
-        <!-- Page Content Container -->
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main class="flex-1 min-w-0 py-6 main-content">
             {% block content %}{% endblock %}
         </main>
-
     </div>
 
-    <!-- Mobile Drawer Javascript -->
+    <footer class="relative z-10 border-t border-white/5 py-6 mt-8">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-2">
+            <span class="font-display font-semibold">Swiss<span class="text-gold">Reply</span><span
+                    class="text-white">.AI</span></span>
+            <div class="flex items-center gap-4">
+                <span>© 2026</span>
+                <span>·</span>
+                <span class="flex items-center gap-1.5">
+                    <span class="live-dot"></span>
+                    <span class="font-mono text-[9px]">operational</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="{% url 'privacy_policy' %}" class="hover:text-white transition">Privacy</a>
+                <a href="{% url 'terms_of_service' %}" class="hover:text-white transition">Terms</a>
+                <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request" class="hover:text-slate-300 transition" title="Get help">Support</a>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const openBtn = document.getElementById("openMobileMenuBtn");
-            const closeBtn = document.getElementById("closeMobileMenuBtn");
-            const drawer = document.getElementById("mobileDrawer");
-            const overlay = document.getElementById("mobileOverlay");
-
-            function openMenu() {
-                if (!drawer || !overlay) return;
-                overlay.classList.remove("hidden");
-                setTimeout(() => {
-                    overlay.classList.remove("opacity-0");
-                    drawer.classList.remove("-translate-x-full");
-                }, 10);
+        function toggleTheme() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
             }
-
-            function closeMenu() {
-                if (!drawer || !overlay) return;
-                drawer.classList.add("-translate-x-full");
-                overlay.classList.add("opacity-0");
-                setTimeout(() => {
-                    overlay.classList.add("hidden");
-                }, 300);
+            updateThemeIcon();
+            if (typeof window.refreshSentimentTrendChartTheme === 'function') {
+                window.refreshSentimentTrendChartTheme();
             }
+            if (typeof window.refreshQrBoosterChartsTheme === 'function') {
+                window.refreshQrBoosterChartsTheme();
+            }
+        }
 
-            if (openBtn) openBtn.addEventListener("click", openMenu);
-            if (closeBtn) closeBtn.addEventListener("click", closeMenu);
-            if (overlay) overlay.addEventListener("click", closeMenu);
+        function toggleQrDropdown(id) {
+            const menu = document.getElementById(id);
+            const wasOpen = menu.classList.contains('open');
+            document.querySelectorAll('.rb-dropdown-menu.open').forEach(m => m.classList.remove('open'));
+            if (!wasOpen) menu.classList.add('open');
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.rb-dropdown')) {
+                document.querySelectorAll('.rb-dropdown-menu.open').forEach(m => m.classList.remove('open'));
+            }
+        });
+
+        function toggleMobileNav() {
+            const sidebar = document.getElementById('mobileSidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('#mobileSidebar .nav-link-item').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    document.getElementById('mobileSidebar').classList.remove('open');
+                });
+            });
         });
     </script>
 
