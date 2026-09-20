@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block page_title %}AI &amp; Tone Settings{% endblock %}
 {% block head_title %}AI Settings | SwissReply.AI{% endblock %}
@@ -75,6 +76,7 @@
     .bg-gold-10 {
         background: color-mix(in srgb, var(--gold) 8%, transparent);
     }
+
     .bg-teal-10 {
         background: color-mix(in srgb, var(--teal) 8%, transparent);
     }
@@ -620,7 +622,8 @@
         border-color: rgba(45, 212, 167, 0.15);
         color: var(--teal);
     }
-        .field-input option {
+
+    .field-input option {
         background: var(--ink);
         color: var(--paper);
     }
@@ -845,17 +848,15 @@
                     <use href="#i-bot" />
                 </svg></div>
             <div>
-                <h1 class="font-display text-2xl font-semibold text-white tracking-tight">AI Auto-Pilot &amp; Brand
-                    Voice</h1>
-                <p class="text-xs sm:text-sm text-slate mt-1 max-w-md">Configure how your AI assistant crafts automated
-                    replies to Google Business Profile reviews.</p>
+                <h1 class="font-display text-2xl font-semibold text-white tracking-tight">{% trans "AI Auto-Pilot &amp; Brand Voice" %}</h1>
+                <p class="text-xs sm:text-sm text-slate mt-1 max-w-md">{% trans "Configure how your AI assistant crafts automated replies to Google Business Profile reviews." %}.</p>
             </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-            <span class="status-chip"><span class="live-dot"></span> Engine Active</span>
+            <span class="status-chip"><span class="live-dot"></span> {% trans "Engine Active" %}</span>
             <span class="status-chip"><svg class="icon icon-sm">
                     <use href="#i-sparkles" />
-                </svg> Powered by Gemini</span>
+                </svg> {% trans "Powered by Gemini" %}</span>
         </div>
     </div>
 
@@ -866,14 +867,14 @@
         <!-- Section 1: Automation Strategy -->
         <div class="reveal card">
             <div class="card-head flex items-start gap-3">
-                <div class="section-icon" style="background: color-mix(in srgb, var(--gold) 8%, transparent); color: var(--gold);"><svg
+                <div class="section-icon"
+                    style="background: color-mix(in srgb, var(--gold) 8%, transparent); color: var(--gold);"><svg
                         class="icon">
                         <use href="#i-bolt" />
                     </svg></div>
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Automation Mode</h2>
-                    <p class="text-xs text-slate mt-0.5">Control when AI responses are published directly to Google
-                        versus saved as drafts for review.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Automation Mode" %}</h2>
+                    <p class="text-xs text-slate mt-0.5">{% trans "Control when AI responses are published directly to Google versus saved as drafts for review." %}</p>
                 </div>
             </div>
 
@@ -881,23 +882,23 @@
                 <!-- Option 1: Positive Only -->
                 <label class="automation-card {% if profile.automation_mode == 'positive_only' %}selected{% endif %}"
                     data-automation-card>
-                    <span class="recommended-tag">Recommended</span>
+                    <span class="recommended-tag">{% trans "Recommended" %}</span>
                     <input type="radio" name="automation_mode" value="positive_only" class="sr-only" {% if profile.automation_mode == 'positive_only' %}checked{% endif %}>
                     <div class="card-icon" style="background: var(--gold);"><svg class="icon">
                             <use href="#i-shield" />
                         </svg></div>
-                    <div class="card-title">Smart Guardrail</div>
-                    <div class="card-subtitle">Auto-publish 4-5★ reviews</div>
+                    <div class="card-title">{% trans "Smart Guardrail" %}</div>
+                    <div class="card-subtitle">{% trans "Auto-publish 4-5★ reviews" %}</div>
                     <ul>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> Positive reviews get replies instantly</li>
+                            </svg> {% trans "Positive reviews get replies instantly" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> 1-3★ reviews routed to your inbox as drafts</li>
+                            </svg> {% trans "1-3★ reviews routed to your inbox as drafts" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> A human always reviews sensitive feedback</li>
+                            </svg> {% trans "A human always reviews sensitive feedback" %}</li>
                     </ul>
                 </label>
 
@@ -908,23 +909,22 @@
                     <div class="card-icon" style="background: #8b5cf6;"><svg class="icon">
                             <use href="#i-rocket" />
                         </svg></div>
-                    <div class="card-title">Hands-Free</div>
-                    <div class="card-subtitle">Auto-approve ALL ratings</div>
+                    <div class="card-title">{% trans "Hands-Free" %}</div>
+                    <div class="card-subtitle">{% trans "Auto-approve ALL ratings" %}</div>
                     <ul>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> Every reply is auto-approved instantly</li>
+                            </svg> {% trans "Every reply is auto-approved instantly" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> One-click copy to Google — direct auto-posting activates once Google's API access is
-                            approved</li>
+                            </svg> {% trans "One-click copy to Google — direct auto-posting activates once Google's API access is approved" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> Zero manual approval needed</li>
+                            </svg> {% trans "Zero manual approval needed" %}</li>
                     </ul>
                     <p class="text-[10.5px] mt-2 pt-2"
                         style="color: var(--gold); border-top: 1px dashed rgba(255,255,255,0.08);">
-                        ⚠ We recommend reviewing your first 10 auto-posted replies before fully trusting this mode.
+                        ⚠ {% trans "We recommend reviewing your first 10 auto-posted replies before fully trusting this mode." %}
                     </p>
                 </label>
 
@@ -935,18 +935,18 @@
                     <div class="card-icon" style="background: var(--slate);"><svg class="icon">
                             <use href="#i-user-check" />
                         </svg></div>
-                    <div class="card-title">Copilot Mode</div>
-                    <div class="card-subtitle">Manual approval required</div>
+                    <div class="card-title">{% trans "Copilot Mode" %}</div>
+                    <div class="card-subtitle">{% trans "Manual approval required" %}</div>
                     <ul>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> AI drafts every response for you</li>
+                            </svg> {% trans "AI drafts every response for you" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> Nothing posts until you click Approve</li>
+                            </svg> {% trans "Nothing posts until you click Approve" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> Full control over every reply</li>
+                            </svg> {% trans "Full control over every reply" %}</li>
                     </ul>
                 </label>
             </div>
@@ -960,22 +960,16 @@
                         <use href="#i-sliders" />
                     </svg></div>
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Brand Personality &amp;
-                        Voice</h2>
-                    <p class="text-xs text-slate mt-0.5">Select the overall style and language tone for public
-                        responses.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Brand Personality &amp; Voice" %}</h2>
+                    <p class="text-xs text-slate mt-0.5">{% trans "Select the overall style and language tone for public responses." %}</p>
                 </div>
             </div>
 
             <select name="brand_tone" id="brandToneSelect" class="hidden">
-                <option value="friendly" {% if profile.brand_tone == 'friendly' %}selected{% endif %}>Warm &amp; Friendly
-                </option>
-                <option value="professional" {% if profile.brand_tone == 'professional' %}selected{% endif %}>Professional
-                    &amp; Formal</option>
-                <option value="casual" {% if profile.brand_tone == 'casual' %}selected{% endif %}>Casual &amp; Modern
-                </option>
+                <option value="friendly" {% if profile.brand_tone == 'friendly' %}selected{% endif %}>{% trans "Warm &amp; Friendly" %}</option>
+                <option value="professional" {% if profile.brand_tone == 'professional' %}selected{% endif %}>{% trans "Professional &amp; Formal" %}</option>
+                <option value="casual" {% if profile.brand_tone == 'casual' %}selected{% endif %}>{% trans "Casual &amp; Modern" %}</option> 
             </select>
-
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                 <button type="button"
                     class="tone-card {% if profile.brand_tone == 'friendly' or not profile.brand_tone %}selected{% endif %}"
@@ -983,103 +977,99 @@
                     <div class="tone-icon" style="background: var(--gold);"><svg class="icon">
                             <use href="#i-heart" />
                         </svg></div>
-                    <div class="tone-name">Warm &amp; Friendly</div>
-                    <div class="tone-example">"Thanks so much for the kind words — it means a lot to our team!"</div>
+                    <div class="tone-name">{% trans "Warm &amp; Friendly" %}</div>
+                    <div class="tone-example">"{% trans "Thanks so much for the kind words — it means a lot to our team!" %}"</div>
                 </button>
                 <button type="button" class="tone-card {% if profile.brand_tone == 'professional' %}selected{% endif %}"
                     data-tone-card data-tone="professional">
                     <div class="tone-icon" style="background: var(--slate);"><svg class="icon">
                             <use href="#i-briefcase" />
                         </svg></div>
-                    <div class="tone-name">Professional &amp; Formal</div>
-                    <div class="tone-example">"Thank you for taking the time to share your feedback with us."</div>
+                    <div class="tone-name">{% trans "Professional &amp; Formal" %}</div>
+                    <div class="tone-example">{% trans "\"Thank you for taking the time to share your feedback with us.\"" %}</div>
                 </button>
                 <button type="button" class="tone-card {% if profile.brand_tone == 'casual' %}selected{% endif %}"
                     data-tone-card data-tone="casual">
                     <div class="tone-icon" style="background: var(--teal);"><svg class="icon">
                             <use href="#i-chat" />
                         </svg></div>
-                    <div class="tone-name">Casual &amp; Modern</div>
-                    <div class="tone-example">"You're awesome, thank you! Come see us again soon."</div>
+                    <div class="tone-name">{% trans "Casual &amp; Modern" %}</div>
+                    <div class="tone-example">{% trans "\"You're awesome, thank you! Come see us again soon.\"" %}</div>
                 </button>
             </div>
 
             <div>
-                <label class="field-label">Standard Response Signature / Sign-off</label>
+                <label class="field-label">{% trans "Standard Response Signature / Sign-off" %}</label>
                 <input type="text" name="signature" value="{{ profile.signature|default:'' }}"
                     placeholder="e.g. - Marc Rossi, Store Manager" class="field-input">
-                <p class="text-[11px] text-slate-2 mt-1">Automatically appended to the end of generated responses.</p>
+                <p class="text-[11px] text-slate-2 mt-1">{% trans "Automatically appended to the end of generated responses." %}</p>
             </div>
         </div>
 
         <!-- Section: Response Length & Creativity -->
         <div class="reveal card">
             <div class="card-head flex items-start gap-3">
-                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                <div class="section-icon"
+                    style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
                         class="icon">
                         <use href="#i-sliders" />
                     </svg></div>
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Response Length &amp;
-                        Creativity</h2>
-                    <p class="text-xs text-slate mt-0.5">How many sentences the AI writes, and how much wording varies
-                        between similar replies.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Response Length &amp; Creativity" %}</h2>
+                    <p class="text-xs text-slate mt-0.5">{% trans "How many sentences the AI writes, and how much wording varies between similar replies." %}</p>
                 </div>
             </div>
 
             <select name="response_length" id="responseLengthSelect" class="hidden">
-                <option value="short" {% if profile.response_length == 'short' %}selected{% endif %}>Concise (1-2
-                    sentences)</option>
-                <option value="medium" {% if profile.response_length == 'medium' or not profile.response_length %}selected{% endif %}>Balanced (2-4 sentences)</option>
-                <option value="long" {% if profile.response_length == 'long' %}selected{% endif %}>Detailed (4-6
-                    sentences)</option>
+                <option value="short" {% if profile.response_length == 'short' %}selected{% endif %}>{% trans "Concise (1-2 sentences)" %}</option>
+                <option value="medium" {% if profile.response_length == 'medium' or not profile.response_length %}selected{% endif %}>{% trans "Balanced (2-4 sentences)" %}</option>
+                <option value="long" {% if profile.response_length ==      'long' %}selected{% endif %}>{% trans "Detailed (4-6 sentences)" %}</option>
             </select>
 
-            <p class="field-label">Response Length</p>
+            <p class="field-label">{% trans "Response Length" %}</p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                 <button type="button" class="tone-card {% if profile.response_length == 'short' %}selected{% endif %}"
                     data-length-card data-length="short">
-                    <div class="tone-name">Concise</div>
-                    <div class="tone-example">1-2 sentences — quick and direct.</div>
+                    <div class="tone-name">{% trans "Concise" %}</div>
+                    <div class="tone-example">{% trans "1-2 sentences — quick and direct." %}</div>
                 </button>
                 <button type="button"
                     class="tone-card {% if profile.response_length == 'medium' or not profile.response_length %}selected{% endif %}"
                     data-length-card data-length="medium">
-                    <div class="tone-name">Balanced</div>
-                    <div class="tone-example">2-4 sentences — the default, works for most businesses.</div>
+                    <div class="tone-name">{% trans "Balanced" %}</div>
+                    <div class="tone-example">{% trans "2-4 sentences — the default, works for most businesses." %}
+                    </div>
                 </button>
                 <button type="button" class="tone-card {% if profile.response_length == 'long' %}selected{% endif %}"
                     data-length-card data-length="long">
-                    <div class="tone-name">Detailed</div>
-                    <div class="tone-example">4-6 sentences — warmer, more personal.</div>
+                    <div class="tone-name">{% trans "Detailed" %}</div>
+                    <div class="tone-example">{% trans "4-6 sentences — warmer, more personal." %}</div>
                 </button>
             </div>
 
             <select name="creativity_level" id="creativitySelect" class="hidden">
-                <option value="low" {% if profile.creativity_level == 'low' %}selected{% endif %}>Precise &amp; Consistent
-                </option>
-                <option value="medium" {% if profile.creativity_level == 'medium' or not profile.creativity_level %}selected{% endif %}>Balanced</option>
-                <option value="high" {% if profile.creativity_level == 'high' %}selected{% endif %}>Creative &amp; Varied
-                </option>
+                <option value="low" {% if profile.creativity_level == 'low' %}selected{% endif %}>{% trans "Precise &amp; Consistent" %}</option>
+                <option value="medium" {% if profile.creativity_level == 'medium' or not profile.creativity_level %}selected{% endif %}>{% trans "Balanced" %}</option>
+                <option value="high" {% if profile.creativity_level == 'high' %}selected{% endif %}>{% trans "Creative &amp; Varied" %}</option>
             </select>
 
-            <p class="field-label">Creativity</p>
+            <p class="field-label">{% trans "Creativity" %}</p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button type="button" class="tone-card {% if profile.creativity_level == 'low' %}selected{% endif %}"
                     data-creativity-card data-creativity="low">
-                    <div class="tone-name">Precise</div>
-                    <div class="tone-example">Same reliable phrasing every time.</div>
+                    <div class="tone-name">{% trans "Precise" %}</div>
+                    <div class="tone-example">{% trans "Same reliable phrasing every time." %}</div>
                 </button>
                 <button type="button"
                     class="tone-card {% if profile.creativity_level == 'medium' or not profile.creativity_level %}selected{% endif %}"
                     data-creativity-card data-creativity="medium">
-                    <div class="tone-name">Balanced</div>
-                    <div class="tone-example">Natural variation, still on-brand.</div>
+                    <div class="tone-name">{% trans "Balanced" %}</div>
+                    <div class="tone-example">{% trans "Natural variation, still on-brand." %}</div>
                 </button>
                 <button type="button" class="tone-card {% if profile.creativity_level == 'high' %}selected{% endif %}"
                     data-creativity-card data-creativity="high">
-                    <div class="tone-name">Creative</div>
-                    <div class="tone-example">More personality, less repetition.</div>
+                    <div class="tone-name">{% trans "Creative" %}</div>
+                    <div class="tone-example">{% trans "More personality, less repetition." %}</div>
                 </button>
             </div>
         </div>
@@ -1093,18 +1083,16 @@
                         <use href="#i-shield" />
                     </svg></div>
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Blacklisted Words</h2>
-                    <p class="text-xs text-slate mt-0.5">Words or phrases the AI must never use in a public reply —
-                        competitor names, informal slang, or anything sensitive to your brand.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Blacklisted Words" %}</h2>
+                    <p class="text-xs text-slate mt-0.5">{% trans "Words or phrases the AI must never use in a public reply — competitor names, informal slang, or anything sensitive to your brand." %}</p>
                 </div>
             </div>
 
-            <label class="field-label">Forbidden Words (comma-separated)</label>
+            <label class="field-label">{% trans "Forbidden Words (comma-separated)" %}</label>
             <input type="text" name="blacklisted_words" id="blacklistedWords"
                 value="{{ profile.blacklisted_words|default:'' }}" placeholder="e.g. cheap, discount, [competitor name]"
                 class="field-input">
-            <p class="text-[11px] text-slate-2 mt-2">Checked twice: the AI is instructed to avoid these, and every draft
-                is scanned afterward — if one slips through, it's automatically rewritten before you ever see it.</p>
+            <p class="text-[11px] text-slate-2 mt-2">{% trans "Checked twice: the AI is instructed to avoid these, and every draft is scanned afterward — if one slips through, it's automatically rewritten before you ever see it." %}</p>
         </div>
 
 
@@ -1117,51 +1105,48 @@
                             <use href="#i-map-pin" />
                         </svg></div>
                     <div>
-                        <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2 flex-wrap">
-                            <span>Local SEO Keyword Reinforcement</span>
+                        <h2
+                            class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2 flex-wrap">
+                            <span>{% trans "Local SEO Keyword Reinforcement" %}</span>
                             <span class="pro-badge"><svg class="icon icon-sm">
                                     <use href="#i-sparkles" />
                                 </svg> Pro</span>
                         </h2>
-                        <p class="text-xs text-slate mt-0.5">Helps AI search engines (Gemini, ChatGPT, Perplexity) and
-                            Google Maps describe your business accurately. The AI weaves in ONE phrase only when a
-                            review genuinely supports it — never forced, never stuffed.</p>
+                        <p class="text-xs text-slate mt-0.5">{% trans "Helps AI search engines (Gemini, ChatGPT, Perplexity) and Google Maps describe your business accurately. The AI weaves in ONE phrase only when a review genuinely supports it — never forced, never stuffed." %}</p>
                     </div>
                 </div>
                 <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
                     <input type="checkbox" name="geo_seo_enabled" {% if profile.geo_seo_enabled %}checked{% endif %}
                         style="width:16px;height:16px;accent-color:#f59e0b;">
-                    <span class="text-xs font-semibold text-white">Enabled</span>
+                    <span class="text-xs font-semibold text-white">{% trans "Enabled" %}</span>
                 </label>
             </div>
 
-            <label class="field-label">Target Local Phrases</label>
+            <label class="field-label">{% trans "Target Local Phrases" %}</label>
             <div class="seo-tag-wrap" id="seoTagWrap">
                 <input type="text" id="seoTagEntry" class="seo-tag-entry"
-                    placeholder="Type a phrase, press Enter…">
+                    placeholder="{% trans 'Type a phrase, press Enter…' %}">
             </div>
             <input type="hidden" name="seo_keywords" id="seoKeywordsHidden"
                 value="{{ profile.seo_keywords|default:'' }}">
-            <p class="text-[11px] text-slate-2 mt-2">A reply using none of these is completely normal — it only
-                appears when the review's own wording naturally supports it.</p>
+            <p class="text-[11px] text-slate-2 mt-2">{% trans "A reply using none of these is completely normal — it only appears when the review's own wording naturally supports it." %}</p>
 
-            <p class="text-[11px] font-semibold text-slate uppercase tracking-wider mb-2 mt-4 font-mono">Quick-insert
-                suggestions</p>
+            <p class="text-[11px] font-semibold text-slate uppercase tracking-wider mb-2 mt-4 font-mono">{% trans "Quick-insert suggestions" %}</p>
             <div class="flex flex-wrap gap-2">
                 <button type="button" class="prompt-chip" data-seo-insert="terrace near Lake Geneva">
                     <svg class="icon icon-sm">
                         <use href="#i-plus" />
-                    </svg> Terrace near Lake Geneva
+                    </svg> {% trans "Terrace near Lake Geneva" %}
                 </button>
                 <button type="button" class="prompt-chip" data-seo-insert="authentic fondue Old Town">
                     <svg class="icon icon-sm">
                         <use href="#i-plus" />
-                    </svg> Authentic fondue Old Town
+                    </svg> {% trans "Authentic fondue Old Town" %}
                 </button>
                 <button type="button" class="prompt-chip" data-seo-insert="family-friendly restaurant Geneva">
                     <svg class="icon icon-sm">
                         <use href="#i-plus" />
-                    </svg> Family-friendly Geneva
+                    </svg> {% trans "Family-friendly Geneva" %}
                 </button>
             </div>
         </div>
@@ -1177,86 +1162,83 @@
                         </svg></div>
                     <div>
                         <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2 flex-wrap">
-                            <span>Automated Upselling &amp; Action Links</span>
+                            <span>{% trans "Automated Upselling &amp; Action Links" %}</span>
                             <span class="pro-badge"><svg class="icon icon-sm">
                                     <use href="#i-sparkles" />
                                 </svg> Pro</span>
                         </h2>
-                        <p class="text-xs text-slate mt-0.5">Invite your happiest reviewers to book a table, check out
-                            an event, or shop online — the AI mentions it naturally, then the real link is added
-                            automatically. Never shown to unhappy customers.</p>
+                        <p class="text-xs text-slate mt-0.5">{% trans "Invite your happiest reviewers to book a table, check out an event, or shop online — the AI mentions it naturally, then the real link is added automatically. Never shown to unhappy customers." %}</p>
                     </div>
                 </div>
                 <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
-                    <input type="checkbox" name="action_link_enabled" {% if profile.action_link_enabled %}checked{% endif %}
-                        style="width:16px;height:16px;accent-color:#6366f1;">
-                    <span class="text-xs font-semibold text-white">Enabled</span>
+                    <input type="checkbox" name="action_link_enabled" {% if profile.action_link_enabled %}checked{% endif %} style="width:16px;height:16px;accent-color:#6366f1;">
+                    <span class="text-xs font-semibold text-white">{% trans "Enabled" %}</span>
                 </label>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="field-label">Link URL</label>
+                    <label class="field-label">{% trans "Link URL" %}</label>
                     <input type="url" name="action_link_url" value="{{ profile.action_link_url|default:'' }}"
                         placeholder="https://your-booking-page.com" class="field-input">
                 </div>
                 <div>
-                    <label class="field-label">What to call it (plain words)</label>
+                    <label class="field-label">{% trans "What to call it (plain words)" %}</label>
                     <input type="text" name="action_link_label" value="{{ profile.action_link_label|default:'' }}"
-                        placeholder="our autumn wine tasting event" class="field-input">
+                        placeholder="{% trans 'our autumn wine tasting event' %}" class="field-input">
                 </div>
             </div>
 
-            <label class="field-label">Only offer to reviews rated</label>
+            <label class="field-label">{% trans "Only offer to reviews rated" %}</label>
             <select name="action_link_min_rating" class="field-input" style="max-width: 220px;">
-                <option value="5" {% if profile.action_link_min_rating == 5 %}selected{% endif %}>5★ only</option>
-                <option value="4" {% if profile.action_link_min_rating == 4 or not profile.action_link_min_rating %}selected{% endif %}>4★ and up</option>
-                <option value="3" {% if profile.action_link_min_rating == 3 %}selected{% endif %}>3★ and up</option>
+                <option value="5" {% if profile.action_link_min_rating == 5 %}selected{% endif %}>{% trans "5★ only" %}</option>
+                <option value="4" {% if profile.action_link_min_rating == 4 or not profile.action_link_min_rating %}selected{% endif %}>{% trans "4★ and up" %}</option>
+                <option value="3" {% if profile.action_link_min_rating == 3 %}selected{% endif %}>{% trans "3★ and up" %}</option>
             </select>
-            <p class="text-[11px] text-slate-2 mt-2">The AI never writes the link itself — only a natural, one-sentence
-                mention. The exact URL is always appended automatically, so it can never be broken or mistyped.</p>
+            <p class="text-[11px] text-slate-2 mt-2 mb-0">{% trans "The AI never writes the link itself — only a natural, one-sentence mention. The exact URL is always appended automatically, so it can never be broken or mistyped." %}</p>
         </div>
 
 
         <!-- Section: Quiet Hours -->
         <div class="reveal card">
             <div class="card-head flex items-start gap-3">
-                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                <div class="section-icon"
+                    style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
                         class="icon">
                         <use href="#i-hourglass" />
                     </svg></div>
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Quiet Hours</h2>
-                    <p class="text-xs text-slate mt-0.5">Hold negative-review email alerts outside business hours and
-                        send them at the next opening time instead of waking you up at 3am.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Quiet Hours" %}</h2>
+                    <p class="text-xs text-slate mt-0.5">{% trans "Hold negative-review email alerts outside business hours and send them at the next opening time instead of waking you up at 3am." %}</p>
                 </div>
             </div>
 
             <label class="flex items-center gap-3 mb-4 cursor-pointer">
                 <input type="checkbox" name="quiet_hours_enabled" {% if profile.quiet_hours_enabled %}checked{% endif %}
                     style="width:16px;height:16px;accent-color:var(--gold);">
-                <span class="text-xs font-semibold text-white">Enable quiet hours</span>
+                <span class="text-xs font-semibold text-white">{% trans "Enable quiet hours" %}</span>
             </label>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                    <label class="field-label">Opens at</label>
+                    <label class="field-label">{% trans "Opens at" %}</label>
                     <select name="business_hours_start" class="field-input">
                         {% for h in hour_choices %}
-                        <option value="{{ h }}" {% if profile.business_hours_start|time:'H:i' == h %}selected{% endif %}>{{ h }}</option>
+                        <option value="{{ h }}" {% if profile.business_hours_start|time:'H:i' == h %}selected{% endif %}>
+                            {{ h }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div>
-                    <label class="field-label">Closes at</label>
+                    <label class="field-label">{% trans "Closes at" %}</label>
                     <select name="business_hours_end" class="field-input">
-                    {% for h in hour_choices %}
-                    <option value="{{ h }}" {% if profile.business_hours_end|time:'H:i' == h %}selected{% endif %}>{{ h }}</option>
-                    {% endfor %}
+                        {% for h in hour_choices %}
+                        <option value="{{ h }}" {% if profile.business_hours_end|time:'H:i' == h %}selected{% endif %}>{{ h }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div>
-                    <label class="field-label">Timezone</label>
+                    <label class="field-label">{% trans "Timezone" %}</label>
                     <select name="timezone_name" class="field-input">
                         <option value="Europe/Zurich" {% if profile.timezone_name == 'Europe/Zurich' %}selected{% endif %}>Europe/Zurich</option>
                         <option value="Europe/Paris" {% if profile.timezone_name == 'Europe/Paris' %}selected{% endif %}>
@@ -1271,53 +1253,49 @@
         <!-- Section: AI Training -->
         <div class="reveal card">
             <div class="card-head flex items-start gap-3">
-                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                <div class="section-icon"
+                    style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
                         class="icon">
                         <use href="#i-sparkles" />
                     </svg></div>
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">AI Training</h2>
-                    <p class="text-xs text-slate mt-0.5">Learns from your manual edits over time so future drafts start
-                        closer to your real voice.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "AI Training" %}</h2>
+                    <p class="text-xs text-slate mt-0.5">{% trans "Learns from your manual edits over time so future drafts start closer to your real voice." %}</p>
                 </div>
             </div>
 
             {% if profile.learned_patterns %}
             <div class="bg-white-5 border border-white-10 rounded-xl p-3 mb-4">
-                <p class="text-[11px] font-semibold text-teal uppercase tracking-wider font-mono mb-1">Current Learned
-                    Style</p>
+                <p class="text-[11px] font-semibold text-teal uppercase tracking-wider font-mono mb-1">{% trans "Current Learned Style" %}</p>
                 <p class="text-xs text-slate leading-relaxed">{{ profile.learned_patterns }}</p>
                 {% if profile.last_training_run %}
-                <p class="text-[10.5px] text-slate-2 mt-2">Last trained {{ profile.last_training_run|timesince }} ago.
-                </p>
+                <p class="text-[10.5px] text-slate-2 mt-2">{% trans "Last trained" %} {{ profile.last_training_run|timesince }} {% trans "ago." %}</p>
                 {% endif %}
             </div>
             {% else %}
-            <p class="text-xs text-slate-2 mb-4">No patterns learned yet — approve and edit a few AI drafts first, then
-                run training.</p>
+            <p class="text-xs text-slate-2 mb-4">{% trans "No patterns learned yet — approve and edit a few AI drafts first, then run training." %}</p>
             {% endif %}
         </div>
 
         <!-- Section 3: Custom Business Knowledge Base -->
         <div class="reveal card">
             <div class="card-head flex items-start gap-3">
-                <div class="section-icon" style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
+                <div class="section-icon"
+                    style="background: color-mix(in srgb, var(--teal) 8%, transparent); color: var(--teal);"><svg
                         class="icon">
                         <use href="#i-journal" />
                     </svg></div>
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Custom Business
-                        Knowledge Base</h2>
-                    <p class="text-xs text-slate mt-0.5">Provide key facts for the AI engine so responses include
-                        accurate venue information.</p>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Custom Business Knowledge Base" %}</h2>
+                    <p class="text-xs text-slate mt-0.5">{% trans "Provide key facts for the AI engine so responses include accurate venue information." %}</p>
                 </div>
             </div>
 
-            <label class="field-label">Special Rules &amp; Context Prompt</label>
+            <label class="field-label">{% trans "Special Rules & Context Prompt" %}</label>
             <div class="code-editor mb-2">
                 <div class="gutter" id="promptGutter">1</div>
-                <textarea name="custom_prompt" id="customPrompt" maxlength="2000"
-                    placeholder="e.g. Always remind unhappy guests that we offer free parking behind the bakery. Mention our signature homemade sourdough bread when customers praise our pastries.">{{ profile.custom_prompt|default:'' }}</textarea>
+                    <textarea name="custom_prompt" id="customPrompt" maxlength="2000"
+                    placeholder="{% trans 'e.g. Always remind unhappy guests that we offer free parking behind the bakery. Mention our signature homemade sourdough bread when customers praise our pastries.' %}">{{ profile.custom_prompt|default:'' }}</textarea>
             </div>
             <div class="flex items-center justify-between gap-3 mb-4">
                 <div class="char-track flex-1">
@@ -1327,8 +1305,7 @@
                         id="charCount">0</span>/2000</span>
             </div>
 
-            <p class="text-[11px] font-semibold text-slate uppercase tracking-wider mb-2 font-mono">Quick-insert
-                suggestions</p>
+            <p class="text-[11px] font-semibold text-slate uppercase tracking-wider mb-2 font-mono">{% trans "Quick-insert suggestions" %}</p>
             <div class="flex flex-wrap gap-2 mb-3">
                 <button type="button" class="prompt-chip" data-insert="Always mention that we offer free parking. ">
                     <svg class="icon icon-sm">
@@ -1343,12 +1320,12 @@
                 <button type="button" class="prompt-chip" data-insert="Emphasize our family-friendly atmosphere. ">
                     <svg class="icon icon-sm">
                         <use href="#i-plus" />
-                    </svg> Family-friendly
+                    </svg> {% trans "Family-friendly" %}
                 </button>
                 <button type="button" class="prompt-chip" data-insert="Promote our happy hour specials when relevant. ">
                     <svg class="icon icon-sm">
                         <use href="#i-plus" />
-                    </svg> Happy hour
+                    </svg>{% trans "Happy hour" %}
                 </button>
             </div>
 
@@ -1356,7 +1333,7 @@
                 <svg class="icon icon-sm" style="color: var(--gold);">
                     <use href="#i-info" />
                 </svg>
-                <span>This context is dynamically fed into Gemini models during response synthesis.</span>
+                <span>{% trans "This context is dynamically fed into Gemini models during response synthesis." %}</span>
             </div>
         </div>
 
@@ -1365,28 +1342,28 @@
             <button type="button" onclick="exportSettingsJSON()" class="btn-ghost">
                 <svg class="icon icon-sm">
                     <use href="#i-download" />
-                </svg><span>Export Settings (JSON)</span>
+                </svg><span>{% trans "Export Settings (JSON)" %}</span>
             </button>
             <button type="button" id="previewBtn" onclick="openPreviewModal()" class="btn-ghost">
                 <svg class="icon icon-sm">
                     <use href="#i-eye" />
-                </svg><span>Preview with Sample Review</span>
+                </svg><span>{% trans "Preview with Sample Review" %}</span>
             </button>
             <button type="submit" class="btn-primary">
                 <svg class="icon icon-sm">
                     <use href="#i-save" />
-                </svg><span>Save AI Configuration</span>
+                </svg><span>{% trans "Save AI Configuration" %}</span>
             </button>
         </div>
     </form>
 
-    <form action="{% url 'run_ai_training' %}" method="POST" class="reveal flex justify-end">
+        <form action="{% url 'run_ai_training' %}" method="POST" class="reveal flex justify-end mt-4">
         {% csrf_token %}
         <button type="submit" class="btn-ghost">
             <svg class="icon icon-sm">
                 <use href="#i-sparkles" />
             </svg>
-            <span>Run AI Training Now</span>
+            <span>{% trans "Run AI Training Now" %}</span>
         </button>
     </form>
 
@@ -1398,30 +1375,27 @@
                     <use href="#i-signpost" />
                 </svg></div>
             <div>
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Roadmap</h2>
-                <p class="text-xs text-slate mt-0.5">Planned controls — shown for context, not yet connected to a saved
-                    setting.</p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Roadmap" %}</h2>
+                <p class="text-xs text-slate mt-0.5">{% trans "Planned controls — shown for context, not yet connected to a saved setting." %}</p>
             </div>
         </div>
         <div class="roadmap-item" style="opacity: 0.55; cursor: not-allowed;">
             <span class="roadmap-tag"><svg class="icon icon-sm">
                     <use href="#i-hourglass" />
-                </svg> Coming Soon</span>
-            <p class="text-xs font-bold text-white mt-2">Advanced Rules Pro</p>
-            <p class="text-[11px] text-slate mt-1">Response delay timing unlocks once your Google Business Profile
-                is connected.</p>
+                </svg> {% trans "Coming Soon" %}</span>
+            <p class="text-xs font-bold text-white mt-2">{% trans "Advanced Rules Pro" %}</p>
+            <p class="text-[11px] text-slate mt-1">{% trans "Response delay timing unlocks once your Google Business Profile is connected." %}</p>
         </div>
     </div>
 </div>
 
 <div class="reveal flex items-center justify-center gap-1.5 text-[10.5px] text-slate-2 pb-2">
     <span class="live-dot" style="background: var(--teal);"></span>
-    <span class="font-mono">System online</span>
+    <span class="font-mono">{% trans "System online" %}</span>
     <span>·</span>
     <span class="font-mono">v1.0</span>
     <span>·</span>
-    <span><kbd>Ctrl</kbd>+<kbd>S</kbd> to save</span>
-</div>
+    <span>{% trans "<kbd>Ctrl</kbd>+<kbd>S</kbd> to save" %}</span>
 </div>
 
 <!-- Preview Modal -->
@@ -1433,7 +1407,7 @@
                 <svg class="icon" style="color: var(--gold);">
                     <use href="#i-sparkles" />
                 </svg>
-                <span>Preview with Current Settings</span>
+                <span>{% trans "Preview with Current Settings" %}</span>
             </h3>
             <button onclick="closePreviewModal()" class="text-slate hover:text-white"><svg class="icon">
                     <use href="#i-x" />
@@ -1444,27 +1418,33 @@
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-slate uppercase tracking-wider font-mono">🇬🇧 English — Sample (3★)</p>
                 <div class="bg-white-5 border border-white-10 rounded-xl p-3">
-                    <p class="text-xs text-slate italic" id="sampleEnText">"Food was good but we waited almost 20 minutes for a table even though it wasn't that busy. Staff were friendly once we sat down though."</p>
+                    <p class="text-xs text-slate italic" id="sampleEnText">{% trans "Food was good but we waited almost 20 minutes for a table even though it wasn't that busy. Staff were friendly once we sat down though." %}</p>
                 </div>
-                <p class="text-[11px] font-semibold text-gold uppercase tracking-wider font-mono">AI Draft</p>
-                <div id="previewOutputEn" class="w-full min-h-[90px] p-3 border border-white-10 rounded-xl text-xs text-slate bg-white-5 leading-relaxed">
-                    <span class="text-slate-2">Generating preview…</span>
+                <p class="text-[11px] font-semibold text-gold uppercase tracking-wider font-mono">{% trans "AI Draft" %}
+                </p>
+                <div id="previewOutputEn"
+                    class="w-full min-h-[90px] p-3 border border-white-10 rounded-xl text-xs text-slate bg-white-5 leading-relaxed">
+                    <span class="text-slate-2">{% trans "Generating preview…" %}</span>
                 </div>
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-slate uppercase tracking-wider font-mono">🇫🇷 Français — Exemple (3★)</p>
                 <div class="bg-white-5 border border-white-10 rounded-xl p-3">
-                    <p class="text-xs text-slate italic" id="sampleFrText">"La nourriture était bonne mais nous avons attendu presque 20 minutes pour une table alors que ce n'était pas si occupé. Le personnel était sympathique une fois assis."</p>
+                    <p class="text-xs text-slate italic" id="sampleFrText">"La nourriture était bonne mais nous avons
+                        attendu presque 20 minutes pour une table alors que ce n'était pas si occupé. Le personnel était
+                        sympathique une fois assis."</p>
                 </div>
-                <p class="text-[11px] font-semibold text-gold uppercase tracking-wider font-mono">Brouillon IA</p>
-                <div id="previewOutputFr" class="w-full min-h-[90px] p-3 border border-white-10 rounded-xl text-xs text-slate bg-white-5 leading-relaxed">
-                    <span class="text-slate-2">Génération en cours…</span>
+                <p class="text-[11px] font-semibold text-gold uppercase tracking-wider font-mono">{% trans "AI Draft" %}
+                </p>
+                <div id="previewOutputFr"
+                    class="w-full min-h-[90px] p-3 border border-white-10 rounded-xl text-xs text-slate bg-white-5 leading-relaxed">
+                    <span class="text-slate-2">{% trans "Generating preview…" %}</span>
                 </div>
             </div>
         </div>
 
-        <p class="text-[11px] text-slate-2">This uses your current unsaved selections above — save the form to keep
-            them. Same tone and settings, applied automatically in both languages.</p>
+        <p class="text-[11px] text-slate-2">{% trans "This uses your current unsaved selections above — save the form to
+            keep them. Same tone and settings, applied automatically in both languages." %}</p>
     </div>
 </div>
 {% endblock %}
@@ -1533,7 +1513,7 @@
         chip.addEventListener('click', function () {
             var text = chip.getAttribute('data-insert');
             if (promptEl.value.length + text.length > 2000) {
-                showToast('That would exceed the 2000 character limit.');
+                showToast('{% trans "That would exceed the 2000 character limit." %}');
                 return;
             }
             promptEl.value += (promptEl.value.length && !promptEl.value.endsWith(' ') ? ' ' : '') + text;
@@ -1614,7 +1594,7 @@
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        showToast('Settings exported.', true);
+        showToast('{% trans "Settings exported." %}', true);
     }
 
     document.addEventListener('keydown', function (e) {
@@ -1658,12 +1638,12 @@
                 if (data.draft_en) {
                     outputEn.textContent = data.draft_en;
                 } else {
-                    outputEn.innerHTML = '<span style="color: #ef4444;">Could not generate this one. Try again.</span>';
+                    outputEn.innerHTML = '<span style="color: #ef4444;">{% trans "Could not generate this one. Try again." %}</span>';
                 }
                 if (data.draft_fr) {
                     outputFr.textContent = data.draft_fr;
                 } else {
-                    outputFr.innerHTML = '<span style="color: #ef4444;">Échec de la génération. Réessayez.</span>';
+                    outputFr.innerHTML = '<span style="color: #ef4444;">{% trans "Échec de la génération. Réessayez." %}</span>';
                 }
                 if (data.error) {
                     outputEn.innerHTML = '<span style="color: #ef4444;">' + data.error + '</span>';
@@ -1671,8 +1651,8 @@
                 }
             })
             .catch(function () {
-                outputEn.innerHTML = '<span style="color: #ef4444;">Something went wrong.</span>';
-                outputFr.innerHTML = '<span style="color: #ef4444;">Une erreur s\'est produite.</span>';
+                outputEn.innerHTML = '<span style="color: #ef4444;">{% trans "Something went wrong." %}</span>';
+                outputFr.innerHTML = `<span style="color: #ef4444;">{% trans "Une erreur s'est produite." %}</span>`;
             });
     }
 

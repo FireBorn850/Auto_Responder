@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block page_title %}Dashboard{% endblock %}
 {% block head_title %}SwissReply.AI — Automate Google Reviews{% endblock %}
@@ -1098,25 +1099,25 @@
         <!-- Quick Actions -->
         <div class="rb-dropdown hidden sm:block">
             <button type="button" onclick="toggleDropdown('quickActionsMenu')" class="btn-ghost">
-                <span>Quick Actions</span>
+                <span>{% trans "Quick Actions" %}</span>
                 <i class="bi bi-chevron-down" style="font-size: 0.6rem;"></i>
             </button>
             <div id="quickActionsMenu" class="rb-dropdown-menu">
-                <a href="#" onclick="toggleSyncModal(); return false;" class="rb-dropdown-item">Sync reviews</a>
-                <a href="{% url 'export_csv' %}" class="rb-dropdown-item">Export CSV</a>
-                <a href="{% url 'export_insights_report' %}" class="rb-dropdown-item">Export Insights Report</a>
-                <a href="{% url 'ai_settings' %}" class="rb-dropdown-item">Settings</a>
+                <a href="#" onclick="toggleSyncModal(); return false;" class="rb-dropdown-item">{% trans "Sync reviews" %}</a>
+                <a href="{% url 'export_csv' %}" class="rb-dropdown-item">{% trans "Export CSV" %}</a>
+                <a href="{% url 'export_insights_report' %}" class="rb-dropdown-item">{% trans "Export Insights Report" %}</a>
+                <a href="{% url 'ai_settings' %}" class="rb-dropdown-item">{% trans "Settings" %}</a>
             </div>
         </div>
 
-        <span class="chip" title="AI replies generated today, resets at midnight">
+        <span class="chip" title="{% trans "AI replies generated today, resets at midnight" %}">
             <i class="bi bi-stars"></i>
-            <span class="font-mono">{{ ai_used_today }}/{{ profile.ai_daily_limit }} AI today</span>
+            <span class="font-mono">{% blocktrans %}{{ ai_used_today }}/{{ profile.ai_daily_limit }} AI today{% endblocktrans %}</span>
         </span>
 
         <button onclick="toggleSyncModal()" class="btn-primary">
             <i class="bi bi-arrow-repeat"></i>
-            <span class="hidden sm:inline">Sync Reviews</span>
+            <span class="hidden sm:inline">{% trans "Sync Reviews" %}</span>
         </button>
 
         <!-- Notifications -->
@@ -1127,12 +1128,11 @@
             </button>
             <div id="notifMenu" class="rb-dropdown-menu" style="min-width: 260px;">
                 <div class="px-2.5 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">
-                    Notifications</div>
+                    {% trans "Notifications" %}</div>
                 {% if negative_count > 0 %}
-                <a href="?rating=negative" class="rb-dropdown-item">{{ negative_count }} review{{
-                    negative_count|pluralize }} need attention</a>
+                <a href="?rating=negative" class="rb-dropdown-item">{% blocktrans count counter=negative_count %}{{ negative_count }} review needs attention{% plural %}{{ negative_count }} reviews need attention{% endblocktrans %}</a>
                 {% else %}
-                <div class="px-2.5 py-3 text-xs text-slate-500 text-center">You're all caught up.</div>
+                <div class="px-2.5 py-3 text-xs text-slate-500 text-center">{% trans "You're all caught up." %}</div>
                 {% endif %}
             </div>
         </div>
@@ -1161,14 +1161,14 @@
     <!-- ===== PAGE INTRO ===== -->
     <div class="reveal flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="font-display text-2xl font-semibold text-white tracking-tight">Dashboard</h1>
+            <h1 class="font-display text-2xl font-semibold text-white tracking-tight">{% trans "Dashboard" %}</h1>
             <p class="text-xs sm:text-sm text-slate-400 mt-1 flex items-center gap-1.5">
                 {% if user.is_authenticated %}
-                Managing automated Google Business Profile responses for
+                {% trans "Managing automated Google Business Profile responses for" %}
                 <span class="font-semibold text-white">{{ user.username }}</span>.
-                <span class="text-emerald-500 font-medium font-mono text-[10px]">● operational</span>
+                <span class="text-emerald-500 font-medium font-mono text-[10px]">● {% trans "operational" %}</span>
                 {% else %}
-                Welcome! Please sign in to manage and automate your business reviews.
+                {% trans "Welcome! Please sign in to manage and automate your business reviews." %}
                 {% endif %}
             </p>
         </div>
@@ -1178,76 +1178,71 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div class="reveal stat-card" style="transition-delay: 0ms;">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Total
-                    Reviews</span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Total Reviews" %}</span>
             </div>
             <div class="mt-2 text-3xl font-display font-semibold text-white counter"
                 data-target="{{ analytics.total_reviews_synced }}">0</div>
-            <p class="text-[11px] text-slate-500 mt-1">Synced for this business</p>
+            <p class="text-[11px] text-slate-500 mt-1">{% trans "Synced for this business" %}</p>
         </div>
 
         <div class="reveal stat-card" style="transition-delay: 40ms;">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Avg Rating</span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Avg Rating" %}</span>
             </div>
             <div class="mt-2 flex items-baseline gap-1">
                 <span class="text-3xl font-display font-semibold text-gold counter-decimal"
                     data-target="{{ analytics.avg_rating }}">0.0</span>
                 <span class="text-xs font-medium text-slate-500">/ 5.0</span>
             </div>
-            <p class="text-[11px] text-slate-500 mt-1">Across all synced reviews</p>
+            <p class="text-[11px] text-slate-500 mt-1">{% trans "Across all synced reviews" %}</p>
         </div>
 
         <div class="reveal stat-card" style="transition-delay: 80ms; border-color: rgba(232,168,60,0.25);">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono">Time Saved This
-                    Week</span>
+                <span class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono">{% trans "Time Saved This Week" %}</span>
             </div>
             <div class="mt-2 text-3xl font-display font-semibold text-teal-400">~<span class="counter-decimal"
                     data-target="{{ analytics.saved_hours_this_week }}">0.0</span> hrs</div>
-            <p class="text-[11px] text-slate-500 mt-1">{{ analytics.reviews_handled_this_week }} repl{{ analytics.reviews_handled_this_week|pluralize:"y,ies" }} handled since Monday</p>
+            <p class="text-[11px] text-slate-500 mt-1">{% blocktrans count counter=analytics.reviews_handled_this_week %}{{ analytics.reviews_handled_this_week }} reply handled since Monday{% plural %}{{ analytics.reviews_handled_this_week }} replies handled since Monday{% endblocktrans %}</p>
         </div>
 
         <div class="reveal stat-card" style="transition-delay: 120ms;">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Total Time
-                    Saved</span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Total Time Saved" %}</span>
             </div>
             <div class="mt-2 text-3xl font-display font-semibold text-teal-400">~<span class="counter-decimal"
                     data-target="{{ analytics.saved_hours }}">0.0</span> hrs</div>
-            <p class="text-[11px] text-slate-500 mt-1">Lifetime, since joining</p>
+            <p class="text-[11px] text-slate-500 mt-1">{% trans "Lifetime, since joining" %}</p>
         </div>
 
         <div class="reveal stat-card" style="transition-delay: 160ms;">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Response
-                    Rate</span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Response Rate" %}</span>
             </div>
             <div class="mt-2 text-3xl font-display font-semibold text-gold">
                 {{ analytics.response_rate }}%
             </div>
-            <p class="text-[11px] text-slate-500 mt-1">{{ analytics.total_reviews_handled }} reviews handled</p>
+            <p class="text-[11px] text-slate-500 mt-1">{% blocktrans %}{{ analytics.total_reviews_handled }} reviews handled{% endblocktrans %}</p>
         </div>
 
         <div class="reveal stat-card" style="transition-delay: 200ms;">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Avg Response
-                    Time</span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Avg Response Time" %}</span>
             </div>
             <div class="mt-2 text-3xl font-display font-semibold text-teal-400">
                 {{ analytics.avg_response_display }}
             </div>
-            <p class="text-[11px] text-slate-500 mt-1">Review created → reply approved/posted</p>
+            <p class="text-[11px] text-slate-500 mt-1">{% trans "Review created → reply approved/posted" %}</p>
         </div>
     </div>
 
     <!-- ===== COMPETITOR BENCHMARKING ===== -->
     <div class="reveal space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
-            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">Competitor Benchmarking
+            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Competitor Benchmarking" %}
             </h3>
             {% if can_manage %}
-            <button type="button" onclick="toggleCompetitorForm()" class="btn-ghost">+ Add Competitor</button>
+            <button type="button" onclick="toggleCompetitorForm()" class="btn-ghost">+ {% trans "Add Competitor" %}</button>
             {% endif %}
         </div>
 
@@ -1255,18 +1250,18 @@
         <form id="competitorForm" action="{% url 'add_competitor' %}" method="POST" class="hidden stat-card space-y-3">
             {% csrf_token %}
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                <input type="text" name="name" required placeholder="Competitor name"
+                <input type="text" name="name" required placeholder="{% trans "Competitor name" %}"
                     class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
-                <input type="text" name="location" placeholder="Location" value="Geneva"
+                <input type="text" name="location" placeholder="{% trans "Location" %}" value="Geneva"
                     class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
-                <input type="number" step="0.1" min="0" max="5" name="avg_rating" placeholder="Avg rating (0-5)"
+                <input type="number" step="0.1" min="0" max="5" name="avg_rating" placeholder="{% trans "Avg rating (0-5)" %}"
                     class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
-                <input type="number" min="0" name="total_reviews" placeholder="Total reviews"
+                <input type="number" min="0" name="total_reviews" placeholder="{% trans "Total reviews" %}"
                     class="p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
             </div>
-            <input type="url" name="google_maps_url" placeholder="Google Maps URL (optional)"
+            <input type="url" name="google_maps_url" placeholder="{% trans "Google Maps URL (optional)" %}"
                 class="w-full p-2 rounded-lg text-xs bg-white/5 border border-white/10 text-white placeholder:text-slate-500">
-            <button type="submit" class="btn-primary">Add</button>
+            <button type="submit" class="btn-primary">{% trans "Add" %}</button>
         </form>
         {% endif %}
 
@@ -1274,13 +1269,13 @@
             <!-- Your business, always first -->
             <div class="stat-card" style="border-color: rgba(232,168,60,0.3);">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono">{{ profile.business_name }} (You)</span>
+                    <span class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono">{% blocktrans %}{{ profile.business_name }} (You){% endblocktrans %}</span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-1">
                     <span class="text-2xl font-display font-semibold text-gold">{{ analytics.avg_rating }}</span>
                     <span class="text-xs text-slate-500">/ 5.0</span>
                 </div>
-                <p class="text-[11px] text-slate-500 mt-1">{{ analytics.total_reviews_synced }} review{{ analytics.total_reviews_synced|pluralize }}</p>
+                <p class="text-[11px] text-slate-500 mt-1">{% blocktrans count counter=analytics.total_reviews_synced %}{{ analytics.total_reviews_synced }} review{% plural %}{{ analytics.total_reviews_synced }} reviews{% endblocktrans %}</p>
             </div>
 
             {% for c in competitors %}
@@ -1300,15 +1295,15 @@
                     <span class="text-xs text-slate-500">/ 5.0</span>
                 </div>
                 <p class="text-[11px] text-slate-500 mt-1">
-                    {{ c.total_reviews }} review{{ c.total_reviews|pluralize }} · {{ c.location }}
+                    {% blocktrans count counter=c.total_reviews %}{{ c.total_reviews }} review{% plural %}{{ c.total_reviews }} reviews{% endblocktrans %} · {{ c.location }}
                     {% if c.google_maps_url %} · <a href="{{ c.google_maps_url }}" target="_blank"
-                        rel="noopener noreferrer" class="text-gold hover:text-gold-soft">View →</a>{% endif %}
+                        rel="noopener noreferrer" class="text-gold hover:text-gold-soft">{% trans "View →" %}</a>{% endif %}
                 </p>
             </div>
             {% empty %}
             {% if not can_manage %}
             <div class="stat-card sm:col-span-2 lg:col-span-3 text-center">
-                <p class="text-xs text-slate-500">No competitors added yet.</p>
+                <p class="text-xs text-slate-500">{% trans "No competitors added yet." %}</p>
             </div>
             {% endif %}
             {% endfor %}
@@ -1319,22 +1314,20 @@
         <!-- ===== RECURRING COMPLAINT THEMES (AI) ===== -->
     <div class="reveal stat-card">
         <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Recurring Complaint
-                Themes — AI Analysis</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Recurring Complaint Themes — AI Analysis" %}</span>
             <button type="button" id="insightsBtn" onclick="runInsightsAnalysis()" class="btn-ghost">
                 <i class="bi bi-stars"></i>
-                <span>Analyze Recurring Themes</span>
+                <span>{% trans "Analyze Recurring Themes" %}</span>
             </button>
         </div>
         <div id="insightsEmptyState" class="text-xs text-slate-500 py-2">
-            Click "Analyze Recurring Themes" to have AI cluster your 1-3★ reviews into recurring problems — what's
-            coming up again and again, and what to fix first.
+            {% trans 'Click "Analyze Recurring Themes" to have AI cluster your 1-3★ reviews into recurring problems — what is coming up again and again, and what to fix first.' %}
         </div>
         <div id="insightsResults" class="hidden space-y-3 mt-2">
             <p class="text-xs text-slate-300" id="insightsSummary"></p>
             <div id="insightsIssuesList" class="space-y-2"></div>
             <div class="rounded-xl p-3 mt-2" style="background: color-mix(in srgb, var(--gold) 6%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 15%, transparent);">
-                <p class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono mb-1">Actionable Tip</p>
+                <p class="text-[10px] font-bold text-gold uppercase tracking-wider font-mono mb-1">{% trans "Actionable Tip" %}</p>
                 <p class="text-xs text-slate-300" id="insightsTip"></p>
             </div>
         </div>
@@ -1346,8 +1339,7 @@
     {% if has_sentiment_data %}
     <div class="reveal stat-card">
         <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Sentiment Trend — Last
-                30 Days</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">{% trans "Sentiment Trend — Last 30 Days" %}</span>
         </div>
         <canvas id="sentimentTrendChart" height="80"></canvas>
     </div>
@@ -1357,47 +1349,47 @@
     <div class="reveal space-y-3">
         <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono flex items-center gap-2">
-                <span>Customer Reviews Feed</span>
+                <span>{% trans "Customer Reviews Feed" %}</span>
                 <span class="text-slate-600 font-normal">·</span>
-                <span class="text-slate-400 font-normal normal-case font-body">{{ reviews|length }} reviews</span>
+                <span class="text-slate-400 font-normal normal-case font-body">{% blocktrans count counter=reviews|length %}{{ reviews|length }} review{% plural %}{{ reviews|length }} reviews{% endblocktrans %}</span>
             </h3>
 
             <div class="flex items-center gap-2 w-full lg:w-auto">
                 <div class="search-wrap flex-1 lg:w-64">
                     <i class="bi bi-search"></i>
-                    <input type="text" id="reviewSearch" placeholder="Search reviews by name or text..."
+                    <input type="text" id="reviewSearch" placeholder="{% trans "Search reviews by name or text..." %}"
                         oninput="filterReviewsBySearch(this.value)">
                 </div>
                 <div class="flex items-center gap-0.5 bg-white/5 rounded-lg p-0.5">
                     <span id="viewGridBtn" class="view-toggle-btn active" onclick="setView('grid')"
-                        title="Grid view">Grid</span>
+                        title="{% trans "Grid view" %}">{% trans "Grid" %}</span>
                     <span id="viewListBtn" class="view-toggle-btn" onclick="setView('list')"
-                        title="List view">List</span>
+                        title="{% trans "List view" %}">{% trans "List" %}</span>
                 </div>
             </div>
         </div>
 
         <!-- Filter chips -->
         <div class="flex items-center gap-1.5 flex-wrap">
-            <a href="?status=all" class="chip {% if status_filter == 'all' %}active chip-all{% endif %}">All <span
+            <a href="?status=all" class="chip {% if status_filter == 'all' %}active chip-all{% endif %}">{% trans "All" %} <span
                     class="opacity-60">{{ status_counts.all }}</span></a>
             <a href="?status=pending"
-                class="chip {% if status_filter == 'pending' %}active chip-pending{% endif %}">Pending <span
+                class="chip {% if status_filter == 'pending' %}active chip-pending{% endif %}">{% trans "Pending" %} <span
                     class="opacity-60">{{ status_counts.pending }}</span></a>
             <a href="?status=approved"
-                class="chip {% if status_filter == 'approved' %}active chip-approved{% endif %}">Approved <span
+                class="chip {% if status_filter == 'approved' %}active chip-approved{% endif %}">{% trans "Approved" %} <span
                     class="opacity-60">{{ status_counts.approved }}</span></a>
-            <a href="?status=posted" class="chip {% if status_filter == 'posted' %}active chip-posted{% endif %}">Posted
+            <a href="?status=posted" class="chip {% if status_filter == 'posted' %}active chip-posted{% endif %}">{% trans "Posted" %}
                 <span class="opacity-60">{{ status_counts.posted }}</span></a>
             <a href="?status=flagged"
-                class="chip {% if status_filter == 'flagged' %}active chip-flagged{% endif %}">Flagged <span
+                class="chip {% if status_filter == 'flagged' %}active chip-flagged{% endif %}">{% trans "Flagged" %} <span
                     class="opacity-60">{{ status_counts.flagged }}</span></a>
             <span class="w-px h-5 bg-white/10 mx-1"></span>
             <a href="?rating=negative"
-                class="chip {% if rating_filter == 'negative' %}active chip-negative{% endif %}">Negative <span
+                class="chip {% if rating_filter == 'negative' %}active chip-negative{% endif %}">{% trans "Negative" %} <span
                     class="opacity-60">{{ negative_count }}</span></a>
             {% if status_filter != 'all' or rating_filter == 'negative' %}
-            <a href="?status=all" class="chip">✕ Clear filters</a>
+            <a href="?status=all" class="chip">✕ {% trans "Clear filters" %}</a>
             {% endif %}
         </div>
     </div>
@@ -1418,14 +1410,14 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-bold text-sm text-white">{{ review.reviewer_name }}</span>
                             {% if review.is_likely_spam %}
-                            <span class="badge badge-flagged">Likely Spam</span>
+                            <span class="badge badge-flagged">{% trans "Likely Spam" %}</span>
                             {% endif %}
                             {% if review.sentiment == 'positive' %}
-                            <span class="badge badge-sentiment-positive">Positive</span>
+                            <span class="badge badge-sentiment-positive">{% trans "Positive" %}</span>
                             {% elif review.sentiment == 'negative' %}
-                            <span class="badge badge-sentiment-negative">Negative</span>
+                            <span class="badge badge-sentiment-negative">{% trans "Negative" %}</span>
                             {% elif review.sentiment == 'neutral' %}
-                            <span class="badge badge-sentiment-neutral">Neutral</span>
+                            <span class="badge badge-sentiment-neutral">{% trans "Neutral" %}</span>
                             {% endif %}
                             {% if review.seo_keyword_used %}
                             <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2);"
@@ -1455,12 +1447,12 @@
                         {% elif review.status == 'flagged' %}badge-flagged
                         {% elif review.status == 'generation_failed' %}badge-generation-failed
                         {% else %}badge-pending{% endif %}">
-                    {% if review.status == 'posted' %}Posted
-                    {% elif review.status == 'flagged' %}Flagged
-                    {% elif review.status == 'generation_failed' %}Retry Needed
+                    {% if review.status == 'posted' %}{% trans "Posted" %}
+                    {% elif review.status == 'flagged' %}{% trans "Flagged" %}
+                    {% elif review.status == 'generation_failed' %}{% trans "Retry Needed" %}
                     {% else %}
-                    {% if review.status == 'pending' %}Pending
-                    {% elif review.status == 'approved' %}Approved
+                    {% if review.status == 'pending' %}{% trans "Pending" %}
+                    {% elif review.status == 'approved' %}{% trans "Approved" %}
                     {% else %}{{ review.status }}{% endif %}
                     {% endif %}
                 </span>
@@ -1485,26 +1477,24 @@
             {% if review.status == 'flagged' %}
             <div class="flagged-notice mt-3">
                 <div class="flex-1 min-w-0">
-                    <p class="text-[11.5px] font-bold text-amber-400">Skipped auto-reply — this doesn't look like a
-                        genuine review.</p>
+                    <p class="text-[11.5px] font-bold text-amber-400">{% trans "Skipped auto-reply — this doesn't look like a genuine review." %}</p>
                 </div>
                 <button type="button" data-draft-url="{% url 'generate_draft' review.id %}"
                     onclick="generateDraft(this, true)"
                     class="text-[10px] font-bold text-amber-400 hover:text-amber-300 whitespace-nowrap flex items-center gap-1 bg-transparent border-0 p-0 cursor-pointer">
-                    Generate anyway
+                    {% trans "Generate anyway" %}
                 </button>
             </div>
 
             {% elif review.status == 'generation_failed' %}
             <div class="error-notice mt-3">
                 <div class="flex-1 min-w-0">
-                    <p class="text-[11.5px] font-bold text-rose-400">AI couldn't generate a reply — nothing was
-                        saved or posted.</p>
+                    <p class="text-[11.5px] font-bold text-rose-400">{% trans "AI couldn't generate a reply — nothing was saved or posted." %}</p>
                 </div>
                 <button type="button" data-draft-url="{% url 'generate_draft' review.id %}"
                     onclick="generateDraft(this, false)"
                     class="text-[10px] font-bold text-rose-400 hover:text-rose-300 whitespace-nowrap flex items-center gap-1 bg-transparent border-0 p-0 cursor-pointer">
-                    Try again
+                    {% trans "Try again" %}
                 </button>
             </div>
 
@@ -1513,11 +1503,11 @@
             <form action="{% url 'approve_review' review.id %}" method="POST" class="ai-draft-panel">
                 {% csrf_token %}
                 <div class="flex items-center justify-between mb-2">
-                    <span class="ai-badge">AI Draft</span>
+                    <span class="ai-badge">{% trans "AI Draft" %}</span>
                     <button type="button" onclick="copyReplyToClipboard('draft-{{ review.id }}', this)"
                         class="text-slate-500 hover:text-gold text-[10px] font-semibold flex items-center gap-1.5 transition uppercase tracking-wider font-mono">
                         <i class="bi bi-clipboard"></i>
-                        <span>Copy</span>
+                        <span>{% trans "Copy" %}</span>
                     </button>
                 </div>
 
@@ -1528,19 +1518,19 @@
 
                 <div class="draft-actions">
                     <div class="draft-actions-group">
-                        <button type="submit" class="btn-success"><span>Approve & Post</span></button>
+                        <button type="submit" class="btn-success"><span>{% trans "Approve & Post" %}</span></button>
                         <button type="button" class="btn-ghost" data-draft-url="{% url 'generate_draft' review.id %}"
-                            onclick="generateDraft(this, false)"><span>Regenerate</span></button>
+                            onclick="generateDraft(this, false)"><span>{% trans "Regenerate" %}</span></button>
                     </div>
-                    <span class="kbd-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> to post</span>
+                    <span class="kbd-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> {% trans "to post" %}</span>
                 </div>
             </form>
             {% if review.status == 'approved' and profile.google_maps_url %}
             <div class="mt-2 text-[10px] text-slate-500">
-                Approved, not yet posted automatically —
+                {% trans "Approved, not yet posted automatically —" %}
                 <a href="{{ profile.google_maps_url }}" target="_blank" rel="noopener noreferrer"
-                    class="text-gold hover:text-gold-soft font-medium">open Google Business</a>
-                to post it yourself, or click Approve & Post above to retry.
+                    class="text-gold hover:text-gold-soft font-medium">{% trans "open Google Business" %}</a>
+                {% trans "to post it yourself, or click Approve & Post above to retry." %}
             </div>
             {% endif %}
 
@@ -1548,19 +1538,17 @@
             {% elif review.status == 'posted' %}
             <div
                 class="mt-3 pt-3 border-t border-white/5 flex flex-wrap items-center gap-2 text-[11px] text-emerald-400">
-                <span class="font-medium">Reply is live on Google — no action needed.</span>
+                <span class="font-medium">{% trans "Reply is live on Google — no action needed." %}</span>
                 <a href="{{ profile.google_maps_url|default:'https://business.google.com/' }}" target="_blank"
-                    rel="noopener noreferrer" class="text-gold hover:text-gold-soft font-medium ml-1">View on Google
-                    →</a>
+                    rel="noopener noreferrer" class="text-gold hover:text-gold-soft font-medium ml-1">{% trans "View on Google →" %}</a>
             </div>
 
             <!-- ===== NO AI DRAFT ===== -->
             {% else %}
             <div class="mt-3 pt-3 border-t border-white/5 flex flex-wrap items-center gap-2">
                 <button type="button" class="btn-primary" data-draft-url="{% url 'generate_draft' review.id %}"
-                    onclick="generateDraft(this, false)"><span>Generate AI
-                        Response</span></button>
-                <span class="text-[10px] text-slate-500 font-medium font-mono">Powered by Gemini</span>
+                    onclick="generateDraft(this, false)"><span>{% trans "Generate AI Response" %}</span></button>
+                <span class="text-[10px] text-slate-500 font-medium font-mono">{% trans "Powered by Gemini" %}</span>
             </div>
             {% endif %}
         </div>
@@ -1571,24 +1559,24 @@
                 <i class="bi bi-chat-square-text" style="font-size: 1.75rem; color: var(--gold);"></i>
             </div>
             {% if rating_filter == 'negative' %}
-            <p class="text-sm font-semibold text-white">No negative reviews right now</p>
-            <p class="text-xs text-slate-400">Nice work! All your reviews are 3★ or higher.</p>
-            <a href="?status=all" class="btn-primary inline-flex">Show all reviews</a>
+            <p class="text-sm font-semibold text-white">{% trans "No negative reviews right now" %}</p>
+            <p class="text-xs text-slate-400">{% trans "Nice work! All your reviews are 3★ or higher." %}</p>
+            <a href="?status=all" class="btn-primary inline-flex">{% trans "Show all reviews" %}</a>
             {% elif status_filter == 'all' %}
-            <p class="text-sm font-semibold text-white">No reviews found for this business yet</p>
-            <p class="text-xs text-slate-400">Sync your Google reviews to get started with AI-powered responses.</p>
-            <button onclick="toggleSyncModal()" class="btn-primary mx-auto"><span>Sync Live Reviews</span></button>
+            <p class="text-sm font-semibold text-white">{% trans "No reviews found for this business yet" %}</p>
+            <p class="text-xs text-slate-400">{% trans "Sync your Google reviews to get started with AI-powered responses." %}</p>
+            <button onclick="toggleSyncModal()" class="btn-primary mx-auto"><span>{% trans "Sync Live Reviews" %}</span></button>
             {% else %}
-            <p class="text-sm font-semibold text-white">No {{ status_filter }} reviews right now</p>
-            <p class="text-xs text-slate-400">Try viewing all reviews instead.</p>
-            <a href="?status=all" class="btn-primary inline-flex">Show all reviews</a>
+            <p class="text-sm font-semibold text-white">{% blocktrans %}No {{ status_filter }} reviews right now{% endblocktrans %}</p>
+            <p class="text-xs text-slate-400">{% trans "Try viewing all reviews instead." %}</p>
+            <a href="?status=all" class="btn-primary inline-flex">{% trans "Show all reviews" %}</a>
             {% endif %}
         </div>
         {% endfor %}
     </div>
 
     <div id="noSearchResults" class="hidden text-center py-10 text-xs text-slate-500">
-        No reviews match your search.
+        {% trans "No reviews match your search." %}
     </div>
 </div>
 
@@ -1596,16 +1584,15 @@
 <div
     class="reveal flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-4 border-t border-white/5 text-[10px] text-slate-500">
     <div class="flex items-center gap-4">
-        <span class="flex items-center gap-1.5"><span class="live-dot"></span><span class="font-mono">System
-                online</span></span>
+        <span class="flex items-center gap-1.5"><span class="live-dot"></span><span class="font-mono">{% trans "System online" %}</span></span>
         <span>·</span>
-        <span>Last sync: <span class="text-slate-400 font-medium">{% now "M d, Y H:i" %}</span></span>
+        <span>{% trans "Last sync:" %} <span class="text-slate-400 font-medium">{% now "M d, Y H:i" %}</span></span>
         <span>·</span>
         <span class="font-mono">v1.0</span>
     </div>
     <div class="flex items-center gap-4">
-            <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request" class="hover:text-slate-300 transition" title="Get help">Support</a>
-            <a href="{% url 'getting_started' %}" class="hover:text-slate-300 transition" title="Read the docs">Documentation</a>
+            <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request" class="hover:text-slate-300 transition" title="{% trans "Get help" %}">{% trans "Support" %}</a>
+            <a href="{% url 'getting_started' %}" class="hover:text-slate-300 transition" title="{% trans "Read the docs" %}">{% trans "Documentation" %}</a>
     </div>
 </div>
 <!-- </div> -->
@@ -1620,9 +1607,9 @@
                 <h3 class="text-base font-display font-semibold text-white flex items-center gap-2">
                     <span
                         class="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-soft text-ink flex items-center justify-center text-sm font-bold font-display">G</span>
-                    <span>Sync Google Reviews</span>
+                    <span>{% trans "Sync Google Reviews" %}</span>
                 </h3>
-                <p class="text-[11px] text-slate-500 mt-0.5">Fetch live customer feedback from Google Business</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">{% trans "Fetch live customer feedback from Google Business" %}</p>
             </div>
             <button onclick="toggleSyncModal()"
                 class="text-slate-500 hover:text-slate-300 text-sm p-1 transition">✕</button>
@@ -1632,38 +1619,36 @@
             {% csrf_token %}
             <div>
                 <label
-                    class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">Business
-                    Name <span class="text-red-500">*</span></label>
-                <input type="text" name="business_name" placeholder="e.g. Geneva Bistro" required
+                    class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">{% trans "Business Name" %} <span class="text-red-500">*</span></label>
+                <input type="text" name="business_name" placeholder="{% trans "e.g. Geneva Bistro" %}" required
                     class="w-full p-2.5 border border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-gold focus:outline-none transition placeholder:text-slate-600 bg-white/5 text-white">
-                <p class="text-[10px] text-slate-600 mt-1">Enter the exact business name as it appears on Google.</p>
+                <p class="text-[10px] text-slate-600 mt-1">{% trans "Enter the exact business name as it appears on Google." %}</p>
             </div>
 
             <div>
                 <label
-                    class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">Google
-                    Place ID <span class="font-normal text-slate-600">(optional)</span></label>
+                    class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">{% trans "Google Place ID" %} <span class="font-normal text-slate-600">({% trans "optional" %})</span></label>
                 <input type="text" name="place_id" placeholder="ChIJN1t_tDe1xkcR..."
                     class="w-full p-2.5 border border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-gold focus:outline-none transition placeholder:text-slate-600 bg-white/5 text-white">
-                <p class="text-[10px] text-slate-600 mt-1">Leave empty to auto-load sample live customer feedback.</p>
+                <p class="text-[10px] text-slate-600 mt-1">{% trans "Leave empty to auto-load sample live customer feedback." %}</p>
             </div>
 
             <div id="syncProgressWrap" class="hidden space-y-1.5">
                 <div class="sync-progress-track">
                     <div id="syncProgressFill" class="sync-progress-fill"></div>
                 </div>
-                <p class="text-[10px] text-slate-500 font-mono">Importing reviews…</p>
+                <p class="text-[10px] text-slate-500 font-mono">{% trans "Importing reviews…" %}</p>
             </div>
 
             <div class="flex justify-end gap-2 pt-1">
                 <button type="button" onclick="toggleSyncModal()"
-                    class="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-400 text-xs font-bold rounded-xl transition uppercase tracking-wider font-mono">Cancel</button>
-                <button type="submit" class="btn-primary"><span>Import Reviews</span></button>
+                    class="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-400 text-xs font-bold rounded-xl transition uppercase tracking-wider font-mono">{% trans "Cancel" %}</button>
+                <button type="submit" class="btn-primary"><span>{% trans "Import Reviews" %}</span></button>
             </div>
         </form>
 
         <div class="pt-3 border-t border-white/5 flex items-center gap-2 text-[10px] text-slate-600">
-            <span>Reviews are imported in real-time and analyzed by AI.</span>
+            <span>{% trans "Reviews are imported in real-time and analyzed by AI." %}</span>
         </div>
     </div>
 </div>

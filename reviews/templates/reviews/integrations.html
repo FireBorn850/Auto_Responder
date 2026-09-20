@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block page_title %}Platform Integrations{% endblock %}
 {% block head_title %}Platform Integrations | SwissReply.AI{% endblock %}
@@ -48,16 +49,16 @@
         class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
         <div>
             <h1 class="font-display text-2xl font-semibold text-white tracking-tight">
-                Platform Integrations
+                {% trans "Platform Integrations" %}
             </h1>
             <p class="text-xs sm:text-sm text-slate mt-1">
-                Manage external review channels and sync live business profile feeds to your workspace.
+                {% trans "Manage external review channels and sync live business profile feeds to your workspace." %}
             </p>
         </div>
         <div>
             <span
                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-slate border border-white/10 font-mono">
-                {% if profile.google_maps_url and profile.tripadvisor_url %}2{% elif profile.google_maps_url or profile.tripadvisor_url %}1{% else %}0{% endif %} / 2 Core Platforms Connected
+                {% if profile.google_maps_url and profile.tripadvisor_url %}2{% elif profile.google_maps_url or profile.tripadvisor_url %}1{% else %}0{% endif %} / 2 {% trans "Core Platforms Connected" %}
             </span>
         </div>
     </div>
@@ -69,7 +70,7 @@
                     class="fa-solid fa-plug text-sm"></i></span>
             <div>
                 <div class="text-xl font-display font-semibold text-white">{% if profile.google_maps_url and profile.tripadvisor_url %}2{% elif profile.google_maps_url or profile.tripadvisor_url %}1{% else %}0{% endif %}<span class="text-xs text-slate font-medium"> / 2</span></div>
-                <div class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono">Platforms connected
+                <div class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono">{% trans "Platforms connected" %}
                 </div>
             </div>
         </div>
@@ -79,8 +80,7 @@
                     class="fa-solid fa-star text-sm"></i></span>
             <div>
                 <div class="text-xl font-display font-semibold text-white">{{ source_counts.tripadvisor }}</div>
-                <div class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono">TripAdvisor reviews
-                    synced</div>
+                <div class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono">{% trans "TripAdvisor reviews synced" %}</div>
             </div>
         </div>
         {% endif %}
@@ -89,7 +89,7 @@
                     class="fa-solid fa-code text-sm"></i></span>
             <div>
                 <div class="text-xl font-display font-semibold text-white">1</div>
-                <div class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono">Webhook endpoint live
+                <div class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono">{% trans "Webhook endpoint live" %}
                 </div>
             </div>
         </div>
@@ -118,42 +118,38 @@
                         <div class="space-y-1">
                             <span
                                 class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-gold bg-gold-10 px-2.5 py-0.5 rounded border border-gold/20 font-mono">
-                                Primary Integration
+                                {% trans "Primary Integration" %}
                             </span>
-                            <h2 class="font-display text-lg font-semibold text-white">Google Business Profile</h2>
+                            <h2 class="font-display text-lg font-semibold text-white">{% trans "Google Business Profile" %}</h2>
                         </div>
                     </div>
                     {% if profile.google_maps_url %}
                     <span
                         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-900/20 text-emerald-400 border border-emerald-800/30 shrink-0 font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Active
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>{% trans "Active" %}
                     </span>
                     {% else %}
                     <span
                         class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 text-slate border border-white/10 shrink-0 font-mono">
-                        Not Synced Yet
+                        {% trans "Not Synced Yet" %}
                     </span>
                     {% endif %}
                 </div>
 
                 <p class="text-xs text-slate leading-relaxed">
-                    Reads real reviews from your Google Maps listing and drafts Gemini AI replies. Reply publishing is
-                    manual (one click, no tab-switching)
-                    until Google approves full API access — <a href="{% url 'ai_settings' %}"
-                        class="text-gold hover:text-gold-soft transition">see AI &amp; Tone Settings</a> for automation
-                    options.
+                    {% trans "Reads real reviews from your Google Maps listing and drafts Gemini AI replies. Reply publishing is manual (one click, no tab-switching) until Google approves full API access —" %}
+                    <a href="{% url 'ai_settings' %}" class="text-gold hover:text-gold-soft transition">{% trans "see AI & Tone Settings" %}</a>
+                    {% trans "for automation options." %}
                 </p>
 
                 <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-1">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Connected
-                        Location</span>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Connected Location" %}</span>
                     <div class="text-xs font-bold text-white flex items-center justify-between gap-2">
                         <span class="truncate">{{ profile.business_name|default:"No business synced yet" }}</span>
                         {% if profile.google_maps_url %}
-                        <span class="text-[11px] font-medium text-emerald-400 shrink-0 font-mono">Synced &amp;
-                            Live</span>
+                        <span class="text-[11px] font-medium text-emerald-400 shrink-0 font-mono">{% trans "Synced & Live" %}</span>
                         {% else %}
-                        <span class="text-[11px] font-medium text-slate shrink-0 font-mono">Pending</span>
+                        <span class="text-[11px] font-medium text-slate shrink-0 font-mono">{% trans "Pending" %}</span>
                         {% endif %}
                     </div>
                 </div>
@@ -162,7 +158,7 @@
             {% if profile.google_maps_url %}
             <form action="{% url 'update_sync_frequency' %}" method="POST" class="space-y-1">
                 {% csrf_token %}
-                <label class="block text-[11px] font-semibold text-slate font-mono">Auto-sync frequency</label>
+                <label class="block text-[11px] font-semibold text-slate font-mono">{% trans "Auto-sync frequency" %}</label>
                 <div class="flex gap-2">
                     <select name="sync_frequency" onchange="this.form.requestSubmit()"
                         class="flex-1 p-2 border border-white/10 rounded-lg text-xs bg-white/5 text-white">
@@ -172,7 +168,7 @@
                     </select>
                 </div>
                 {% if profile.sync_frequency != 'manual' and profile.last_auto_sync %}
-                <p class="text-[10px] text-slate-2">Last auto-sync: {{ profile.last_auto_sync|timesince }} ago</p>
+                <p class="text-[10px] text-slate-2">{% trans "Last auto-sync" %}: {{ profile.last_auto_sync|timesince }} {% trans "ago" %}</p>
                 {% endif %}
             </form>
             {% endif %}
@@ -181,12 +177,12 @@
                 <a href="{% url 'dashboard' %}"
                     class="w-full text-center bg-gold hover:bg-gold-soft text-ink font-semibold text-xs py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrows-rotate"></i>
-                    {% if profile.google_maps_url %}Manage Sync on Dashboard{% else %}Sync Your First Business{% endif %}
+                    {% if profile.google_maps_url %}{% trans "Manage Sync on Dashboard" %}{% else %}{% trans "Sync Your First Business" %}{% endif %}
                 </a>
                 {% if profile.google_maps_url %}
                 <a href="{{ profile.google_maps_url }}" target="_blank" rel="noopener noreferrer"
                     class="px-3 py-2.5 border border-white/10 rounded-xl text-slate hover:text-white hover:border-white/20 transition"
-                    title="View on Google Maps">
+                    title="{% trans "View on Google Maps" %}">
                     <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                 </a>
                 {% endif %}
@@ -207,49 +203,47 @@
                         <div class="space-y-1">
                             <span
                                 class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-teal bg-teal-10 px-2.5 py-0.5 rounded border border-teal/20 font-mono">
-                                Live
+                                {% trans "Live" %}
                             </span>
-                            <h2 class="font-display text-lg font-semibold text-white">TripAdvisor</h2>
+                            <h2 class="font-display text-lg font-semibold text-white">{% trans "TripAdvisor" %}</h2>
                         </div>
                     </div>
                     {% if profile.tripadvisor_url %}
                     <span
                         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-900/20 text-emerald-400 border border-emerald-800/30 shrink-0 font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Active
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>{% trans "Active" %}
                     </span>
                     {% else %}
                     <span
                         class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 text-slate border border-white/10 shrink-0 font-mono">
-                        Not Synced Yet
+                        {% trans "Not Synced Yet" %}
                     </span>
                     {% endif %}
                 </div>
 
                 <p class="text-xs text-slate leading-relaxed">
-                    Reads real traveler reviews from your TripAdvisor listing, same as Google — drafted by Gemini and
-                    shown right alongside your Google reviews on the dashboard.
+                    {% trans "Reads real traveler reviews from your TripAdvisor listing, same as Google — drafted by Gemini and shown right alongside your Google reviews on the dashboard." %}
                 </p>
 
                 {% if source_counts.tripadvisor %}
                 <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-1">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Synced
-                        Reviews</span>
-                    <div class="text-xs font-bold text-white">{{ source_counts.tripadvisor }} review{{ source_counts.tripadvisor|pluralize }}</div>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Synced Reviews" %}</span>
+                    <div class="text-xs font-bold text-white">{% blocktrans count counter=source_counts.tripadvisor %}{{ counter }} review{% plural %}{{ counter }} reviews{% endblocktrans %}</div>
                 </div>
                 {% endif %}
 
                 <form action="{% url 'sync_tripadvisor_reviews' %}" method="POST" class="space-y-2"
                     id="tripadvisorForm">
                     {% csrf_token %}
-                    <label class="block text-[11px] font-semibold text-slate font-mono">Business Name</label>
+                    <label class="block text-[11px] font-semibold text-slate font-mono">{% trans "Business Name" %}</label>
                     <div class="flex gap-2">
-                        <input type="text" name="business_name" required placeholder="e.g. Geneva Bistro"
+                        <input type="text" name="business_name" required placeholder="{% trans "e.g. Geneva Bistro" %}"
                             value="{{ profile.business_name|default:'' }}"
                             class="flex-1 p-2 border border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-gold focus:outline-none bg-white/5 text-white placeholder:text-slate-2">
                         <button type="submit" id="tripadvisorSubmitBtn"
                             class="bg-gold hover:bg-gold-soft text-ink font-semibold text-xs px-4 rounded-lg shadow transition whitespace-nowrap flex items-center gap-2">
                             <i class="fa-solid fa-arrows-rotate" id="tripadvisorSyncIcon"></i>
-                            <span>Sync Now</span>
+                            <span>{% trans "Sync Now" %}</span>
                         </button>
                     </div>
                 </form>
@@ -259,10 +253,10 @@
                 {% if profile.tripadvisor_url %}
                 <a href="{{ profile.tripadvisor_url }}" target="_blank" rel="noopener noreferrer"
                     class="w-full text-center block text-slate hover:text-white text-xs font-semibold py-1 transition">
-                    View listing on TripAdvisor <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    {% trans "View listing on TripAdvisor" %} <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </a>
                 {% else %}
-                <p class="text-[11px] text-slate text-center">Enter your business name above and click Sync Now.</p>
+                <p class="text-[11px] text-slate text-center">{% trans "Enter your business name above and click Sync Now." %}</p>
                 {% endif %}
             </div>
         </div>
@@ -280,26 +274,24 @@
                         <div class="space-y-1">
                             <span
                                 class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-slate bg-white/5 px-2.5 py-0.5 rounded border border-white/10 font-mono">
-                                Coming Soon
+                                {% trans "Coming Soon" %}
                             </span>
-                            <h2 class="font-display text-lg font-semibold text-white">Trustpilot</h2>
+                            <h2 class="font-display text-lg font-semibold text-white">{% trans "Trustpilot" %}</h2>
                         </div>
                     </div>
                     <span
                         class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 text-slate border border-white/10 shrink-0 font-mono">
-                        In Development
+                        {% trans "In Development" %}
                     </span>
                 </div>
 
                 <p class="text-xs text-slate leading-relaxed">
-                    Connect consumer service reviews, collect customer service feedback, and publish verified business
-                    replies directly.
+                    {% trans "Connect consumer service reviews, collect customer service feedback, and publish verified business replies directly." %}
                 </p>
 
                 <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-1">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Target
-                        Timeline</span>
-                    <div class="text-xs font-medium text-slate">Roadmap — pending demand</div>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Target Timeline" %}</span>
+                    <div class="text-xs font-medium text-slate">{% trans "Roadmap — pending demand" %}</div>
                 </div>
             </div>
 
@@ -307,14 +299,14 @@
                 {% if profile.trustpilot_waitlist_joined_at %}
                 <button disabled
                     class="w-full text-center bg-emerald-900/20 text-emerald-400 border border-emerald-800/30 font-semibold text-xs py-2.5 rounded-xl cursor-default flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-check"></i> You're on the list
+                    <i class="fa-solid fa-circle-check"></i> {% trans "You're on the list" %}
                 </button>
                 {% else %}
                 <form action="{% url 'join_trustpilot_waitlist' %}" method="POST">
                     {% csrf_token %}
                     <button type="submit"
                         class="w-full text-center bg-white/10 hover:bg-white/15 text-white font-semibold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-bell"></i> Notify Me When It's Ready
+                        <i class="fa-solid fa-bell"></i> {% trans "Notify Me When It's Ready" %}
                     </button>
                 </form>
                 {% endif %}
@@ -334,56 +326,48 @@
                         <div class="space-y-1">
                             <span
                                 class="inline-block text-[10px] uppercase tracking-wider font-extrabold text-gold bg-gold-10 px-2.5 py-0.5 rounded border border-gold/20 font-mono">
-                                Deep Integrations
+                                {% trans "Deep Integrations" %}
                             </span>
-                            <h2 class="font-display text-lg font-semibold text-white">Connect Any Platform</h2>
+                            <h2 class="font-display text-lg font-semibold text-white">{% trans "Connect Any Platform" %}</h2>
                         </div>
                     </div>
                 </div>
 
                 <p class="text-xs text-slate leading-relaxed">
-                    Sync SwissReply.AI with your CRM, helpdesk, or property management system — Salesforce, HubSpot,
-                    Zendesk, Mews, Cloudbeds, or anything else that can send an HTTP request. Connect directly, or
-                    route through <span class="font-semibold text-gold">Zapier</span> or
-                    <span class="font-semibold text-gold">Make</span> for a no-code setup. POST a review as JSON to
-                    your <span class="font-semibold text-gold">unique, secret URL</span> below and it's picked up for
-                    AI drafting like any synced review. Anyone with this URL can create reviews under this business —
-                    don't share it publicly.
+                    {% trans "Sync SwissReply.AI with your CRM, helpdesk, or property management system — Salesforce, HubSpot, Zendesk, Mews, Cloudbeds, or anything else that can send an HTTP request. Connect directly, or route through" %} <span class="font-semibold text-gold">Zapier</span> {% trans "or" %} <span class="font-semibold text-gold">Make</span> {% trans "for a no-code setup. POST a review as JSON to your" %} <span class="font-semibold text-gold">{% trans "unique, secret URL" %}</span> {% trans "below and it's picked up for AI drafting like any synced review. Anyone with this URL can create reviews under this business —" %} {% trans "don't share it publicly." %}
                 </p>
 
                 <div class="bg-ink p-3.5 rounded-xl border border-white/10 space-y-2">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Your Webhook
-                        Endpoint</span>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Your Webhook Endpoint" %}</span>
                     <div class="flex items-center gap-2">
                         <code id="webhookUrl" class="text-[11px] font-mono text-emerald-400 block truncate flex-1">
                             {{ request.scheme }}://{{ request.get_host }}/api/webhook/google-review/{{ profile.webhook_token }}/
                         </code>
                         <button type="button" onclick="copyWebhookUrl(this)"
-                            class="text-slate hover:text-gold transition text-xs flex-shrink-0" title="Copy">
+                            class="text-slate hover:text-gold transition text-xs flex-shrink-0" title="{% trans "Copy" %}">
                             <i class="fa-regular fa-copy"></i>
                         </button>
                     </div>
+                    {% trans "Rotate this key? The current URL will stop working immediately — you will need to update it anywhere it is in use." as rotate_confirm %}
                     <form action="{% url 'regenerate_webhook_token' %}" method="POST"
-                        onsubmit="return confirm('Rotate this key? The current URL will stop working immediately — you\'ll need to update it anywhere it\'s in use.');">
+                        onsubmit="return confirm('{{ rotate_confirm|escapejs }}');">
                         {% csrf_token %}
                         <button type="submit"
                             class="text-[11px] text-rose-400 hover:text-rose-300 transition font-semibold flex items-center gap-1.5 mt-1">
-                            <i class="fa-solid fa-arrows-rotate"></i> Rotate key
+                            <i class="fa-solid fa-arrows-rotate"></i> {% trans "Rotate key" %}
                         </button>
                     </form>
                 </div>
 
                 <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-1">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Send it with
-                        curl</span>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Send it with curl" %}</span>
                     <pre class="text-[10px] font-mono text-slate overflow-x-auto" id="curlExample">curl -X POST "{{ request.scheme }}://{{ request.get_host }}/api/webhook/google-review/{{ profile.webhook_token }}/" \
   -H "Content-Type: application/json" \
   -d '{"reviewer_name": "Jane Doe", "rating": 5, "comment": "Great service!", "detected_language": "en"}'</pre>
                 </div>
 
                 <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-1">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Payload
-                        shape (JSON)</span>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Payload shape (JSON)" %}</span>
                     <pre class="text-[10px] font-mono text-slate overflow-x-auto">{
   "reviewer_name": "Jane Doe",
   "rating": 5,
@@ -393,27 +377,26 @@
                 </div>
 
                 <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-3">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Test This
-                        Webhook</span>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Test This Webhook" %}</span>
 
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="webhookTestName" placeholder="Reviewer name" value="Test Reviewer"
+                        <input type="text" id="webhookTestName" placeholder="{% trans "Reviewer name" %}" value="Test Reviewer"
                             class="p-2 border border-white/10 rounded-lg text-xs bg-white/5 text-white placeholder:text-slate-2">
                         <select id="webhookTestRating"
                             class="p-2 border border-white/10 rounded-lg text-xs bg-white/5 text-white">
-                            <option value="5">5 stars</option>
-                            <option value="4">4 stars</option>
-                            <option value="3">3 stars</option>
-                            <option value="2">2 stars</option>
-                            <option value="1">1 star</option>
+                            <option value="5">{% trans "5 stars" %}</option>
+                            <option value="4">{% trans "4 stars" %}</option>
+                            <option value="3">{% trans "3 stars" %}</option>
+                            <option value="2">{% trans "2 stars" %}</option>
+                            <option value="1">{% trans "1 star" %}</option>
                         </select>
                     </div>
-                    <textarea id="webhookTestComment" rows="2" placeholder="Review comment"
-                        class="w-full p-2 border border-white/10 rounded-lg text-xs bg-white/5 text-white placeholder:text-slate-2">Great service, will come back!</textarea>
+                    <textarea id="webhookTestComment" rows="2" placeholder="{% trans "Review comment" %}"
+                        class="w-full p-2 border border-white/10 rounded-lg text-xs bg-white/5 text-white placeholder:text-slate-2">{% trans "Great service, will come back!" %}</textarea>
 
                     <button type="button" onclick="sendWebhookTest()" id="webhookTestBtn"
                         class="w-full bg-white/10 hover:bg-white/15 text-white font-semibold text-xs py-2 rounded-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> Send Test Payload
+                        <i class="fa-solid fa-paper-plane"></i> {% trans "Send Test Payload" %}
                     </button>
 
                     <div id="webhookTestResult" class="hidden space-y-1.5">
@@ -430,45 +413,39 @@
             </div>
 
                             <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-2">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Connect via Zapier or Make — no coding needed</span>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Connect via Zapier or Make — no coding needed" %}</span>
                     <p class="text-[11px] text-slate leading-relaxed">
-                        Already use <span class="font-semibold text-gold">Zapier</span> or
-                        <span class="font-semibold text-gold">Make</span>? You can pipe reviews from thousands of
-                        apps — Salesforce, HubSpot, Zendesk, Mews, Cloudbeds, a Google Form, anything — straight into
-                        SwissReply.AI, with zero code.
+                        {% trans "Already use" %} <span class="font-semibold text-gold">Zapier</span> {% trans "or" %}
+                        <span class="font-semibold text-gold">Make</span>{% trans "? You can pipe reviews from thousands of apps — Salesforce, HubSpot, Zendesk, Mews, Cloudbeds, a Google Form, anything — straight into SwissReply.AI, with zero code." %}
                     </p>
                     <ol class="text-[11px] text-slate leading-relaxed space-y-1.5 list-decimal list-inside">
-                        <li>In Zapier or Make, pick the trigger app you want to pull reviews from (e.g. "New Ticket in
-                            Zendesk", "New Row in Google Sheets").</li>
-                        <li>Add an action step and search for <span class="font-semibold text-gold">"Webhooks by
-                            Zapier"</span> (Zapier) or the <span class="font-semibold text-gold">HTTP</span> module
-                            (Make) — choose the POST option.</li>
-                        <li>Paste in your webhook URL from above as the destination.</li>
-                        <li>Map the trigger app's fields to ours: <code class="font-mono text-emerald-400">reviewer_name</code>,
+                        <li>{% trans "In Zapier or Make, pick the trigger app you want to pull reviews from (e.g. \"New Ticket in Zendesk\", \"New Row in Google Sheets\")." %}</li>
+                        <li>{% trans "Add an action step and search for" %} <span class="font-semibold text-gold">"Webhooks by
+                            Zapier"</span> {% trans "(Zapier) or the" %} <span class="font-semibold text-gold">HTTP</span> {% trans "module (Make) — choose the POST option." %}</li>
+                        <li>{% trans "Paste in your webhook URL from above as the destination." %}</li>
+                        <li>{% trans "Map the trigger app's fields to ours:" %} <code class="font-mono text-emerald-400">reviewer_name</code>,
                             <code class="font-mono text-emerald-400">rating</code>,
-                            <code class="font-mono text-emerald-400">comment</code>, and
-                            <code class="font-mono text-emerald-400">detected_language</code> (see the JSON shape
-                            above).</li>
-                        <li>Turn the Zap or scenario on — new items now flow straight into your dashboard for AI
-                            drafting.</li>
+                            <code class="font-mono text-emerald-400">comment</code>, {% trans "and" %}
+                            <code class="font-mono text-emerald-400">detected_language</code> {% trans "(see the JSON shape above)." %}</li>
+                        <li>{% trans "Turn the Zap or scenario on — new items now flow straight into your dashboard for AI drafting." %}</li>
                     </ol>
                 </div>
 
                             <div class="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-2">
-                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">Want a specific tool connected?</span>
+                    <span class="text-[10px] font-bold text-slate uppercase tracking-wider font-mono block">{% trans "Want a specific tool connected?" %}</span>
                     <form action="{% url 'request_integration' %}" method="POST" class="flex gap-2">
                         {% csrf_token %}
-                        <input type="text" name="tool_name" required placeholder="e.g. HubSpot, Mews, Zendesk"
+                        <input type="text" name="tool_name" required placeholder="{% trans "e.g. HubSpot, Mews, Zendesk" %}"
                             class="flex-1 p-2 border border-white/10 rounded-lg text-xs bg-white/5 text-white placeholder:text-slate-2">
                         <button type="submit" class="bg-white/10 hover:bg-white/15 text-white font-semibold text-xs px-3 rounded-lg transition whitespace-nowrap">
-                            Request
+                            {% trans "Request" %}
                         </button>
                     </form>
                 </div>
 
             <div class="pt-2 border-t border-white/10">
                 <p class="text-[11px] text-slate text-center">
-                    For developers integrating a custom review source.
+                    {% trans "For developers integrating a custom review source." %}
                 </p>
             </div>
         </div>
@@ -482,8 +459,8 @@
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
             <div>
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Sync History &amp; Logs</h2>
-                <p class="text-xs text-slate mt-0.5">A timestamped record of every sync attempt, per platform.</p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Sync History & Logs" %}</h2>
+                <p class="text-xs text-slate mt-0.5">{% trans "A timestamped record of every sync attempt, per platform." %}</p>
             </div>
         </div>
 
@@ -499,14 +476,13 @@
                         <div class="text-[11px] text-slate">{{ log.detail }}</div>
                     </div>
                 </div>
-                <div class="text-[10px] text-slate-2 font-mono whitespace-nowrap">{{ log.created_at|timesince }} ago
+                <div class="text-[10px] text-slate-2 font-mono whitespace-nowrap">{{ log.created_at|timesince }} {% trans "ago" %}
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-xs text-slate text-center py-4">No sync attempts yet — trigger a sync above and it'll show up
-            here.</p>
+        <p class="text-xs text-slate text-center py-4">{% trans "No sync attempts yet — trigger a sync above and it'll show up here." %}</p>
         {% endif %}
     </div>
 
@@ -537,6 +513,28 @@
     </div> -->
 
     <script>
+        {% trans "Sending…" as i18n_sending %}
+        {% trans "Success" as i18n_success %}
+        {% trans "Error" as i18n_error %}
+        {% trans "Network Error" as i18n_network_error %}
+        {% trans "Send Test Payload" as i18n_send_test_payload %}
+        {% trans "Syncing…" as i18n_syncing %}
+        {% trans "Connected" as i18n_connected %}
+        {% trans "Not synced" as i18n_not_synced %}
+        {% trans "Coming Soon" as i18n_coming_soon %}
+
+        var i18n = {
+            sending: "{{ i18n_sending|escapejs }}",
+            success: "{{ i18n_success|escapejs }}",
+            error: "{{ i18n_error|escapejs }}",
+            networkError: "{{ i18n_network_error|escapejs }}",
+            sendTestPayload: "{{ i18n_send_test_payload|escapejs }}",
+            syncing: "{{ i18n_syncing|escapejs }}",
+            connected: "{{ i18n_connected|escapejs }}",
+            notSynced: "{{ i18n_not_synced|escapejs }}",
+            comingSoon: "{{ i18n_coming_soon|escapejs }}"
+        };
+
         function copyWebhookUrl(buttonEl) {
             const text = document.getElementById('webhookUrl').textContent.trim();
             navigator.clipboard.writeText(text).then(() => {
@@ -560,7 +558,7 @@
             };
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending…';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + i18n.sending;
 
             fetch(url, {
                 method: 'POST',
@@ -575,7 +573,7 @@
                 .then(function (result) {
                     resultBox.classList.remove('hidden');
                     var badge = document.getElementById('webhookTestStatusBadge');
-                    badge.textContent = result.ok ? 'Success' : 'Error';
+                    badge.textContent = result.ok ? i18n.success : i18n.error;
                     badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ' +
                         (result.ok ? 'bg-emerald-900/30 text-emerald-400' : 'bg-rose-900/30 text-rose-400');
                     document.getElementById('webhookTestHttpCode').textContent = result.status;
@@ -584,14 +582,14 @@
                 .catch(function (err) {
                     resultBox.classList.remove('hidden');
                     var badge = document.getElementById('webhookTestStatusBadge');
-                    badge.textContent = 'Network Error';
+                    badge.textContent = i18n.networkError;
                     badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full font-mono bg-rose-900/30 text-rose-400';
                     document.getElementById('webhookTestHttpCode').textContent = '—';
                     document.getElementById('webhookTestResponse').textContent = String(err);
                 })
                 .finally(function () {
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Test Payload';
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ' + i18n.sendTestPayload;
                 });
         }
 
@@ -603,7 +601,7 @@
                 var icon = document.getElementById('tripadvisorSyncIcon');
                 btn.disabled = true;
                 icon.classList.add('fa-spin');
-                btn.querySelector('span').textContent = 'Syncing…';
+                btn.querySelector('span').textContent = i18n.syncing;
             });
         }
 
@@ -621,9 +619,9 @@
 
             var total = cards.length;
             var segments = [
-                { key: 'active', label: 'Connected', color: '#10b981' },
-                { key: 'pending', label: 'Not synced', color: '#5C6B85' },
-                { key: 'soon', label: 'Coming soon', color: '#2D3748' }
+                { key: 'active', label: i18n.connected, color: '#10b981' },
+                { key: 'pending', label: i18n.notSynced, color: '#5C6B85' },
+                { key: 'soon', label: i18n.comingSoon, color: '#2D3748' }
             ];
 
             track.innerHTML = '';

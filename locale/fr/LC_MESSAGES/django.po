@@ -1,0 +1,2002 @@
+# French translations for SwissReply.AI
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-06 00:49+0100\n"
+"PO-Revision-Date: 2026-09-05 20:39+0100\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\reviews\templates\reviews\dashboard.html:1102
+msgid "Quick Actions"
+msgstr "Actions rapides"
+
+#: .\reviews\templates\reviews\dashboard.html:1106
+msgid "Sync reviews"
+msgstr "Synchroniser les avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1107
+msgid "Export CSV"
+msgstr "Exporter en CSV"
+
+#: .\reviews\templates\reviews\dashboard.html:1108
+msgid "Export Insights Report"
+msgstr "Exporter le rapport d'analyse"
+
+#: .\reviews\templates\reviews\dashboard.html:1109
+msgid "Settings"
+msgstr "Paramètres"
+
+#: .\reviews\templates\reviews\dashboard.html:1113
+msgid "AI replies generated today, resets at midnight"
+msgstr "Réponses IA générées aujourd'hui, réinitialisation à minuit"
+
+#: .\reviews\templates\reviews\dashboard.html:1115
+#, python-format
+msgid "%(ai_used_today)s/%(profile.ai_daily_limit)s AI today"
+msgstr "%(ai_used_today)s/%(profile.ai_daily_limit)s IA aujourd'hui"
+
+#: .\reviews\templates\reviews\dashboard.html:1131
+msgid "Notifications"
+msgstr "Notifications"
+
+#: .\reviews\templates\reviews\dashboard.html:1133
+#, python-format
+msgid "%(negative_count)s review needs attention"
+msgid_plural "%(negative_count)s reviews need attention"
+msgstr[0] "%(negative_count)s avis nécessite votre attention"
+msgstr[1] "%(negative_count)s avis nécessitent votre attention"
+
+#: .\reviews\templates\reviews\dashboard.html:1135
+msgid "You're all caught up."
+msgstr "Vous êtes à jour."
+
+#: .\reviews\templates\reviews\dashboard.html:1164 .\templates\base.html:577
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: .\reviews\templates\reviews\dashboard.html:1167
+msgid "Managing automated Google Business Profile responses for"
+msgstr "Gestion des réponses automatisées Google Business Profile pour"
+
+#: .\reviews\templates\reviews\dashboard.html:1169 .\templates\base.html:757
+msgid "operational"
+msgstr "opérationnel"
+
+#: .\reviews\templates\reviews\dashboard.html:1171
+msgid "Welcome! Please sign in to manage and automate your business reviews."
+msgstr ""
+"Bienvenue ! Veuillez vous connecter pour gérer et automatiser les avis de "
+"votre entreprise."
+
+#: .\reviews\templates\reviews\dashboard.html:1181
+msgid "Total Reviews"
+msgstr "Total des avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1185
+msgid "Synced for this business"
+msgstr "Synchronisés pour cette entreprise"
+
+#: .\reviews\templates\reviews\dashboard.html:1190
+msgid "Avg Rating"
+msgstr "Note moyenne"
+
+#: .\reviews\templates\reviews\dashboard.html:1197
+msgid "Across all synced reviews"
+msgstr "Sur tous les avis synchronisés"
+
+#: .\reviews\templates\reviews\dashboard.html:1202
+msgid "Time Saved This Week"
+msgstr "Temps économisé cette semaine"
+
+#: .\reviews\templates\reviews\dashboard.html:1206
+#, python-format
+msgid "%(analytics.reviews_handled_this_week)s reply handled since Monday"
+msgid_plural ""
+"%(analytics.reviews_handled_this_week)s replies handled since Monday"
+msgstr[0] ""
+"%(analytics.reviews_handled_this_week)s réponse traitée depuis lundi"
+msgstr[1] ""
+"%(analytics.reviews_handled_this_week)s réponses traitées depuis lundi"
+
+#: .\reviews\templates\reviews\dashboard.html:1211
+msgid "Total Time Saved"
+msgstr "Temps total économisé"
+
+#: .\reviews\templates\reviews\dashboard.html:1215
+msgid "Lifetime, since joining"
+msgstr "Depuis l'inscription"
+
+#: .\reviews\templates\reviews\dashboard.html:1220
+msgid "Response Rate"
+msgstr "Taux de réponse"
+
+#: .\reviews\templates\reviews\dashboard.html:1225
+#, python-format
+msgid "%(analytics.total_reviews_handled)s reviews handled"
+msgstr "%(analytics.total_reviews_handled)s avis traités"
+
+#: .\reviews\templates\reviews\dashboard.html:1230
+msgid "Avg Response Time"
+msgstr "Temps de réponse moyen"
+
+#: .\reviews\templates\reviews\dashboard.html:1235
+msgid "Review created → reply approved/posted"
+msgstr "Avis créé → réponse approuvée/publiée"
+
+#: .\reviews\templates\reviews\dashboard.html:1242
+msgid "Competitor Benchmarking"
+msgstr "Analyse comparative des concurrents"
+
+#: .\reviews\templates\reviews\dashboard.html:1245
+msgid "Add Competitor"
+msgstr "Ajouter un concurrent"
+
+#: .\reviews\templates\reviews\dashboard.html:1253
+msgid "Competitor name"
+msgstr "Nom du concurrent"
+
+#: .\reviews\templates\reviews\dashboard.html:1255
+msgid "Location"
+msgstr "Emplacement"
+
+#: .\reviews\templates\reviews\dashboard.html:1257
+msgid "Avg rating (0-5)"
+msgstr "Note moyenne (0-5)"
+
+#: .\reviews\templates\reviews\dashboard.html:1259
+msgid "Total reviews"
+msgstr "Total des avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1262
+msgid "Google Maps URL"
+msgstr "URL Google Maps"
+
+#: .\reviews\templates\reviews\dashboard.html:1264
+msgid "Add"
+msgstr "Ajouter"
+
+#: .\reviews\templates\reviews\dashboard.html:1272
+#, python-format
+msgid "%(profile.business_name)s (You)"
+msgstr "%(profile.business_name)s (Vous)"
+
+#: .\reviews\templates\reviews\dashboard.html:1278
+#, python-format
+msgid "%(analytics.total_reviews_synced)s review"
+msgid_plural "%(analytics.total_reviews_synced)s reviews"
+msgstr[0] "%(analytics.total_reviews_synced)s avis"
+msgstr[1] "%(analytics.total_reviews_synced)s avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1298
+#, python-format
+msgid "%(c.total_reviews)s review"
+msgid_plural "%(c.total_reviews)s reviews"
+msgstr[0] "%(c.total_reviews)s avis"
+msgstr[1] "%(c.total_reviews)s avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1300
+msgid "View →"
+msgstr "Voir →"
+
+#: .\reviews\templates\reviews\dashboard.html:1306
+msgid "No competitors added yet."
+msgstr "Aucun concurrent ajouté pour le moment."
+
+#: .\reviews\templates\reviews\dashboard.html:1317
+msgid "Recurring Complaint Themes — AI Analysis"
+msgstr "Thèmes de plaintes récurrents — Analyse IA"
+
+#: .\reviews\templates\reviews\dashboard.html:1320
+msgid "Analyze Recurring Themes"
+msgstr "Analyser les thèmes récurrents"
+
+#: .\reviews\templates\reviews\dashboard.html:1324
+msgid ""
+"Click \"Analyze Recurring Themes\" to have AI cluster your 1-3★ reviews into "
+"recurring problems — what is coming up again and again, and what to fix "
+"first."
+msgstr ""
+"Cliquez sur « Analyser les thèmes récurrents » pour que l'IA regroupe vos "
+"avis 1-3★ en problèmes récurrents — ce qui revient sans cesse et ce qu'il "
+"faut corriger en premier."
+
+#: .\reviews\templates\reviews\dashboard.html:1330
+msgid "Actionable Tip"
+msgstr "Conseil pratique"
+
+#: .\reviews\templates\reviews\dashboard.html:1342
+msgid "Sentiment Trend — Last 30 Days"
+msgstr "Tendance du sentiment — 30 derniers jours"
+
+#: .\reviews\templates\reviews\dashboard.html:1352
+msgid "Customer Reviews Feed"
+msgstr "Flux des avis clients"
+
+#: .\reviews\templates\reviews\dashboard.html:1354
+#, python-format
+msgid "%(reviews|length)s review"
+msgid_plural "%(reviews|length)s reviews"
+msgstr[0] "%(reviews|length)s avis"
+msgstr[1] "%(reviews|length)s avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1360
+msgid "Search reviews by name or text..."
+msgstr "Rechercher des avis par nom ou texte..."
+
+#: .\reviews\templates\reviews\dashboard.html:1365
+msgid "Grid view"
+msgstr "Vue en grille"
+
+#: .\reviews\templates\reviews\dashboard.html:1365
+msgid "Grid"
+msgstr "Grille"
+
+#: .\reviews\templates\reviews\dashboard.html:1367
+msgid "List view"
+msgstr "Vue en liste"
+
+#: .\reviews\templates\reviews\dashboard.html:1367
+msgid "List"
+msgstr "Liste"
+
+#: .\reviews\templates\reviews\dashboard.html:1374
+msgid "All"
+msgstr "Tous"
+
+#: .\reviews\templates\reviews\dashboard.html:1377
+#: .\reviews\templates\reviews\dashboard.html:1454
+msgid "Pending"
+msgstr "En attente"
+
+#: .\reviews\templates\reviews\dashboard.html:1380
+#: .\reviews\templates\reviews\dashboard.html:1455
+msgid "Approved"
+msgstr "Approuvé"
+
+#: .\reviews\templates\reviews\dashboard.html:1382
+#: .\reviews\templates\reviews\dashboard.html:1450
+msgid "Posted"
+msgstr "Publié"
+
+#: .\reviews\templates\reviews\dashboard.html:1385
+#: .\reviews\templates\reviews\dashboard.html:1451
+msgid "Flagged"
+msgstr "Signalé"
+
+#: .\reviews\templates\reviews\dashboard.html:1389
+#: .\reviews\templates\reviews\dashboard.html:1418
+msgid "Negative"
+msgstr "Négatif"
+
+#: .\reviews\templates\reviews\dashboard.html:1392
+msgid "Clear filters"
+msgstr "Effacer les filtres"
+
+#: .\reviews\templates\reviews\dashboard.html:1413
+msgid "Likely Spam"
+msgstr "Probablement spam"
+
+#: .\reviews\templates\reviews\dashboard.html:1416
+msgid "Positive"
+msgstr "Positif"
+
+#: .\reviews\templates\reviews\dashboard.html:1420
+msgid "Neutral"
+msgstr "Neutre"
+
+#: .\reviews\templates\reviews\dashboard.html:1452
+msgid "Retry Needed"
+msgstr "Nouvelle tentative requise"
+
+#: .\reviews\templates\reviews\dashboard.html:1480
+msgid "Skipped auto-reply — this doesn't look like a genuine review."
+msgstr "Réponse automatique ignorée — cet avis ne semble pas authentique."
+
+#: .\reviews\templates\reviews\dashboard.html:1485
+msgid "Generate anyway"
+msgstr "Générer quand même"
+
+#: .\reviews\templates\reviews\dashboard.html:1492
+msgid "AI couldn't generate a reply — nothing was saved or posted."
+msgstr ""
+"L'IA n'a pas pu générer de réponse — rien n'a été enregistré ni publié."
+
+#: .\reviews\templates\reviews\dashboard.html:1497
+msgid "Try again"
+msgstr "Réessayer"
+
+#: .\reviews\templates\reviews\dashboard.html:1506
+#: .\reviews\templates\reviews\settings.html:1427
+#: .\reviews\templates\reviews\settings.html:1441
+msgid "AI Draft"
+msgstr "Brouillon IA"
+
+#: .\reviews\templates\reviews\dashboard.html:1510
+msgid "Copy"
+msgstr "Copier"
+
+#: .\reviews\templates\reviews\dashboard.html:1521
+msgid "Approve & Post"
+msgstr "Approuver et publier"
+
+#: .\reviews\templates\reviews\dashboard.html:1523
+msgid "Regenerate"
+msgstr "Régénérer"
+
+#: .\reviews\templates\reviews\dashboard.html:1525
+msgid "to post"
+msgstr "pour publier"
+
+#: .\reviews\templates\reviews\dashboard.html:1530
+msgid "Approved, not yet posted automatically —"
+msgstr "Approuvé, pas encore publié automatiquement —"
+
+#: .\reviews\templates\reviews\dashboard.html:1532
+msgid "open Google Business"
+msgstr "ouvrir Google Business"
+
+#: .\reviews\templates\reviews\dashboard.html:1533
+msgid "to post it yourself, or click Approve & Post above to retry."
+msgstr ""
+"pour le publier vous-même, ou cliquez sur « Approuver et publier » ci-dessus "
+"pour réessayer."
+
+#: .\reviews\templates\reviews\dashboard.html:1541
+msgid "Reply is live on Google — no action needed."
+msgstr "La réponse est en ligne sur Google — aucune action requise."
+
+#: .\reviews\templates\reviews\dashboard.html:1543
+msgid "View on Google →"
+msgstr "Voir sur Google →"
+
+#: .\reviews\templates\reviews\dashboard.html:1550
+msgid "Generate AI Response"
+msgstr "Générer une réponse IA"
+
+#: .\reviews\templates\reviews\dashboard.html:1551
+#: .\reviews\templates\reviews\settings.html:859
+msgid "Powered by Gemini"
+msgstr "Propulsé par Gemini"
+
+#: .\reviews\templates\reviews\dashboard.html:1562
+msgid "No negative reviews right now"
+msgstr "Aucun avis négatif pour le moment"
+
+#: .\reviews\templates\reviews\dashboard.html:1563
+msgid "Nice work! All your reviews are 3★ or higher."
+msgstr "Bon travail ! Tous vos avis sont notés 3★ ou plus."
+
+#: .\reviews\templates\reviews\dashboard.html:1564
+#: .\reviews\templates\reviews\dashboard.html:1572
+msgid "Show all reviews"
+msgstr "Afficher tous les avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1566
+msgid "No reviews found for this business yet"
+msgstr "Aucun avis trouvé pour cette entreprise pour le moment"
+
+#: .\reviews\templates\reviews\dashboard.html:1567
+msgid "Sync your Google reviews to get started with AI-powered responses."
+msgstr ""
+"Synchronisez vos avis Google pour commencer avec les réponses basées sur "
+"l'IA."
+
+#: .\reviews\templates\reviews\dashboard.html:1568
+msgid "Sync Live Reviews"
+msgstr "Synchroniser les avis en direct"
+
+#: .\reviews\templates\reviews\dashboard.html:1570
+#, python-format
+msgid "No %(status_filter)s reviews right now"
+msgstr "Aucun avis %(status_filter)s pour le moment"
+
+#: .\reviews\templates\reviews\dashboard.html:1571
+msgid "Try viewing all reviews instead."
+msgstr "Essayez plutôt d'afficher tous les avis."
+
+#: .\reviews\templates\reviews\dashboard.html:1579
+msgid "No reviews match your search."
+msgstr "Aucun avis ne correspond à votre recherche."
+
+#: .\reviews\templates\reviews\dashboard.html:1587
+#: .\reviews\templates\reviews\settings.html:1398
+msgid "System online"
+msgstr "Système en ligne"
+
+#: .\reviews\templates\reviews\dashboard.html:1589
+msgid "Last sync:"
+msgstr "Dernière synchro :"
+
+#: .\reviews\templates\reviews\dashboard.html:1594
+msgid "Get help"
+msgstr "Obtenir de l'aide"
+
+#: .\reviews\templates\reviews\dashboard.html:1594 .\templates\base.html:764
+msgid "Support"
+msgstr "Support"
+
+#: .\reviews\templates\reviews\dashboard.html:1595
+msgid "Read the docs"
+msgstr "Lire la documentation"
+
+#: .\reviews\templates\reviews\dashboard.html:1595
+msgid "Documentation"
+msgstr "Documentation"
+
+#: .\reviews\templates\reviews\dashboard.html:1610
+msgid "Sync Google Reviews"
+msgstr "Synchroniser les avis Google"
+
+#: .\reviews\templates\reviews\dashboard.html:1612
+msgid "Fetch live customer feedback from Google Business"
+msgstr "Récupérer les retours clients en direct depuis Google Business"
+
+#: .\reviews\templates\reviews\dashboard.html:1622
+msgid "Business Name"
+msgstr "Nom de l'entreprise"
+
+#: .\reviews\templates\reviews\dashboard.html:1623
+msgid "e.g. Geneva Bistro"
+msgstr "ex. Bistro de Genève"
+
+#: .\reviews\templates\reviews\dashboard.html:1625
+msgid "Enter the exact business name as it appears on Google."
+msgstr "Saisissez le nom exact de l'entreprise tel qu'il apparaît sur Google."
+
+#: .\reviews\templates\reviews\dashboard.html:1630
+msgid "Google Place ID"
+msgstr "ID de lieu Google"
+
+#: .\reviews\templates\reviews\dashboard.html:1630
+msgid "optional"
+msgstr "facultatif"
+
+#: .\reviews\templates\reviews\dashboard.html:1633
+msgid "Leave empty to auto-load sample live customer feedback."
+msgstr ""
+"Laissez vide pour charger automatiquement des exemples de retours clients en "
+"direct."
+
+#: .\reviews\templates\reviews\dashboard.html:1640
+msgid "Importing reviews…"
+msgstr "Importation des avis…"
+
+#: .\reviews\templates\reviews\dashboard.html:1645
+msgid "Cancel"
+msgstr "Annuler"
+
+#: .\reviews\templates\reviews\dashboard.html:1646
+msgid "Import Reviews"
+msgstr "Importer les avis"
+
+#: .\reviews\templates\reviews\dashboard.html:1651
+msgid "Reviews are imported in real-time and analyzed by AI."
+msgstr "Les avis sont importés en temps réel et analysés par l'IA."
+
+#: .\reviews\templates\reviews\settings.html:851
+msgid "AI Auto-Pilot &amp; Brand Voice"
+msgstr "Pilote automatique IA et voix de marque"
+
+msgid ""
+"Configure how your AI assistant crafts automated replies to Google Business "
+"Profile reviews."
+msgstr ""
+"Configurez la façon dont votre assistant IA rédige des réponses automatisées "
+"aux avis de votre fiche Google Business Profile."
+
+msgid "Engine Active"
+msgstr "Moteur actif"
+
+msgid ""
+"Control when AI responses are published directly to Google versus saved as "
+"drafts for review."
+msgstr ""
+"Contrôlez si les réponses de l'IA sont publiées directement sur Google ou "
+"enregistrées comme brouillons pour validation."
+
+msgid "Recommended"
+msgstr "Recommandé"
+
+msgid "Smart Guardrail"
+msgstr "Garde-fou intelligent"
+
+msgid "Auto-publish 4-5★ reviews"
+msgstr "Publication automatique des avis 4-5★"
+
+msgid "Positive reviews get replies instantly"
+msgstr "Les avis positifs reçoivent une réponse instantanée"
+
+msgid "1-3★ reviews routed to your inbox as drafts"
+msgstr ""
+"Les avis 1-3★ sont envoyés dans votre boîte de réception sous forme de "
+"brouillons"
+
+msgid "A human always reviews sensitive feedback"
+msgstr "Un humain relit toujours les retours sensibles"
+
+msgid "Hands-Free"
+msgstr "Mains libres"
+
+msgid "Auto-approve ALL ratings"
+msgstr "Approbation automatique de TOUTES les notes"
+
+msgid "Every reply is auto-approved instantly"
+msgstr "Chaque réponse est approuvée automatiquement et instantanément"
+
+msgid ""
+"One-click copy to Google — direct auto-posting activates once Google's API "
+"access is approved"
+msgstr ""
+"Copie en un clic vers Google — la publication automatique directe s'activera "
+"une fois l'accès à l'API Google approuvé"
+
+msgid "Zero manual approval needed"
+msgstr "Aucune approbation manuelle nécessaire"
+
+msgid ""
+"We recommend reviewing your first 10 auto-posted replies before fully "
+"trusting this mode."
+msgstr ""
+"Nous vous recommandons de vérifier vos 10 premières réponses publiées "
+"automatiquement avant de faire entièrement confiance à ce mode."
+
+msgid "Copilot Mode"
+msgstr "Mode Copilote"
+
+msgid "Manual approval required"
+msgstr "Approbation manuelle requise"
+
+msgid "AI drafts every response for you"
+msgstr "L'IA rédige chaque réponse pour vous"
+
+msgid "Nothing posts until you click Approve"
+msgstr "Rien n'est publié tant que vous n'avez pas cliqué sur Approuver"
+
+msgid "Full control over every reply"
+msgstr "Contrôle total sur chaque réponse"
+
+msgid "Brand Personality &amp; Voice"
+msgstr "Personnalité et ton de la marque"
+
+msgid "Select the overall style and language tone for public responses."
+msgstr "Sélectionnez le style général et le ton des réponses publiques."
+
+msgid "Warm &amp; Friendly"
+msgstr "Chaleureux et amical"
+
+msgid "Professional &amp; Formal"
+msgstr "Professionnel et formel"
+
+msgid "Casual &amp; Modern"
+msgstr "Décontracté et moderne"
+
+#: .\reviews\templates\reviews\settings.html:981
+#: .\reviews\templates\reviews\settings.html:989
+#: .\reviews\templates\reviews\settings.html:997
+msgid "\\"
+msgstr ""
+
+#: .\reviews\templates\reviews\settings.html:1002
+msgid "Standard Response Signature / Sign-off"
+msgstr "Signature standard des réponses"
+
+msgid "Automatically appended to the end of generated responses."
+msgstr "Ajoutée automatiquement à la fin des réponses générées."
+
+msgid "Response Length &amp; Creativity"
+msgstr "Longueur des réponses et créativité"
+
+msgid ""
+"How many sentences the AI writes, and how much wording varies between "
+"similar replies."
+msgstr ""
+"Le nombre de phrases rédigées par l'IA et la variation du vocabulaire entre "
+"réponses similaires."
+
+msgid "Concise (1-2 sentences)"
+msgstr "Concis (1-2 phrases)"
+
+msgid "Balanced (2-4 sentences)"
+msgstr "Équilibré (2-4 phrases)"
+
+msgid "Detailed (4-6 sentences)"
+msgstr "Détaillé (4-6 phrases)"
+
+msgid "Response Length"
+msgstr "Longueur des réponses"
+
+msgid "Concise"
+msgstr "Concis"
+
+msgid "1-2 sentences — quick and direct."
+msgstr "1-2 phrases — rapide et direct."
+
+msgid "Balanced"
+msgstr "Équilibré"
+
+msgid "2-4 sentences — the default, works for most businesses."
+msgstr ""
+"2-4 phrases — le réglage par défaut, adapté à la plupart des entreprises."
+
+msgid "Detailed"
+msgstr "Détaillé"
+
+msgid "4-6 sentences — warmer, more personal."
+msgstr "4-6 phrases — plus chaleureux, plus personnel."
+
+msgid "Precise &amp; Consistent"
+msgstr "Précis et cohérent"
+
+msgid "Creative &amp; Varied"
+msgstr "Créatif et varié"
+
+msgid "Creativity"
+msgstr "Créativité"
+
+msgid "Precise"
+msgstr "Précis"
+
+msgid "Same reliable phrasing every time."
+msgstr "La même formulation fiable à chaque fois."
+
+msgid "Creative"
+msgstr "Créatif"
+
+msgid "More personality, less repetition."
+msgstr "Plus de personnalité, moins de répétition."
+
+msgid "Blacklisted Words"
+msgstr "Mots interdits"
+
+msgid ""
+"Words or phrases the AI must never use in a public reply — competitor names, "
+"informal slang, or anything sensitive to your brand."
+msgstr ""
+"Mots ou expressions que l'IA ne doit jamais utiliser dans une réponse "
+"publique — noms de concurrents, argot informel ou tout élément sensible pour "
+"votre marque."
+
+msgid "Forbidden Words (comma-separated)"
+msgstr "Mots interdits (séparés par des virgules)"
+
+msgid ""
+"Checked twice: the AI is instructed to avoid these, and every draft is "
+"scanned afterward — if one slips through, it's automatically rewritten "
+"before you ever see it."
+msgstr ""
+"Vérifié deux fois : l'IA reçoit pour consigne de les éviter, et chaque "
+"brouillon est ensuite analysé — si l'un d'eux passe entre les mailles, il "
+"est automatiquement réécrit avant même que vous ne le voyiez."
+
+#: .\reviews\templates\reviews\settings.html:1110
+msgid "Local SEO Keyword Reinforcement"
+msgstr "Renforcement des mots-clés SEO locaux"
+
+msgid ""
+"Helps AI search engines (Gemini, ChatGPT, Perplexity) and Google Maps "
+"describe your business accurately. The AI weaves in ONE phrase only when a "
+"review genuinely supports it — never forced, never stuffed."
+msgstr ""
+"Aide les moteurs de recherche IA (Gemini, ChatGPT, Perplexity) et Google "
+"Maps à décrire votre entreprise avec précision. L'IA n'intègre UNE seule "
+"phrase que lorsque l'avis le justifie réellement — jamais forcé, jamais "
+"surchargé."
+
+msgid "Enabled"
+msgstr "Activé"
+
+msgid "Target Local Phrases"
+msgstr "Expressions locales ciblées"
+
+msgid "Type a phrase, press Enter…"
+msgstr "Saisissez une expression, appuyez sur Entrée…"
+
+msgid ""
+"A reply using none of these is completely normal — it only appears when the "
+"review's own wording naturally supports it."
+msgstr ""
+"Il est tout à fait normal qu'une réponse n'en utilise aucune — elles "
+"n'apparaissent que lorsque le texte de l'avis s'y prête naturellement."
+
+msgid "Quick-insert suggestions"
+msgstr "Suggestions d'insertion rapide"
+
+msgid "Terrace near Lake Geneva"
+msgstr "Terrasse près du lac Léman"
+
+msgid "Authentic fondue Old Town"
+msgstr "Fondue authentique dans la vieille ville"
+
+msgid "Family-friendly Geneva"
+msgstr "Genève en famille"
+
+msgid "Automated Upselling &amp; Action Links"
+msgstr "Liens d'action et vente incitative automatisés"
+
+msgid ""
+"Invite your happiest reviewers to book a table, check out an event, or shop "
+"online — the AI mentions it naturally, then the real link is added "
+"automatically. Never shown to unhappy customers."
+msgstr ""
+"Invitez vos clients les plus satisfaits à réserver une table, découvrir un "
+"événement ou acheter en ligne — l'IA le mentionne naturellement, puis le "
+"lien réel est ajouté automatiquement. Jamais montré aux clients mécontents."
+
+msgid "Link URL"
+msgstr "URL du lien"
+
+msgid "What to call it (plain words)"
+msgstr "Comment l'appeler (en mots simples)"
+
+msgid "Only offer to reviews rated"
+msgstr "Proposer uniquement pour les avis notés"
+
+msgid "5★ only"
+msgstr "5★ uniquement"
+
+msgid "4★ and up"
+msgstr "4★ et plus"
+
+msgid "3★ and up"
+msgstr "3★ et plus"
+
+msgid ""
+"The AI never writes the link itself — only a natural, one-sentence mention. "
+"The exact URL is always appended automatically, so it can never be broken or "
+"mistyped."
+msgstr ""
+"L'IA n'écrit jamais le lien elle-même — seulement une mention naturelle en "
+"une phrase. L'URL exacte est toujours ajoutée automatiquement, elle ne peut "
+"donc jamais être cassée ou mal saisie."
+
+msgid "Quiet Hours"
+msgstr "Heures de silence"
+
+msgid ""
+"Hold negative-review email alerts outside business hours and send them at "
+"the next opening time instead of waking you up at 3am."
+msgstr ""
+"Retenez les alertes e-mail des avis négatifs en dehors des heures "
+"d'ouverture et envoyez-les à la prochaine ouverture au lieu de vous "
+"réveiller à 3h du matin."
+
+msgid "Enable quiet hours"
+msgstr "Activer les heures de silence"
+
+msgid "Opens at"
+msgstr "Ouvre à"
+
+msgid "Closes at"
+msgstr "Ferme à"
+
+msgid "Timezone"
+msgstr "Fuseau horaire"
+
+msgid "AI Training"
+msgstr "Entraînement de l'IA"
+
+msgid ""
+"Learns from your manual edits over time so future drafts start closer to "
+"your real voice."
+msgstr ""
+"Apprend de vos modifications manuelles au fil du temps afin que les futurs "
+"brouillons se rapprochent davantage de votre propre ton."
+
+msgid "Current Learned Style"
+msgstr "Style actuellement appris"
+
+msgid "Last trained"
+msgstr "Dernier entraînement"
+
+msgid "ago."
+msgstr "."
+
+msgid ""
+"No patterns learned yet — approve and edit a few AI drafts first, then run "
+"training."
+msgstr ""
+"Aucun modèle appris pour le moment — approuvez et modifiez d'abord quelques "
+"brouillons IA, puis lancez l'entraînement."
+
+msgid "Custom Business Knowledge Base"
+msgstr "Base de connaissances personnalisée de l'entreprise"
+
+msgid ""
+"Provide key facts for the AI engine so responses include accurate venue "
+"information."
+msgstr ""
+"Fournissez des informations clés au moteur IA afin que les réponses "
+"contiennent des informations exactes sur votre établissement."
+
+msgid "Special Rules & Context Prompt"
+msgstr "Règles spéciales et contexte"
+
+msgid ""
+"e.g. Always remind unhappy guests that we offer free parking behind the "
+"bakery. Mention our signature homemade sourdough bread when customers praise "
+"our pastries."
+msgstr ""
+"ex. Rappelez toujours aux clients mécontents que nous offrons un parking "
+"gratuit derrière la boulangerie. Mentionnez notre pain au levain fait maison "
+"lorsque les clients complimentent nos pâtisseries."
+
+msgid "Family-friendly"
+msgstr "Convivial pour les familles"
+
+msgid "Happy hour"
+msgstr "Happy hour"
+
+msgid ""
+"This context is dynamically fed into Gemini models during response synthesis."
+msgstr ""
+"Ce contexte est transmis dynamiquement aux modèles Gemini lors de la "
+"génération des réponses."
+
+msgid "Export Settings (JSON)"
+msgstr "Exporter les paramètres (JSON)"
+
+msgid "Preview with Sample Review"
+msgstr "Aperçu avec un avis type"
+
+msgid "Save AI Configuration"
+msgstr "Enregistrer la configuration IA"
+
+msgid "Run AI Training Now"
+msgstr "Lancer l'entraînement IA maintenant"
+
+msgid "Roadmap"
+msgstr "Feuille de route"
+
+msgid ""
+"Planned controls — shown for context, not yet connected to a saved setting."
+msgstr ""
+"Fonctionnalités prévues — affichées à titre indicatif, pas encore reliées à "
+"un paramètre enregistré."
+
+msgid "Coming Soon"
+msgstr "Bientôt disponible"
+
+msgid "Advanced Rules Pro"
+msgstr "Règles avancées Pro"
+
+msgid ""
+"Response delay timing unlocks once your Google Business Profile is connected."
+msgstr ""
+"Le délai de réponse se débloque une fois votre fiche Google Business Profile "
+"connectée."
+
+msgid "<kbd>Ctrl</kbd>+<kbd>S</kbd> to save"
+msgstr "<kbd>Ctrl</kbd>+<kbd>S</kbd> pour enregistrer"
+
+msgid "Preview with Current Settings"
+msgstr "Aperçu avec les paramètres actuels"
+
+msgid ""
+"Food was good but we waited almost 20 minutes for a table even though it "
+"wasn't that busy. Staff were friendly once we sat down though."
+msgstr ""
+"La nourriture était bonne mais nous avons attendu presque 20 minutes pour "
+"une table alors que ce n'était pas si occupé. Le personnel était sympathique "
+"une fois assis."
+
+msgid "Generating preview…"
+msgstr "Génération de l'aperçu…"
+
+#: .\reviews\templates\reviews\settings.html:1520
+msgid "That would exceed the 2000 character limit."
+msgstr "Cela dépasserait la limite de 2000 caractères."
+
+#: .\reviews\templates\reviews\settings.html:1601
+msgid "Settings exported."
+msgstr "Paramètres exportés."
+
+#: .\reviews\templates\reviews\settings.html:1645
+msgid "Could not generate this one. Try again."
+msgstr "Impossible de générer celle-ci. Réessayez."
+
+#: .\reviews\templates\reviews\settings.html:1658
+msgid "Something went wrong."
+msgstr "Une erreur est survenue."
+
+#: .\templates\base.html:522
+msgid "Live"
+msgstr "En direct"
+
+#: .\templates\base.html:566
+msgid "Workspace"
+msgstr "Espace de travail"
+
+#: .\templates\base.html:578
+msgid "Account settings"
+msgstr "Paramètres du compte"
+
+#: .\templates\base.html:579
+msgid "Sign out"
+msgstr "Se déconnecter"
+
+#: .\templates\base.html:584
+msgid "Sign In"
+msgstr "Se connecter"
+
+# locale/fr/LC_MESSAGES/django.po
+#: .\templates\base.html:585
+msgid "Start Free Trial"
+msgstr "Essai gratuit"
+
+#: .\templates\base.html:596 .\templates\base.html:676
+msgid "Main"
+msgstr "Principal"
+
+#: .\templates\base.html:605 .\templates\base.html:685
+msgid "Dashboard & Reviews"
+msgstr "Tableau de bord et avis"
+
+#: .\templates\base.html:616 .\templates\base.html:696
+msgid "AI & Tone Settings"
+msgstr "IA et paramètres de ton"
+
+#: .\templates\base.html:626 .\templates\base.html:706
+msgid "QR Code Booster"
+msgstr "Booster QR Code"
+
+msgid "Production Ready"
+msgstr "Prêt pour la production"
+
+msgid ""
+"Print these on table tents, receipts, or stickers — a customer scans, and "
+"lands straight on your Google review box instead of never bothering to leave "
+"one."
+msgstr ""
+"Imprimez ceci sur des chevalets de table, tickets de caisse ou autocollants "
+"— un client scanne et arrive directement sur votre encart d'avis Google au "
+"lieu de ne jamais en laisser."
+
+msgid "Generate QR code"
+msgstr "Générer un code QR"
+
+msgid "Export analytics (CSV)"
+msgstr "Exporter les analyses (CSV)"
+
+msgid "Print latest"
+msgstr "Imprimer le dernier"
+
+msgid "QR Codes Generated"
+msgstr "Codes QR générés"
+
+msgid "Total Scans Tracked"
+msgstr "Scans totaux suivis"
+
+msgid "Avg Scans / Code"
+msgstr "Scans moyens / code"
+
+msgid "How it works:"
+msgstr "Comment ça marche :"
+
+msgid ""
+"generate a QR code below, print it, and place it somewhere customers see it "
+"after a good experience."
+msgstr ""
+"générez un code QR ci-dessous, imprimez-le et placez-le là où les clients le "
+"verront après une bonne expérience."
+
+msgid "Private Feedback URL"
+msgstr "URL de feedback privé"
+
+msgid "Business Logo"
+msgstr "Logo de l'entreprise"
+
+msgid "Embedded in the center of every QR code you generate."
+msgstr "Intégré au centre de chaque code QR que vous générez."
+
+msgid "Upload Logo"
+msgstr "Téléverser le logo"
+
+msgid ""
+"PNG or JPG, square images work best. Existing QR codes update automatically."
+msgstr ""
+"PNG ou JPG, les images carrées fonctionnent le mieux. Les codes QR existants "
+"se mettent à jour automatiquement."
+
+msgid "Scan Analytics"
+msgstr "Analyse des scans"
+
+msgid "Trends across all your QR campaigns, last 14 days."
+msgstr "Tendances de toutes vos campagnes QR, sur les 14 derniers jours."
+
+msgid "Daily Scans"
+msgstr "Scans quotidiens"
+
+msgid "Device Type"
+msgstr "Type d'appareil"
+
+msgid "Time of Day"
+msgstr "Heure de la journée"
+
+msgid "Conversion Funnel"
+msgstr "Entonnoir de conversion"
+
+msgid "Smart Rating Gate codes"
+msgstr "Codes avec filtre de notation intelligent"
+
+msgid "Scanned"
+msgstr "Scanné"
+
+msgid "Rated"
+msgstr "Noté"
+
+msgid "Sent to Google (4-5★)"
+msgstr "Envoyé à Google (4-5★)"
+
+msgid "Caught privately (1-3★)"
+msgstr "Intercepté en privé (1-3★)"
+
+msgid "Create New QR Code"
+msgstr "Créer un nouveau code QR"
+
+msgid ""
+"Configure a target landing page and custom URL slug for your print campaigns."
+msgstr ""
+"Configurez une page de destination et un slug d'URL personnalisé pour vos "
+"campagnes imprimées."
+
+msgid "Campaign Details"
+msgstr "Détails de la campagne"
+
+msgid "Campaign Label"
+msgstr "Libellé de la campagne"
+
+msgid "Internal name to identify scan sources."
+msgstr "Nom interne pour identifier les sources de scan."
+
+msgid "Target Google Review URL"
+msgstr "URL cible de l'avis Google"
+
+msgid "Auto-filled from"
+msgstr "Rempli automatiquement à partir de"
+
+msgid "synced Google listing — edit if needed."
+msgstr "fiche Google synchronisée — modifiez si besoin."
+
+msgid ""
+"Sync this business on the Dashboard first to auto-fill this, or paste your "
+"review link directly."
+msgstr ""
+"Synchronisez d'abord cette entreprise sur le tableau de bord pour remplir "
+"automatiquement ce champ, ou collez directement votre lien d'avis."
+
+msgid "Where do I find this?"
+msgstr "Où puis-je trouver cela ?"
+
+msgid ""
+"Search your business on Google, click \"Write a review\" on your own "
+"listing, then copy the URL from your browser's address bar. It usually "
+"starts with"
+msgstr ""
+"Recherchez votre entreprise sur Google, cliquez sur « Rédiger un avis » sur "
+"votre propre fiche, puis copiez l'URL depuis la barre d'adresse de votre "
+"navigateur. Elle commence généralement par"
+
+msgid "or"
+msgstr "ou"
+
+msgid "Smart Rating Gate"
+msgstr "Filtre de notation intelligent"
+
+msgid ""
+"If set, customers see a quick \"How was your visit?\" star picker first — "
+"1-3★ comes here instead of Google."
+msgstr ""
+"Si activé, les clients voient d'abord un rapide sélecteur d'étoiles "
+"« Comment était votre visite ? » — les 1-3★ arrivent ici au lieu de Google."
+
+msgid "Don't have one yet?"
+msgstr "Vous n'en avez pas encore ?"
+
+msgid "Create a free 2-question form at "
+msgstr "Créez un formulaire gratuit à 2 questions sur "
+
+msgid "forms.google.com"
+msgstr "forms.google.com"
+
+msgid ""
+" — ask \"What went wrong?\" and \"How can we make it right?\" — then paste "
+"the shareable link here. Or just leave this blank; the gate simply won't be "
+"used."
+msgstr ""
+" — demandez « Qu'est-ce qui n'a pas fonctionné ? » et « Comment pouvons-nous "
+"nous rattraper ? » — puis collez le lien de partage ici. Ou laissez "
+"simplement ce champ vide ; le filtre ne sera alors pas utilisé."
+
+msgid "Custom URL Slug"
+msgstr "Slug d'URL personnalisé"
+
+msgid "Leave blank for auto-generated short ID."
+msgstr "Laissez vide pour un identifiant court généré automatiquement."
+
+msgid "QR Color"
+msgstr "Couleur du QR"
+
+msgid "Team & Scheduling"
+msgstr "Équipe et planification"
+
+msgid "Assign to teammate"
+msgstr "Assigner à un coéquipier"
+
+msgid "you"
+msgstr "vous"
+
+msgid "Only active during set hours"
+msgstr "Actif uniquement pendant les horaires définis"
+
+msgid "Expires on"
+msgstr "Expire le"
+
+msgid "Generate Trackable QR Code"
+msgstr "Générer un code QR traçable"
+
+msgid "selected"
+msgstr "sélectionné(s)"
+
+msgid "Delete selected"
+msgstr "Supprimer la sélection"
+
+msgid "Active Campaign QR Codes"
+msgstr "Codes QR de campagnes actives"
+
+msgid "Scans by Campaign"
+msgstr "Scans par campagne"
+
+msgid "Smart Rating Gate active"
+msgstr "Filtre de notation intelligent actif"
+
+msgid "Created"
+msgstr "Créé"
+
+msgid "ago"
+msgstr "il y a"
+
+msgid "Assigned"
+msgstr "Assigné"
+
+msgid "Expires"
+msgstr "Expire"
+
+msgid "Hot"
+msgstr "Tendance"
+
+msgid "Total Scans"
+msgstr "Scans totaux"
+
+msgid "No active QR codes generated yet."
+msgstr "Aucun code QR actif généré pour le moment."
+
+msgid ""
+"Fill out the campaign form to create your first print media review link."
+msgstr ""
+"Remplissez le formulaire de campagne pour créer votre premier lien d'avis "
+"pour support imprimé."
+
+msgid "Planned features — shown for context, not yet built."
+msgstr ""
+"Fonctionnalités prévues — affichées à titre indicatif, pas encore "
+"développées."
+
+msgid "Planned"
+msgstr "Prévu"
+
+msgid "Custom Domain & Embed"
+msgstr "Domaine personnalisé et intégration"
+
+msgid "qr.yourbrand.com short links, and an embeddable website widget."
+msgstr "liens courts qr.votremarque.com et un widget intégrable sur site web."
+
+#: .\templates\base.html:637 .\templates\base.html:717
+msgid "Team & Access"
+msgstr "Équipe et accès"
+
+#: .\templates\base.html:649 .\templates\base.html:729
+msgid "Integrations"
+msgstr "Intégrations"
+
+#: .\templates\base.html:657 .\templates\base.html:737
+msgid "Review Simulator"
+msgstr "Simulateur d'avis"
+
+#: .\templates\base.html:668 .\templates\base.html:673
+msgid "Menu"
+msgstr "Menu"
+
+#: .\templates\base.html:750
+msgid "Reply"
+msgstr "Réponse"
+
+msgid "Team roles & staff approvals"
+msgstr "Rôles d'équipe et validations du personnel"
+
+msgid ""
+"Invite floor managers to edit and approve AI review drafts without granting "
+"access to your primary Google account."
+msgstr ""
+"Invitez vos responsables de salle à modifier et approuver les brouillons de "
+"réponses IA sans leur donner accès à votre compte Google principal."
+
+msgid "Invite a team member"
+msgstr "Inviter un membre de l'équipe"
+
+msgid "Team member"
+msgid_plural "Team members"
+msgstr[0] "Membre de l'équipe"
+msgstr[1] "Membres de l'équipe"
+
+msgid "Pending invite"
+msgid_plural "Pending invites"
+msgstr[0] "Invitation en attente"
+msgstr[1] "Invitations en attente"
+
+msgid "Roles available"
+msgstr "Rôles disponibles"
+
+msgid ""
+"Invites are emailed automatically, and roles are enforced server-side — a "
+"Read-Only Analyst can't invite or approve, and only Owners and Store Admins "
+"can manage the team."
+msgstr ""
+"Les invitations sont envoyées automatiquement par e-mail, et les rôles sont "
+"appliqués côté serveur — un Analyste en lecture seule ne peut ni inviter ni "
+"approuver, et seuls les Propriétaires et les Administrateurs de magasin "
+"peuvent gérer l'équipe."
+
+msgid "Invite staff member"
+msgstr "Inviter un membre du personnel"
+
+msgid "Record who should have review moderation access."
+msgstr "Indiquez qui doit avoir accès à la modération des avis."
+
+msgid "Staff email address"
+msgstr "Adresse e-mail du membre du personnel"
+
+msgid "Or paste multiple emails"
+msgstr "Ou collez plusieurs adresses e-mail"
+
+msgid "Comma or newline separated."
+msgstr "Séparées par une virgule ou un retour à la ligne."
+
+msgid "Or upload a CSV"
+msgstr "Ou importez un fichier CSV"
+
+msgid "Uses the first column of each row as the email address."
+msgstr "Utilise la première colonne de chaque ligne comme adresse e-mail."
+
+msgid "Assigned role"
+msgstr "Rôle attribué"
+
+msgid "Review Approver"
+msgstr "Approbateur d'avis"
+
+msgid "Can edit & submit AI replies"
+msgstr "Peut modifier et envoyer les réponses IA"
+
+msgid "Read-Only Analyst"
+msgstr "Analyste en lecture seule"
+
+msgid "View dashboard analytics only"
+msgstr "Consultation des statistiques du tableau de bord uniquement"
+
+msgid "Store Admin"
+msgstr "Administrateur du magasin"
+
+msgid "Full account settings access"
+msgstr "Accès complet aux paramètres du compte"
+
+msgid "Send team invitation"
+msgstr "Envoyer l'invitation à l'équipe"
+
+msgid "Only the Owner and Store Admins can invite team members."
+msgstr ""
+"Seuls le Propriétaire et les Administrateurs du magasin peuvent inviter des "
+"membres de l'équipe."
+
+msgid "Active staff accounts"
+msgstr "Comptes du personnel actifs"
+
+msgid "Export the roster shown below"
+msgstr "Exporter la liste affichée ci-dessous"
+
+msgid "Owner"
+msgstr "Propriétaire"
+
+msgid "Approver"
+msgstr "Approbateur"
+
+msgid "Analyst"
+msgstr "Analyste"
+
+msgid "Admin"
+msgstr "Administrateur"
+
+msgid "Search by name or email..."
+msgstr "Rechercher par nom ou e-mail…"
+
+msgid "Newest invite"
+msgstr "Invitation la plus récente"
+
+msgid "Oldest invite"
+msgstr "Invitation la plus ancienne"
+
+msgid "Name A–Z"
+msgstr "Nom A–Z"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Primary account"
+msgstr "Compte principal"
+
+msgid "Invited"
+msgstr "Invité le"
+
+msgid "No staff invited yet — add someone using the form."
+msgstr ""
+"Aucun membre du personnel invité pour le moment — ajoutez-en un via le "
+"formulaire."
+
+msgid "No team members match your filters."
+msgstr "Aucun membre de l'équipe ne correspond à vos filtres."
+
+msgid "What each role is meant for"
+msgstr "À quoi sert chaque rôle"
+
+msgid ""
+"For staff who respond to guests day to day — editing and submitting AI-"
+"drafted replies."
+msgstr ""
+"Pour le personnel qui répond aux clients au quotidien — modification et "
+"envoi des réponses rédigées par l'IA."
+
+msgid ""
+"For managers who just need visibility into ratings and volume, without "
+"touching replies."
+msgstr ""
+"Pour les responsables qui ont simplement besoin de visibilité sur les notes "
+"et le volume, sans toucher aux réponses."
+
+msgid ""
+"For owners and partners who need full access to account and integration "
+"settings."
+msgstr ""
+"Pour les propriétaires et partenaires ayant besoin d'un accès complet aux "
+"paramètres du compte et des intégrations."
+
+msgid "Recent activity"
+msgstr "Activité récente"
+
+msgid "No activity recorded yet — changes you make will show up here."
+msgstr ""
+"Aucune activité enregistrée pour le moment — les modifications que vous "
+"effectuez apparaîtront ici."
+
+msgid "2FA & session controls"
+msgstr "2FA et gestion des sessions"
+
+msgid ""
+"Optional two-factor requirement and the ability to sign a device out "
+"remotely."
+msgstr ""
+"Exigence facultative de double authentification et possibilité de "
+"déconnecter un appareil à distance."
+
+msgid "Seats & billing"
+msgstr "Sièges et facturation"
+
+msgid "See plan limits and add seats as your team grows."
+msgstr ""
+"Consultez les limites de votre forfait et ajoutez des sièges à mesure que "
+"votre équipe grandit."
+
+msgid "Revoke this invitation?"
+msgstr "Révoquer cette invitation ?"
+
+msgid "will no longer be able to use the login link you shared with them."
+msgstr "ne pourra plus utiliser le lien de connexion que vous avez partagé."
+
+msgid "Revoke invite"
+msgstr "Révoquer l'invitation"
+
+#: .\templates\base.html:761
+msgid "Privacy"
+msgstr "Confidentialité"
+
+#: .\templates\base.html:762
+msgid "Terms"
+msgstr "Conditions"
+
+msgid "Platform Integrations"
+msgstr "Intégrations de plateformes"
+
+msgid ""
+"Manage external review channels and sync live business profile feeds to your "
+"workspace."
+msgstr ""
+"Gérez les canaux d'avis externes et synchronisez les flux en direct de votre "
+"fiche établissement avec votre espace de travail."
+
+msgid "Core Platforms Connected"
+msgstr "Plateformes principales connectées"
+
+msgid "Platforms connected"
+msgstr "Plateformes connectées"
+
+msgid "TripAdvisor reviews synced"
+msgstr "Avis TripAdvisor synchronisés"
+
+msgid "Webhook endpoint live"
+msgstr "Point de terminaison webhook actif"
+
+msgid "Primary Integration"
+msgstr "Intégration principale"
+
+msgid "Google Business Profile"
+msgstr "Fiche Google Business Profile"
+
+#: .\reviews\templates\reviews\dashboard.html:1120
+msgid "Sync Reviews"
+msgstr "Synchroniser les avis"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Not Synced Yet"
+msgstr "Pas encore synchronisé"
+
+msgid ""
+"Reads real reviews from your Google Maps listing and drafts Gemini AI "
+"replies. Reply publishing is manual (one click, no tab-switching) until "
+"Google approves full API access —"
+msgstr ""
+"Lit les avis réels de votre fiche Google Maps et rédige des réponses avec "
+"l'IA Gemini. La publication des réponses est manuelle (un clic, sans changer "
+"d'onglet) jusqu'à ce que Google approuve l'accès complet à l'API —"
+
+msgid "see AI & Tone Settings"
+msgstr "voir les paramètres IA et de ton"
+
+msgid "for automation options."
+msgstr "pour les options d'automatisation."
+
+msgid "Connected Location"
+msgstr "Établissement connecté"
+
+msgid "Synced & Live"
+msgstr "Synchronisé et en direct"
+
+msgid "Auto-sync frequency"
+msgstr "Fréquence de synchronisation automatique"
+
+msgid "Account Settings"
+msgstr "Paramètres du compte"
+
+msgid "Manage your account details and connected services."
+msgstr "Gérez les informations de votre compte et les services connectés."
+
+msgid "Profile Information"
+msgstr "Informations du profil"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Account Created"
+msgstr "Compte créé le"
+
+msgid "Connected Accounts"
+msgstr "Comptes connectés"
+
+msgid "Connected via Google OAuth"
+msgstr "Connecté via Google OAuth"
+
+msgid "Not connected"
+msgstr "Non connecté"
+
+msgid "Connect"
+msgstr "Connecter"
+
+msgid "Security"
+msgstr "Sécurité"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Set or change your password"
+msgstr "Définir ou modifier votre mot de passe"
+
+msgid "Change Password"
+msgstr "Modifier le mot de passe"
+
+msgid "Two-Factor Authentication"
+msgstr "Authentification à deux facteurs"
+
+msgid "Add an extra layer of security"
+msgstr "Ajoutez une couche de sécurité supplémentaire"
+
+msgid "Active Sessions"
+msgstr "Sessions actives"
+
+msgid "Devices currently signed in to your account."
+msgstr "Appareils actuellement connectés à votre compte."
+
+msgid "Unknown device"
+msgstr "Appareil inconnu"
+
+msgid "Unknown IP"
+msgstr "IP inconnue"
+
+msgid "This device"
+msgstr "Cet appareil"
+
+msgid "Last active"
+msgstr "Dernière activité"
+
+msgid "No tracked sessions yet."
+msgstr "Aucune session enregistrée pour le moment."
+
+msgid "Sign Out"
+msgstr "Se déconnecter"
+
+msgid "Sign out of your current session"
+msgstr "Se déconnecter de votre session actuelle"
+
+msgid "Last auto-sync"
+msgstr "Dernière synchronisation automatique"
+
+msgid "Manage Sync on Dashboard"
+msgstr "Gérer la synchronisation depuis le tableau de bord"
+
+msgid "Sync Your First Business"
+msgstr "Synchroniser votre premier établissement"
+
+msgid "View on Google Maps"
+msgstr "Voir sur Google Maps"
+
+msgid "TripAdvisor"
+msgstr "TripAdvisor"
+
+msgid ""
+"Reads real traveler reviews from your TripAdvisor listing, same as Google — "
+"drafted by Gemini and shown right alongside your Google reviews on the "
+"dashboard."
+msgstr ""
+"Lit les avis réels de voyageurs de votre fiche TripAdvisor, tout comme pour "
+"Google — rédigés par Gemini et affichés juste à côté de vos avis Google dans "
+"le tableau de bord."
+
+msgid "Synced Reviews"
+msgstr "Avis synchronisés"
+
+msgid "%(counter)s review"
+msgid_plural "%(counter)s reviews"
+msgstr[0] "%(counter)s avis"
+msgstr[1] "%(counter)s avis"
+
+msgid "Sync Now"
+msgstr "Synchroniser maintenant"
+
+msgid "View listing on TripAdvisor"
+msgstr "Voir la fiche sur TripAdvisor"
+
+msgid "Enter your business name above and click Sync Now."
+msgstr ""
+"Saisissez le nom de votre établissement ci-dessus et cliquez sur "
+"« Synchroniser maintenant »."
+
+msgid "Trustpilot"
+msgstr "Trustpilot"
+
+msgid "In Development"
+msgstr "En développement"
+
+msgid ""
+"Connect consumer service reviews, collect customer service feedback, and "
+"publish verified business replies directly."
+msgstr ""
+"Connectez les avis de service client, recueillez les retours des clients et "
+"publiez directement des réponses d'entreprise vérifiées."
+
+msgid "Target Timeline"
+msgstr "Calendrier visé"
+
+msgid "Roadmap — pending demand"
+msgstr "Feuille de route — selon la demande"
+
+msgid "You're on the list"
+msgstr "Vous êtes sur la liste"
+
+msgid "Notify Me When It's Ready"
+msgstr "Me prévenir quand ce sera prêt"
+
+msgid "Deep Integrations"
+msgstr "Intégrations avancées"
+
+msgid "Connect Any Platform"
+msgstr "Connecter n'importe quelle plateforme"
+
+msgid ""
+"Sync SwissReply.AI with your CRM, helpdesk, or property management system — "
+"Salesforce, HubSpot, Zendesk, Mews, Cloudbeds, or anything else that can "
+"send an HTTP request. Connect directly, or route through"
+msgstr ""
+"Synchronisez SwissReply.AI avec votre CRM, votre service d'assistance ou "
+"votre système de gestion immobilière — Salesforce, HubSpot, Zendesk, Mews, "
+"Cloudbeds, ou tout autre outil capable d'envoyer une requête HTTP. Connectez-"
+"vous directement, ou passez par"
+
+msgid "for a no-code setup. POST a review as JSON to your"
+msgstr ""
+"pour une configuration sans code. Envoyez un avis en JSON via POST vers votre"
+
+msgid "unique, secret URL"
+msgstr "URL unique et secrète"
+
+msgid ""
+"below and it's picked up for AI drafting like any synced review. Anyone with "
+"this URL can create reviews under this business —"
+msgstr ""
+"ci-dessous, et il sera pris en compte pour la rédaction IA comme n'importe "
+"quel avis synchronisé. Toute personne possédant cette URL peut créer des "
+"avis pour cet établissement —"
+
+msgid "don't share it publicly."
+msgstr "ne la partagez pas publiquement."
+
+msgid "Your Webhook Endpoint"
+msgstr "Votre point de terminaison webhook"
+
+msgid ""
+"Rotate this key? The current URL will stop working immediately — you will "
+"need to update it anywhere it is in use."
+msgstr ""
+"Faire pivoter cette clé ? L'URL actuelle cessera de fonctionner "
+"immédiatement — vous devrez la mettre à jour partout où elle est utilisée."
+
+msgid "Rotate key"
+msgstr "Faire pivoter la clé"
+
+msgid "Send it with curl"
+msgstr "L'envoyer avec curl"
+
+msgid "Payload shape (JSON)"
+msgstr "Structure du payload (JSON)"
+
+msgid "Test This Webhook"
+msgstr "Tester ce webhook"
+
+msgid "Reviewer name"
+msgstr "Nom de l'auteur de l'avis"
+
+msgid "Review comment"
+msgstr "Commentaire de l'avis"
+
+msgid "Great service, will come back!"
+msgstr "Excellent service, je reviendrai !"
+
+msgid "Send Test Payload"
+msgstr "Envoyer les données de test"
+
+msgid "1 star"
+msgstr "1 étoile"
+
+msgid "2 stars"
+msgstr "2 étoiles"
+
+msgid "3 stars"
+msgstr "3 étoiles"
+
+msgid "4 stars"
+msgstr "4 étoiles"
+
+msgid "5 stars"
+msgstr "5 étoiles"
+
+msgid "Connect via Zapier or Make — no coding needed"
+msgstr "Connecter via Zapier ou Make — sans code"
+
+msgid "Already use"
+msgstr "Vous utilisez déjà"
+
+msgid ""
+"? You can pipe reviews from thousands of apps — Salesforce, HubSpot, "
+"Zendesk, Mews, Cloudbeds, a Google Form, anything — straight into "
+"SwissReply.AI, with zero code."
+msgstr ""
+" ? Vous pouvez transférer des avis depuis des milliers d'applications — "
+"Salesforce, HubSpot, Zendesk, Mews, Cloudbeds, un formulaire Google, "
+"n'importe quoi — directement vers SwissReply.AI, sans aucun code."
+
+msgid ""
+"In Zapier or Make, pick the trigger app you want to pull reviews from (e.g. "
+"\"New Ticket in Zendesk\", \"New Row in Google Sheets\")."
+msgstr ""
+"Dans Zapier ou Make, choisissez l'application déclencheuse depuis laquelle "
+"récupérer les avis (par ex. « Nouveau ticket dans Zendesk », « Nouvelle "
+"ligne dans Google Sheets »)."
+
+msgid "Add an action step and search for"
+msgstr "Ajoutez une étape d'action et recherchez"
+
+msgid "(Zapier) or the"
+msgstr "(Zapier) ou le module"
+
+msgid "module (Make) — choose the POST option."
+msgstr "(Make) — choisissez l'option POST."
+
+msgid "Paste in your webhook URL from above as the destination."
+msgstr "Collez votre URL de webhook ci-dessus comme destination."
+
+msgid "Map the trigger app's fields to ours:"
+msgstr "Associez les champs de l'application déclencheuse aux nôtres :"
+
+msgid "and"
+msgstr "et"
+
+msgid "(see the JSON shape above)."
+msgstr "(voir la structure JSON ci-dessus)."
+
+msgid ""
+"Turn the Zap or scenario on — new items now flow straight into your "
+"dashboard for AI drafting."
+msgstr ""
+"Activez le Zap ou le scénario — les nouveaux éléments arrivent désormais "
+"directement dans votre tableau de bord pour la rédaction IA."
+
+msgid "Want a specific tool connected?"
+msgstr "Vous voulez connecter un outil spécifique ?"
+
+msgid "e.g. HubSpot, Mews, Zendesk"
+msgstr "ex. HubSpot, Mews, Zendesk"
+
+msgid "Request"
+msgstr "Demander"
+
+msgid "For developers integrating a custom review source."
+msgstr "Pour les développeurs intégrant une source d'avis personnalisée."
+
+msgid "Sync History & Logs"
+msgstr "Historique et journaux de synchronisation"
+
+msgid "A timestamped record of every sync attempt, per platform."
+msgstr ""
+"Un enregistrement horodaté de chaque tentative de synchronisation, par "
+"plateforme."
+
+msgid "No sync attempts yet — trigger a sync above and it'll show up here."
+msgstr ""
+"Aucune tentative de synchronisation pour le moment — lancez-en une ci-dessus "
+"et elle apparaîtra ici."
+
+msgid "Sending…"
+msgstr "Envoi en cours…"
+
+msgid "Success"
+msgstr "Succès"
+
+msgid "Error"
+msgstr "Erreur"
+
+msgid "Network Error"
+msgstr "Erreur réseau"
+
+msgid "Syncing…"
+msgstr "Synchronisation en cours…"
+
+msgid "Connected"
+msgstr "Connecté"
+
+msgid "Not synced"
+msgstr "Non synchronisé"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid ""
+"Inject test reviews and watch the full AI pipeline — spam filtering, "
+"sentiment, drafting &amp; automation — in real time."
+msgstr ""
+"Injectez des avis de test et observez toute la pipeline IA — filtrage du "
+"spam, sentiment, rédaction & automatisation — en temps réel."
+
+msgid "sims"
+msgstr "simulations"
+
+msgid "processed"
+msgstr "traités"
+
+msgid "flagged"
+msgstr "signalés"
+
+msgid "Delete all"
+msgstr "Tout supprimer"
+
+msgid "simulated reviews?"
+msgstr "avis simulés ?"
+
+msgid "This can't be undone."
+msgstr "Cette action est irréversible."
+
+msgid "Clear"
+msgstr "Effacer"
+
+msgid "Quick Insert"
+msgstr "Insertion rapide"
+
+msgid "Spam"
+msgstr "Spam"
+
+msgid "gibberish"
+msgstr "charabia"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "freeform"
+msgstr "libre"
+
+msgid "Reviewer Name"
+msgstr "Nom du reviewer"
+
+msgid "Rating"
+msgstr "Note"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Auto-detect"
+msgstr "Détection automatique"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "French"
+msgstr "Français"
+
+msgid "German"
+msgstr "Allemand"
+
+msgid "Italian"
+msgstr "Italien"
+
+msgid "Swiss German"
+msgstr "Alémanique"
+
+msgid "Review Comment"
+msgstr "Commentaire de l'avis"
+
+msgid "Inject Test Review"
+msgstr "Injecter un avis test"
+
+msgid "Live Preview"
+msgstr "Aperçu en direct"
+
+msgid "Alex Martin"
+msgstr "Alex Martin"
+
+msgid "Amazing experience from start to finish!"
+msgstr "Une expérience incroyable du début à la fin !"
+
+msgid "AI Pipeline"
+msgstr "Pipeline IA"
+
+msgid "live"
+msgstr "en direct"
+
+msgid "Review Input"
+msgstr "Saisie de l'avis"
+
+msgid "Spam Detection"
+msgstr "Détection du spam"
+
+msgid "Sentiment Analysis"
+msgstr "Analyse du sentiment"
+
+msgid "AI Draft Generation"
+msgstr "Génération de brouillon IA"
+
+msgid "Automation Routing"
+msgstr "Routage automatique"
+
+msgid "Simulation Results"
+msgstr "Résultats de la simulation"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Spam Check"
+msgstr "Vérification anti-spam"
+
+msgid "Sentiment"
+msgstr "Sentiment"
+
+msgid "AI draft"
+msgstr "Brouillon IA"
+
+msgid "View on Dashboard"
+msgstr "Voir dans le tableau de bord"
+
+msgid "Copy response"
+msgstr "Copier la réponse"
+
+msgid "Original vs AI Response"
+msgstr "Original vs réponse IA"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "from AI & Tone Settings"
+msgstr "depuis les paramètres IA et ton"
+
+msgid "Original review"
+msgstr "Avis original"
+
+msgid "AI response"
+msgstr "Réponse IA"
+
+msgid "Simulation History"
+msgstr "Historique des simulations"
+
+msgid "Search…"
+msgstr "Rechercher…"
+
+msgid "Generation Failed"
+msgstr "Génération échouée"
+
+msgid "Time"
+msgstr "Heure"
+
+msgid "Reviewer"
+msgstr "Auteur"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "No simulations yet — inject a test review above."
+msgstr "Aucune simulation pour le moment — injectez un avis test ci-dessus."
+
+msgid "Showing"
+msgstr "Affichage de"
+
+msgid "of"
+msgstr "sur"
+
+msgid "Comment"
+msgstr "Commentaire"
+
+#~ msgid "Draft copied to clipboard."
+#~ msgstr "Brouillon copié dans le presse-papiers."
+
+#~ msgid "Reply copied to clipboard!"
+#~ msgstr "Réponse copiée dans le presse-papiers !"
+
+#~ msgid "Something went wrong analyzing themes."
+#~ msgstr "Une erreur est survenue lors de l'analyse des thèmes."
+
+#~ msgid "Something went wrong generating the reply."
+#~ msgstr "Une erreur est survenue lors de la génération de la réponse."
+
+#~ msgid "Analyzing…"
+#~ msgstr "Analyse en cours…"
+
+#~ msgid "Re-analyze"
+#~ msgstr "Réanalyser"
+
+#~ msgid "No recurring issues found — nice work."
+#~ msgstr "Aucun problème récurrent trouvé — beau travail."
+
+#~ msgid "Copied!"
+#~ msgstr "Copié !"

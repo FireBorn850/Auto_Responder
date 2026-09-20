@@ -147,6 +147,15 @@ class BusinessProfile(models.Model):
     help_text="Set when the owner asks to be notified once Trustpilot integration opens up."
     )
 
+
+    stripe_customer_id = models.CharField(max_length=255, blank=True, null=True)
+    stripe_subscription_id = models.CharField(max_length=255, blank=True, null=True)
+    subscription_status = models.CharField(
+        max_length=30, blank=True, null=True,
+        help_text="Mirrors Stripe: trialing, active, past_due, canceled, unpaid, etc."
+    )
+    trial_ends_at = models.DateTimeField(blank=True, null=True)
+
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='starter')
     plan_expires_at = models.DateTimeField(blank=True, null=True)
 

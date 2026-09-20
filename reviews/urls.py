@@ -22,6 +22,13 @@ urlpatterns = [
     path('privacy-policy/', views.privacy_policy_view, name='privacy_policy'),
     path('terms-of-service/', views.terms_of_service_view, name='terms_of_service'),
     path('getting-started/', views.getting_started_view, name='getting_started'),
+    # ==========================================
+    # STRIPE BILLING
+    # ==========================================
+    path('billing/checkout/<str:plan>/', views.create_checkout_session_view, name='create_checkout_session'),
+    path('billing/success/', views.checkout_success_view, name='checkout_success'),
+    path('billing/cancel/', views.checkout_cancel_view, name='checkout_cancel'),
+    path('api/webhook/stripe/', views.stripe_webhook_view, name='stripe_webhook'),
 
     # ==========================================
     # 2. REVIEW & SETTINGS ACTIONS

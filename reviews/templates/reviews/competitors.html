@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block page_title %}Team &amp; Access Controls{% endblock %}
 {% block head_title %}Team Management | SwissReply.AI{% endblock %}
@@ -793,28 +794,28 @@
         <div class="flex items-center gap-3.5">
             <div class="page-header-icon"><svg class="icon-lg"><use href="#i-users"/></svg></div>
             <div>
-                <h1 class="font-display text-2xl font-semibold text-white tracking-tight">Team roles &amp; staff approvals</h1>
+                <h1 class="font-display text-2xl font-semibold text-white tracking-tight">{% trans "Team roles & staff approvals" %}</h1>
                 <p class="text-xs sm:text-sm text-slate mt-1 max-w-xl">
-                    Invite floor managers to edit and approve AI review drafts without granting access to your primary Google account.
+                    {% trans "Invite floor managers to edit and approve AI review drafts without granting access to your primary Google account." %}
                 </p>
             </div>
         </div>
-        <a href="#invite-form" class="btn-ghost" style="width:auto;"><svg class="icon icon-sm"><use href="#i-users"/></svg>Invite a team member</a>
+        <a href="#invite-form" class="btn-ghost" style="width:auto;"><svg class="icon icon-sm"><use href="#i-users"/></svg>{% trans "Invite a team member" %}</a>
     </div>
 
     <!-- Stat strip -->
     <div class="reveal flex flex-wrap gap-3">
         <div class="stat-pill">
             <span class="stat-icon"><svg class="icon"><use href="#i-users"/></svg></span>
-            <div><div class="stat-num">{{ invites|length|add:1 }}</div><div class="stat-lbl">Team member{{ invites|length|add:1|pluralize }}</div></div>
+            <div><div class="stat-num">{{ invites|length|add:1 }}</div><div class="stat-lbl">{% trans "Team member" %}{{ invites|length|add:1|pluralize }}</div></div>
         </div>
         <div class="stat-pill">
             <span class="stat-icon" style="background: rgba(232, 168, 60, 0.1); color: var(--gold);"><svg class="icon"><use href="#i-clock"/></svg></span>
-            <div><div class="stat-num">{{ invites|length }}</div><div class="stat-lbl">Pending invite{{ invites|length|pluralize }}</div></div>
+            <div><div class="stat-num">{{ invites|length }}</div><div class="stat-lbl">{% trans "Pending invite" %}{{ invites|length|pluralize }}</div></div>
         </div>
         <div class="stat-pill">
             <span class="stat-icon" style="background: rgba(45, 212, 167, 0.1); color: var(--teal);"><svg class="icon"><use href="#i-shield"/></svg></span>
-            <div><div class="stat-num">3</div><div class="stat-lbl">Roles available</div></div>
+            <div><div class="stat-num">3</div><div class="stat-lbl">{% trans "Roles available" %}</div></div>
         </div>
     </div>
 
@@ -822,7 +823,7 @@
     <div class="reveal info-banner">
         <svg class="icon"><use href="#i-info"/></svg>
         <p class="text-xs leading-relaxed">
-            Invites are emailed automatically, and roles are enforced server-side — a Read-Only Analyst can't invite or approve, and only Owners and Store Admins can manage the team.
+            {% trans "Invites are emailed automatically, and roles are enforced server-side — a Read-Only Analyst can't invite or approve, and only Owners and Store Admins can manage the team." %}
         </p>
     </div>
 
@@ -832,41 +833,41 @@
         <div id="invite-form" class="reveal lg:col-span-5 card p-6 space-y-4 h-fit">
             <div>
                 <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 font-mono">
-                    <svg class="icon"><use href="#i-mail"/></svg>Invite staff member
+                    <svg class="icon"><use href="#i-mail"/></svg>{% trans "Invite staff member" %}
                 </h2>
-                <p class="text-xs text-slate mt-1">Record who should have review moderation access.</p>
+                <p class="text-xs text-slate mt-1">{% trans "Record who should have review moderation access." %}</p>
             </div>
 
             {% if role == 'owner' or role == 'admin' %}
             <form method="POST" action="{% url 'competitors' %}" class="space-y-4" id="inviteForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div>
-                    <label class="field-label">Staff email address</label>
+                    <label class="field-label">{% trans "Staff email address" %}</label>
                     <input type="email" name="invite_email" placeholder="floormanager@restaurant.com" class="field-input">
                 </div>
 
                 <div>
-                    <label class="field-label">Or paste multiple emails</label>
+                    <label class="field-label">{% trans "Or paste multiple emails" %}</label>
                     <textarea name="bulk_emails" rows="3" placeholder="one@restaurant.com, two@restaurant.com&#10;three@restaurant.com" class="field-input"></textarea>
-                    <p class="text-[10px] text-slate-2 mt-1">Comma or newline separated.</p>
+                    <p class="text-[10px] text-slate-2 mt-1">{% trans "Comma or newline separated." %}</p>
                 </div>
 
                 <div>
-                    <label class="field-label">Or upload a CSV</label>
+                    <label class="field-label">{% trans "Or upload a CSV" %}</label>
                     <input type="file" name="csv_file" accept=".csv" class="field-input">
-                    <p class="text-[10px] text-slate-2 mt-1">Uses the first column of each row as the email address.</p>
+                    <p class="text-[10px] text-slate-2 mt-1">{% trans "Uses the first column of each row as the email address." %}</p>
                 </div>
 
                 <div>
-                    <label class="field-label">Assigned role</label>
+                    <label class="field-label">{% trans "Assigned role" %}</label>
                     <div class="role-picker">
                         <div class="role-card">
                             <input type="radio" id="role-reviewer" name="role" value="reviewer" checked>
                             <label for="role-reviewer">
                                 <span class="role-dot role-reviewer"></span>
                                 <span>
-                                    <span class="role-card-title">Review Approver</span>
-                                    <span class="role-card-desc block">Can edit &amp; submit AI replies</span>
+                                    <span class="role-card-title">{% trans "Review Approver" %}</span>
+                                    <span class="role-card-desc block">{% trans "Can edit & submit AI replies" %}</span>
                                 </span>
                             </label>
                         </div>
@@ -875,8 +876,8 @@
                             <label for="role-viewer">
                                 <span class="role-dot role-viewer"></span>
                                 <span>
-                                    <span class="role-card-title">Read-Only Analyst</span>
-                                    <span class="role-card-desc block">View dashboard analytics only</span>
+                                    <span class="role-card-title">{% trans "Read-Only Analyst" %}</span>
+                                    <span class="role-card-desc block">{% trans "View dashboard analytics only" %}</span>
                                 </span>
                             </label>
                         </div>
@@ -885,8 +886,8 @@
                             <label for="role-admin">
                                 <span class="role-dot role-admin"></span>
                                 <span>
-                                    <span class="role-card-title">Store Admin</span>
-                                    <span class="role-card-desc block">Full account settings access</span>
+                                    <span class="role-card-title">{% trans "Store Admin" %}</span>
+                                    <span class="role-card-desc block">{% trans "Full account settings access" %}</span>
                                 </span>
                             </label>
                         </div>
@@ -894,11 +895,11 @@
                 </div>
 
                 <button type="submit" class="btn-primary" id="inviteSubmitBtn">
-                    <svg class="icon icon-sm"><use href="#i-mail"/></svg><span>Send team invitation</span>
+                    <svg class="icon icon-sm"><use href="#i-mail"/></svg><span>{% trans "Send team invitation" %}</span>
                 </button>
             </form>
             {% else %}
-            <p class="text-xs text-slate-2">Only the Owner and Store Admins can invite team members.</p>
+            <p class="text-xs text-slate-2">{% trans "Only the Owner and Store Admins can invite team members." %}</p>
             {% endif %}
         </div>
 
@@ -906,36 +907,36 @@
         <div class="reveal lg:col-span-7 space-y-4">
 
             <div class="flex items-center justify-between gap-3 flex-wrap">
-                <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">Active staff accounts</h2>
+                <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">{% trans "Active staff accounts" %}</h2>
                 <div class="flex items-center gap-2">
-                    <button type="button" class="btn-ghost" style="padding:0.5rem 0.75rem;" onclick="exportRosterCSV()" title="Export the roster shown below">
-                        <svg class="icon icon-sm"><use href="#i-download"/></svg><span class="hidden sm:inline">Export CSV</span>
+                    <button type="button" class="btn-ghost" style="padding:0.5rem 0.75rem;" onclick="exportRosterCSV()" title="{% trans "Export the roster shown below" %}">
+                        <svg class="icon icon-sm"><use href="#i-download"/></svg><span class="hidden sm:inline">{% trans "Export CSV" %}</span>
                     </button>
                     <div class="view-toggle">
-                        <button type="button" id="viewGridBtn" onclick="setView('grid')" title="Grid view"><svg class="icon icon-sm"><use href="#i-grid"/></svg></button>
-                        <button type="button" id="viewListBtn" class="active" onclick="setView('list')" title="List view"><svg class="icon icon-sm"><use href="#i-list"/></svg></button>
+                        <button type="button" id="viewGridBtn" onclick="setView('grid')" title="{% trans "Grid view" %}"><svg class="icon icon-sm"><use href="#i-grid"/></svg></button>
+                        <button type="button" id="viewListBtn" class="active" onclick="setView('list')" title="{% trans "List view" %}"><svg class="icon icon-sm"><use href="#i-list"/></svg></button>
                     </div>
                 </div>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
                 <div class="flex items-center gap-2 flex-wrap">
-                    <button type="button" class="filter-chip active" data-role-filter="all" onclick="setRoleFilter('all', this)">All</button>
-                    <button type="button" class="filter-chip" data-role-filter="owner" onclick="setRoleFilter('owner', this)">Owner</button>
-                    <button type="button" class="filter-chip" data-role-filter="reviewer" onclick="setRoleFilter('reviewer', this)">Approver</button>
-                    <button type="button" class="filter-chip" data-role-filter="viewer" onclick="setRoleFilter('viewer', this)">Analyst</button>
-                    <button type="button" class="filter-chip" data-role-filter="admin" onclick="setRoleFilter('admin', this)">Admin</button>
+                    <button type="button" class="filter-chip active" data-role-filter="all" onclick="setRoleFilter('all', this)">{% trans "All" %}</button>
+                    <button type="button" class="filter-chip" data-role-filter="owner" onclick="setRoleFilter('owner', this)">{% trans "Owner" %}</button>
+                    <button type="button" class="filter-chip" data-role-filter="reviewer" onclick="setRoleFilter('reviewer', this)">{% trans "Approver" %}</button>
+                    <button type="button" class="filter-chip" data-role-filter="viewer" onclick="setRoleFilter('viewer', this)">{% trans "Analyst" %}</button>
+                    <button type="button" class="filter-chip" data-role-filter="admin" onclick="setRoleFilter('admin', this)">{% trans "Admin" %}</button>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="search-wrap w-full sm:w-52">
                         <svg class="icon"><use href="#i-search"/></svg>
-                        <input type="text" id="memberSearch" placeholder="Search by name or email..." oninput="filterMembers()" class="field-input">
+                        <input type="text" id="memberSearch" placeholder="{% trans "Search by name or email..." %}" oninput="filterMembers()" class="field-input">
                     </div>
                     <select id="sortSelect" class="field-select" style="width:auto;" onchange="sortMembers(this.value)">
-                        <option value="invited-desc">Newest invite</option>
-                        <option value="invited-asc">Oldest invite</option>
-                        <option value="name-asc">Name A–Z</option>
-                        <option value="role-asc">Role</option>
+                        <option value="invited-desc">{% trans "Newest invite" %}</option>
+                        <option value="invited-asc">{% trans "Oldest invite" %}</option>
+                        <option value="name-asc">{% trans "Name A–Z" %}</option>
+                        <option value="role-asc">{% trans "Role" %}</option>
                     </select>
                 </div>
             </div>
@@ -954,12 +955,12 @@
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="font-bold text-sm text-white">{{ user.username }}</span>
-                                <span class="status-badge status-badge-owner">Owner</span>
+                                <span class="status-badge status-badge-owner">{% trans "Owner" %}</span>
                             </div>
                             <span class="text-xs text-slate block truncate">{{ user.email }}</span>
                         </div>
                     </div>
-                    <span class="text-xs font-medium text-slate-2 whitespace-nowrap hidden sm:inline row-action">Primary account</span>
+                    <span class="text-xs font-medium text-slate-2 whitespace-nowrap hidden sm:inline row-action">{% trans "Primary account" %}</span>
                 </div>
 
                 {% for invite in invites %}
@@ -969,56 +970,56 @@
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="font-bold text-sm text-white truncate">{{ invite.email }}</span>
-                                <span class="status-badge"><span class="status-dot"></span>Pending</span>
+                                <span class="status-badge"><span class="status-dot"></span>{% trans "Pending" %}</span>
                                 <span class="role-badge
                                     {% if invite.role == 'admin' %}role-badge-admin
                                     {% elif invite.role == 'reviewer' %}role-badge-reviewer
                                     {% else %}role-badge-viewer{% endif %}">{{ invite.get_role_display }}</span>
                             </div>
-                            <span class="text-xs text-slate block">Invited {{ invite.created_at|date:"M d, Y" }}</span>
+                            <span class="text-xs text-slate block">{% trans "Invited" %} {{ invite.created_at|date:"M d, Y" }}</span>
                         </div>
                     </div>
                     {% if role == 'owner' or role == 'admin' %}
                     <form action="{% url 'delete_invite' invite.id %}" method="POST" class="row-action revoke-form" data-email="{{ invite.email }}">
                         {% csrf_token %}
-                        <button type="button" class="btn-danger-ghost" onclick="confirmRevoke(this)">Revoke</button>
+                        <button type="button" class="btn-danger-ghost" onclick="confirmRevoke(this)">{% trans "Revoke" %}</button>
                     </form>
                     {% endif %}
                 </div>
                 {% empty %}
                 <div class="card p-6 text-center border-dashed border-white-5" id="emptyRosterState">
-                    <p class="text-xs text-slate-2">No staff invited yet — add someone using the form.</p>
+                    <p class="text-xs text-slate-2">{% trans "No staff invited yet — add someone using the form." %}</p>
                 </div>
                 {% endfor %}
             </div>
-            <div id="noMemberResults" class="hidden text-center py-6 text-xs text-slate-2">No team members match your filters.</div>
+            <div id="noMemberResults" class="hidden text-center py-6 text-xs text-slate-2">{% trans "No team members match your filters." %}</div>
         </div>
     </div>
 
     <!-- Role guide -->
     <div class="reveal space-y-3">
-        <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">What each role is meant for</h2>
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">{% trans "What each role is meant for" %}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="guide-card">
                 <div class="guide-card-head">
                     <span class="guide-icon" style="background: rgba(45, 212, 167, 0.1); color: var(--teal);"><svg class="icon"><use href="#i-edit"/></svg></span>
-                    <span class="guide-card-title">Review Approver</span>
+                    <span class="guide-card-title">{% trans "Review Approver" %}</span>
                 </div>
-                <p>For staff who respond to guests day to day — editing and submitting AI-drafted replies.</p>
+                <p>{% trans "For staff who respond to guests day to day — editing and submitting AI-drafted replies." %}</p>
             </div>
             <div class="guide-card">
                 <div class="guide-card-head">
                     <span class="guide-icon" style="background: rgba(255, 255, 255, 0.05); color: var(--slate);"><svg class="icon"><use href="#i-eye"/></svg></span>
-                    <span class="guide-card-title">Read-Only Analyst</span>
+                    <span class="guide-card-title">{% trans "Read-Only Analyst" %}</span>
                 </div>
-                <p>For managers who just need visibility into ratings and volume, without touching replies.</p>
+                <p>{% trans "For managers who just need visibility into ratings and volume, without touching replies." %}</p>
             </div>
             <div class="guide-card">
                 <div class="guide-card-head">
                     <span class="guide-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><svg class="icon"><use href="#i-settings"/></svg></span>
-                    <span class="guide-card-title">Store Admin</span>
+                    <span class="guide-card-title">{% trans "Store Admin" %}</span>
                 </div>
-                <p>For owners and partners who need full access to account and integration settings.</p>
+                <p>{% trans "For owners and partners who need full access to account and integration settings." %}</p>
             </div>
         </div>
     </div>
@@ -1026,7 +1027,7 @@
 
         <!-- Recent Activity -->
     <div class="reveal space-y-3">
-        <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">Recent activity</h2>
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider px-1 font-mono">{% trans "Recent activity" %}</h2>
         <div class="card p-6 space-y-3">
             {% for log in recent_activity %}
             <div class="flex items-start gap-3 {% if not forloop.last %}pb-3 border-b border-white-5{% endif %}">
@@ -1040,7 +1041,7 @@
                 </div>
             </div>
             {% empty %}
-            <p class="text-xs text-slate-2 text-center py-2">No activity recorded yet — changes you make will show up here.</p>
+            <p class="text-xs text-slate-2 text-center py-2">{% trans "No activity recorded yet — changes you make will show up here." %}</p>
             {% endfor %}
         </div>
     </div>
@@ -1051,28 +1052,28 @@
         <div class="flex items-start gap-3 mb-4 pb-3 border-b border-white-5">
             <div class="section-icon" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.03);color:var(--slate);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg class="icon"><use href="#i-hourglass"/></svg></div>
             <div>
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Roadmap</h2>
-                <p class="text-xs text-slate mt-0.5">Planned controls — shown for context, not yet connected to a saved setting.</p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Roadmap" %}</h2>
+                <p class="text-xs text-slate mt-0.5">{% trans "Planned controls — shown for context, not yet connected to a saved setting." %}</p>
             </div>
         </div>
             <div class="roadmap-item">
-                <span class="roadmap-tag"><svg class="icon icon-sm"><use href="#i-hourglass"/></svg> Planned</span>
-                <div class="roadmap-title">2FA &amp; session controls</div>
-                <div class="roadmap-desc">Optional two-factor requirement and the ability to sign a device out remotely.</div>
+                <span class="roadmap-tag"><svg class="icon icon-sm"><use href="#i-hourglass"/></svg> {% trans "Planned" %}</span>
+                <div class="roadmap-title">{% trans "2FA & session controls" %}</div>
+                <div class="roadmap-desc">{% trans "Optional two-factor requirement and the ability to sign a device out remotely." %}</div>
             </div>
             <div class="roadmap-item">
-                <span class="roadmap-tag"><svg class="icon icon-sm"><use href="#i-hourglass"/></svg> Planned</span>
-                <div class="roadmap-title">Seats &amp; billing</div>
-                <div class="roadmap-desc">See plan limits and add seats as your team grows.</div>
+                <span class="roadmap-tag"><svg class="icon icon-sm"><use href="#i-hourglass"/></svg> {% trans "Planned" %}</span>
+                <div class="roadmap-title">{% trans "Seats & billing" %}</div>
+                <div class="roadmap-desc">{% trans "See plan limits and add seats as your team grows." %}</div>
             </div>
         </div>
     </div>
 
     <div class="reveal flex items-center justify-center gap-1.5 text-[10.5px] text-slate pb-2">
         <span class="live-dot"></span>
-        <span class="font-mono">{{ invites|length|add:1 }} team member{{ invites|length|add:1|pluralize }}</span>
+        <span class="font-mono">{{ invites|length|add:1 }} {% trans "team member" %}{{ invites|length|add:1|pluralize }}</span>
         <span>·</span>
-        <span class="font-mono">Team &amp; Access</span>
+        <span class="font-mono">{% trans "Team & Access" %}</span>
     </div>
 </div>
 
@@ -1083,13 +1084,14 @@
         <div class="flex items-start gap-3">
             <div style="width:34px;height:34px;border-radius:10px;background:rgba(239,68,68,0.1);color:#ef4444;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg class="icon"><use href="#i-alert"/></svg></div>
             <div>
-                <h3 class="text-sm font-bold text-white">Revoke this invitation?</h3>
-                <p class="text-xs text-slate mt-1">"<span id="revokeEmailLabel"></span>" will no longer be able to use the login link you shared with them.</p>
+                <h3 class="text-sm font-bold text-white">{% trans "Revoke this invitation?" %}</h3>
+                <!-- fixed -->
+<p class="text-xs text-slate mt-1">"<span id="revokeEmailLabel"></span>" {% trans "will no longer be able to use the login link you shared with them." %}</p>
             </div>
         </div>
         <div class="flex justify-end gap-2 pt-1">
-            <button type="button" class="btn-ghost" onclick="closeRevokeModal()">Cancel</button>
-            <button type="button" class="btn-primary btn-danger" style="width:auto;" onclick="submitRevoke()">Revoke invite</button>
+            <button type="button" class="btn-ghost" onclick="closeRevokeModal()">{% trans "Cancel" %}</button>
+            <button type="button" class="btn-primary btn-danger" style="width:auto;" onclick="submitRevoke()">{% trans "Revoke invite" %}</button>
         </div>
     </div>
 </div>

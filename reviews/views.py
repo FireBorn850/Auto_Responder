@@ -32,6 +32,12 @@ from django.db.models import DurationField, ExpressionWrapper
 from django.db.models.functions import TruncWeek
 from .services.ai_responder import analyze_complaints
 import secrets
+import stripe
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 # ==========================================
@@ -54,6 +60,118 @@ def getting_started_view(request):
 
 def terms_of_service_view(request):
     return render(request, 'reviews/terms_of_service.html')
+
+
+
+# ==========================================
+# STRIPE BILLING
+# ==========================================
+
+PLAN_PRICE_MAP = {
+    'starter': lambda: settings.STRIPE_PRICE_STARTER,
+    'premium': lambda: settings.STRIPE_PRICE_PREMIUM,
+}
+
+
+@login_required
+def create_checkout_session_view(request, plan):
+    if plan not in PLAN_PRICE_MAP:
+        messages.error(request, "Unknown plan selected.")
+        return redirect('home')
+
+    price_id = PLAN_PRICE_MAP[plan]()
+    profile, role = get_or_create_owned_profile(request.user)
+
+    session = stripe.checkout.Session.create(
+        mode='subscription',
+        payment_method_types=['card'],
+        customer_email=request.user.email,
+        line_items=[{'price': price_id, 'quantity': 1}],
+        subscription_data={
+            'trial_period_days': settings.STRIPE_TRIAL_DAYS,
+            'metadata': {'user_id': request.user.id, 'plan': plan},
+        },
+        success_url=request.build_absolute_uri('/billing/success/'),
+        cancel_url=request.build_absolute_uri('/billing/cancel/'),
+        metadata={'user_id': request.user.id, 'plan': plan},
+    )
+    return redirect(session.url, permanent=False)
+
+
+@login_required
+def checkout_success_view(request):
+    messages.success(request, "You're all set! Your free trial has started.")
+    return redirect('dashboard')
+
+
+@login_required
+def checkout_cancel_view(request):
+    messages.info(request, "Checkout canceled — no charge was made.")
+    return redirect('home')
+
+
+@csrf_exempt
+def stripe_webhook_view(request):
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
+    except (ValueError, stripe.error.SignatureVerificationError):
+        return HttpResponse(status=400)
+
+    if event['type'] in ('customer.subscription.created', 'customer.subscription.updated'):
+        sub = event['data']['object']
+        user_id = sub.get('metadata', {}).get('user_id')
+        plan = sub.get('metadata', {}).get('plan')
+
+        if not user_id:
+            # metadata doesn't propagate to subscription events by default —
+            # fall back to looking up by stripe_customer_id
+            try:
+                profile = BusinessProfile.objects.get(stripe_customer_id=sub['customer'])
+            except BusinessProfile.DoesNotExist:
+                return HttpResponse(status=200)
+        else:
+            try:
+                profile = BusinessProfile.objects.get(user_id=user_id)
+            except BusinessProfile.DoesNotExist:
+                return HttpResponse(status=200)
+
+        profile.stripe_customer_id = sub['customer']
+        profile.stripe_subscription_id = sub['id']
+        profile.subscription_status = sub['status']
+        if plan:
+            profile.plan = plan
+        if sub.get('trial_end'):
+            profile.trial_ends_at = datetime.fromtimestamp(sub['trial_end'], tz=timezone.utc)
+        profile.save()
+
+    elif event['type'] == 'customer.subscription.deleted':
+        sub = event['data']['object']
+        try:
+            profile = BusinessProfile.objects.get(stripe_subscription_id=sub['id'])
+            profile.subscription_status = 'canceled'
+            profile.save(update_fields=['subscription_status'])
+        except BusinessProfile.DoesNotExist:
+            pass
+
+    elif event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        user_id = session.get('metadata', {}).get('user_id')
+        plan = session.get('metadata', {}).get('plan')
+        if user_id:
+            try:
+                profile = BusinessProfile.objects.get(user_id=user_id)
+                profile.stripe_customer_id = session['customer']
+                profile.stripe_subscription_id = session['subscription']
+                if plan:
+                    profile.plan = plan
+                profile.save()
+            except BusinessProfile.DoesNotExist:
+                pass
+
+    return HttpResponse(status=200)
 
 
 # ==========================================
@@ -331,8 +449,11 @@ def _send_invite_email(request, invite_email, role):
 @login_required
 def competitors_page_view(request):
     """Team & Access Controls — invite floor managers/staff to help manage replies."""
+    profile, actor_role = get_business_context(request.user)
+    if profile is None:
+        profile, actor_role = get_or_create_owned_profile(request.user)
+
     if request.method == 'POST':
-        _, actor_role = get_business_context(request.user)
         if not can_manage_settings(actor_role):
             messages.error(request, "You don't have permission to manage team invites.")
             return redirect('competitors')
@@ -344,12 +465,10 @@ def competitors_page_view(request):
 
         emails = []
 
-        # Single-email field (existing form)
         single_email = request.POST.get('invite_email', '').strip()
         if single_email:
             emails.append(single_email)
 
-        # Bulk paste field — comma, newline, or space separated
         bulk_text = request.POST.get('bulk_emails', '').strip()
         if bulk_text:
             for chunk in bulk_text.replace(',', '\n').split('\n'):
@@ -357,7 +476,6 @@ def competitors_page_view(request):
                 if chunk:
                     emails.append(chunk)
 
-        # CSV upload — takes the first column of every row
         csv_file = request.FILES.get('csv_file')
         if csv_file:
             try:
@@ -370,7 +488,6 @@ def competitors_page_view(request):
                 messages.error(request, "Couldn't read that CSV file — check it's a plain .csv.")
                 return redirect('competitors')
 
-        # Dedup, keep order
         seen = set()
         emails = [e for e in emails if not (e in seen or seen.add(e))]
 
@@ -379,7 +496,7 @@ def competitors_page_view(request):
             return redirect('competitors')
 
         existing_emails = set(
-            TeamInvite.objects.filter(owner=request.user).values_list('email', flat=True)
+            TeamInvite.objects.filter(owner=profile.user).values_list('email', flat=True)
         )
 
         invited, skipped, failed = 0, 0, 0
@@ -394,7 +511,7 @@ def competitors_page_view(request):
                 skipped += 1
                 continue
 
-            TeamInvite.objects.create(owner=request.user, email=email, role=role)
+            TeamInvite.objects.create(owner=profile.user, email=email, role=role)
             ActivityLog.objects.create(user=request.user, action='team_invite_sent', detail=email)
             existing_emails.add(email)
 
@@ -419,13 +536,12 @@ def competitors_page_view(request):
 
         return redirect('competitors')
 
-    profile, role = get_or_create_owned_profile(request.user)
-    invites = TeamInvite.objects.filter(owner=request.user).order_by('-created_at')
+    invites = TeamInvite.objects.filter(owner=profile.user).order_by('-created_at')
 
     recent_activity = ActivityLog.objects.filter(user=request.user)[:10]
     context = {
         'profile': profile,
-        'role': role,
+        'role': actor_role,
         'invites': invites,
         'recent_activity': recent_activity,
         'active_tab': 'competitors',
@@ -435,9 +551,11 @@ def competitors_page_view(request):
 
 @login_required
 def delete_invite_view(request, invite_id):
-    invite = get_object_or_404(TeamInvite, id=invite_id, owner=request.user)
+    profile, actor_role = get_business_context(request.user)
+    if profile is None:
+        profile, actor_role = get_or_create_owned_profile(request.user)
+    invite = get_object_or_404(TeamInvite, id=invite_id, owner=profile.user)
     if request.method == 'POST':
-        _, actor_role = get_business_context(request.user)
         if not can_manage_settings(actor_role):
             messages.error(request, "You don't have permission to revoke invites.")
             return redirect('competitors')
@@ -445,7 +563,7 @@ def delete_invite_view(request, invite_id):
         invite.delete()
         ActivityLog.objects.create(user=request.user, action='team_invite_revoked', detail=invite.email)
         messages.info(request, "Invitation revoked.")
-    return redirect('competitors') 
+    return redirect('competitors')
 
 
 @login_required
@@ -751,7 +869,7 @@ def export_insights_report_view(request):
 
     # --- Section 2: AI complaint clustering on negative reviews (1-3 stars) ---
     negative_comments = list(
-        business_reviews.filter(rating__lte=3).exclude(comment='').values_list('comment', flat=True)[:50]
+        business_reviews.filter(rating__lte=3, is_likely_spam=False).exclude(comment='').values_list('comment', flat=True)[:50]
     )
     complaint_analysis = analyze_complaints(negative_comments)
 
@@ -1187,7 +1305,7 @@ def _dashboard_insights_impl(request):
     business_reviews = Review.objects.filter(user=profile.user, business_name=profile.business_name)
 
     negative_comments = list(
-        business_reviews.filter(rating__lte=3).exclude(comment='').values_list('comment', flat=True)[:50]
+        business_reviews.filter(rating__lte=3, is_likely_spam=False).exclude(comment='').values_list('comment', flat=True)[:50]
     )
 
     if not negative_comments:
@@ -1712,17 +1830,16 @@ def qr_print_template_view(request, slug):
     Generates a print-ready PDF (table tent, sticker sheet, or door sign)
     for the given QR code. ?template=tent|stickers|sign, defaults to tent.
     """
-    qr = get_object_or_404(SmartQRCode, slug=slug, user=request.user)
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    qr = get_object_or_404(SmartQRCode, slug=slug, user=profile.user)
     template = request.GET.get('template', 'tent')
     target_url = f"{request.scheme}://{request.get_host()}/qr/{qr.slug}"
 
     logo_path = None
-    try:
-        profile = BusinessProfile.objects.get(user=request.user)
-        if profile.logo and profile.logo.name:
-            logo_path = profile.logo.path
-    except BusinessProfile.DoesNotExist:
-        pass
+    if profile.logo and profile.logo.name:
+        logo_path = profile.logo.path
 
     if template == 'stickers':
         buffer = generate_sticker_sheet_pdf(qr, target_url, logo_path=logo_path)

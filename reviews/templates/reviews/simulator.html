@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block page_title %}Review Simulator Pro{% endblock %}
 {% block head_title %}Review Simulator Pro | SwissReply.AI{% endblock %}
@@ -752,7 +753,7 @@
       {% elif message.tags == 'error' %}bg-rose-900/20 text-rose-400 border-rose-800/30
       {% else %}bg-blue-900/20 text-blue-400 border-blue-800/30{% endif %}">
       <i
-        class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'warning' %}fa-triangle-exclamation{% elif message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+        class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'warning' %}bi-exclamation-triangle{% elif message.tags == 'error' %}bi-x-circle{% else %}bi-info-circle{% endif %}"></i>
       {{ message }}
     </div>
     {% endfor %}
@@ -762,26 +763,25 @@
   <!-- ===== HERO ===== -->
   <div class="hero-gradient flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-4">
-      <span class="flask-icon text-2xl"><i class="fa-solid fa-flask"></i></span>
+      <span class="flask-icon text-2xl"><i class="bi bi-droplet-half"></i></span>
       <div>
         <h1 class="font-display text-2xl font-semibold tracking-tight flex items-center gap-2 text-ink">
-          Review Simulator <span
-            class="text-xs font-mono font-bold bg-ink/10 px-3 py-1 rounded-full text-ink">PRO</span>
+          {% trans "Review Simulator" %} <span
+            class="text-xs font-mono font-bold bg-ink/10 px-3 py-1 rounded-full text-ink">{% trans "PRO" %}</span>
         </h1>
-        <p class="text-sm text-ink/80 max-w-xl">Inject test reviews and watch the full AI pipeline — spam filtering,
-          sentiment, drafting &amp; automation — in real time.</p>
+        <p class="text-sm text-ink/80 max-w-xl">{% trans "Inject test reviews and watch the full AI pipeline — spam filtering, sentiment, drafting &amp; automation — in real time." %}</p>
       </div>
     </div>
     <div class="flex flex-wrap items-center gap-2">
-      <span class="stat-badge"><i class="fa-regular fa-clock"></i> {{ sim_stats.total }} sims</span>
-      <span class="stat-badge"><i class="fa-regular fa-circle-check"></i> {{ sim_stats.processed }} processed</span>
-      <span class="stat-badge"><i class="fa-regular fa-flag"></i> {{ sim_stats.flagged }} flagged</span>
+      <span class="stat-badge"><i class="bi bi-clock"></i> {{ sim_stats.total }} {% trans "sims" %}</span>
+      <span class="stat-badge"><i class="bi bi-check-circle"></i> {{ sim_stats.processed }} {% trans "processed" %}</span>
+      <span class="stat-badge"><i class="bi bi-flag"></i> {{ sim_stats.flagged }} {% trans "flagged" %}</span>
       <form action="{% url 'clear_simulation_history' %}" method="POST"
-        onsubmit="return confirm('Delete all {{ sim_stats.total }} simulated reviews? This can\'t be undone.');">
+        onsubmit="return confirm('{% trans "Delete all" %} {{ sim_stats.total }} {% trans "simulated reviews?" %} {% trans "This can\'t be undone." %}');">
         {% csrf_token %}
         <button type="submit"
           class="bg-ink/10 hover:bg-ink/20 text-ink text-xs font-semibold px-4 py-1.5 rounded-full transition flex items-center gap-2 border border-ink/10 font-mono">
-          <i class="fa-regular fa-trash-can"></i> Clear
+          <i class="bi bi-trash"></i> {% trans "Clear" %}
         </button>
       </form>
     </div>
@@ -796,35 +796,35 @@
       <!-- Quick Insert Cards -->
       <div>
         <label class="text-xs font-bold text-slate uppercase tracking-wider flex items-center gap-2 font-mono">
-          <i class="fa-solid fa-bolt text-gold"></i> Quick Insert
+          <i class="bi bi-bolt text-gold"></i> {% trans "Quick Insert" %}
         </label>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
           <div class="example-card green" onclick="fillExample('positive')">
-            <span class="icon-wrap"><i class="fa-regular fa-face-smile"></i></span>
+            <span class="icon-wrap"><i class="bi bi-emoji-smile"></i></span>
             <div>
-              <div class="font-semibold text-xs text-white">Positive</div>
+              <div class="font-semibold text-xs text-white">{% trans "Positive" %}</div>
               <div class="card-label">5★</div>
             </div>
           </div>
           <div class="example-card rose" onclick="fillExample('negative')">
-            <span class="icon-wrap"><i class="fa-regular fa-face-frown"></i></span>
+            <span class="icon-wrap"><i class="bi bi-emoji-frown"></i></span>
             <div>
-              <div class="font-semibold text-xs text-white">Negative</div>
+              <div class="font-semibold text-xs text-white">{% trans "Negative" %}</div>
               <div class="card-label">2★</div>
             </div>
           </div>
           <div class="example-card slate" onclick="fillExample('spam')">
-            <span class="icon-wrap"><i class="fa-solid fa-circle-exclamation"></i></span>
+            <span class="icon-wrap"><i class="bi bi-exclamation-triangle-fill"></i></span>
             <div>
-              <div class="font-semibold text-xs text-white">Spam</div>
-              <div class="card-label">gibberish</div>
+              <div class="font-semibold text-xs text-white">{% trans "Spam" %}</div>
+              <div class="card-label">{% trans "gibberish" %}</div>
             </div>
           </div>
           <div class="example-card blue" onclick="fillExample('custom')">
-            <span class="icon-wrap"><i class="fa-solid fa-pencil"></i></span>
+            <span class="icon-wrap"><i class="bi bi-pencil"></i></span>
             <div>
-              <div class="font-semibold text-xs text-white">Custom</div>
-              <div class="card-label">freeform</div>
+              <div class="font-semibold text-xs text-white">{% trans "Custom" %}</div>
+              <div class="card-label">{% trans "freeform" %}</div>
             </div>
           </div>
         </div>
@@ -836,12 +836,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label><i class="fa-regular fa-user text-slate-2"></i> Reviewer Name</label>
+            <label><i class="bi bi-person text-slate-2"></i> {% trans "Reviewer Name" %}</label>
             <input id="sim_name" type="text" name="reviewer_name" required placeholder="e.g. Alex Martin"
               class="w-full">
           </div>
           <div>
-            <label><i class="fa-solid fa-store text-slate-2"></i> Business Name</label>
+            <label><i class="bi bi-store text-slate-2"></i> {% trans "Business Name" %}</label>
             <input type="text" name="business_name" required value="{{ profile.business_name|default:'Demo Bistro' }}"
               class="w-full">
           </div>
@@ -849,31 +849,31 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label><i class="fa-regular fa-star text-slate-2"></i> Rating</label>
+            <label><i class="bi bi-star text-slate-2"></i> {% trans "Rating" %}</label>
             <div class="star-rating" id="starContainer">
-              <i data-val="1" class="fa-regular fa-star"></i>
-              <i data-val="2" class="fa-regular fa-star"></i>
-              <i data-val="3" class="fa-regular fa-star"></i>
-              <i data-val="4" class="fa-regular fa-star"></i>
-              <i data-val="5" class="fa-regular fa-star"></i>
+              <i data-val="1" class="bi bi-star"></i>
+              <i data-val="2" class="bi bi-star"></i>
+              <i data-val="3" class="bi bi-star"></i>
+              <i data-val="4" class="bi bi-star"></i>
+              <i data-val="5" class="bi bi-star"></i>
             </div>
             <input type="hidden" name="rating" id="ratingInput" value="5">
           </div>
           <div>
-            <label><i class="fa-regular fa-flag text-slate-2"></i> Language</label>
+            <label><i class="bi bi-flag text-slate-2"></i> {% trans "Language" %}</label>
             <select id="sim_language" name="language" class="w-full">
-              <option value="auto">🌐 Auto-detect</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="fr">🇫🇷 French</option>
-              <option value="de">🇩🇪 German</option>
-              <option value="it">🇮🇹 Italian</option>
-              <option value="gsw">🇨🇭 Swiss German</option>
+              <option value="auto">🌐 {% trans "Auto-detect" %}</option>
+              <option value="en">🇬🇧 {% trans "English" %}</option>
+              <option value="fr">🇫🇷 {% trans "French" %}</option>
+              <option value="de">🇩🇪 {% trans "German" %}</option>
+              <option value="it">🇮🇹 {% trans "Italian" %}</option>
+              <option value="gsw">🇨🇭 {% trans "Swiss German" %}</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label><i class="fa-regular fa-message text-slate-2"></i> Review Comment</label>
+          <label><i class="bi bi-message text-slate-2"></i> {% trans "Review Comment" %}</label>
           <textarea id="sim_comment" name="comment" rows="4" required placeholder="Type or paste review text…"
             class="w-full resize-y"></textarea>
           <div class="flex justify-end text-xs text-slate-2 mt-1 font-mono"><span id="charCount">0</span> / 2000</div>
@@ -881,7 +881,7 @@
 
         <div class="flex justify-end pt-2">
           <button type="submit" id="simSubmitBtn" class="btn-primary w-full sm:w-auto justify-center">
-            <i class="fa-solid fa-flask"></i> Inject Test Review
+            <i class="bi bi-flask"></i> {% trans "Inject Test Review" %}
           </button>
         </div>
       </form>
@@ -893,19 +893,18 @@
       <div class="glass-card">
         <div class="flex items-center justify-between mb-3">
           <span class="text-xs font-bold text-slate uppercase tracking-wider font-mono"><i
-              class="fa-regular fa-eye"></i> Live Preview</span>
-          <span class="badge-status pending" id="previewStatus">Pending</span>
+              class="bi bi-eye"></i> {% trans "Live Preview" %}</span>
+          <span class="badge-status pending" id="previewStatus">{% trans "Pending" %}</span>
         </div>
         <div class="live-preview-card">
           <div class="flex items-start gap-3">
             <div class="avatar" id="previewAvatar">A</div>
             <div class="flex-1">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-sm text-white" id="previewName">Alex Martin</span>
+                <span class="font-bold text-sm text-white" id="previewName">{% trans "Alex Martin" %}</span>
                 <span class="text-xs text-slate" id="previewRating">★★★★★</span>
               </div>
-              <p class="text-sm text-slate mt-1 leading-relaxed" id="previewComment">Amazing experience from start to
-                finish!</p>
+              <p class="text-sm text-slate mt-1 leading-relaxed" id="previewComment">{% trans 'Amazing experience from start to finish!' %}</p>
             </div>
           </div>
         </div>
@@ -915,15 +914,15 @@
       <div class="glass-card">
         <div class="flex items-center justify-between mb-3">
           <span class="text-xs font-bold text-slate uppercase tracking-wider font-mono"><i
-              class="fa-solid fa-diagram-project"></i> AI Pipeline</span>
-          <span class="text-[0.6rem] text-slate-2 bg-white-5 px-2 py-1 rounded-full font-mono">live</span>
+              class="bi bi-diagram-project"></i> {% trans "AI Pipeline" %}</span>
+          <span class="text-[0.6rem] text-slate-2 bg-white-5 px-2 py-1 rounded-full font-mono">{% trans "live" %}</span>
         </div>
         <div class="space-y-2" id="pipelineSteps">
-          <div class="pipeline-step"><span class="status-dot"></span> 1. Review Input</div>
-          <div class="pipeline-step"><span class="status-dot"></span> 2. Spam Detection</div>
-          <div class="pipeline-step"><span class="status-dot"></span> 3. Sentiment Analysis</div>
-          <div class="pipeline-step"><span class="status-dot"></span> 4. AI Draft Generation</div>
-          <div class="pipeline-step"><span class="status-dot"></span> 5. Automation Routing</div>
+          <div class="pipeline-step"><span class="status-dot"></span> 1. {% trans "Review Input" %}</div>
+          <div class="pipeline-step"><span class="status-dot"></span> 2. {% trans "Spam Detection" %}</div>
+          <div class="pipeline-step"><span class="status-dot"></span> 3. {% trans "Sentiment Analysis" %}</div>
+          <div class="pipeline-step"><span class="status-dot"></span> 4. {% trans "AI Draft Generation" %}</div>
+          <div class="pipeline-step"><span class="status-dot"></span> 5. {% trans "Automation Routing" %}</div>
         </div>
       </div>
     </div>
@@ -932,46 +931,45 @@
   <div class="glass-card" id="simResultsCard" style="display:none;">
     <div class="flex items-center justify-between">
       <span class="text-xs font-bold text-slate uppercase tracking-wider font-mono"><i
-          class="fa-solid fa-chart-bar"></i> Simulation Results</span>
+          class="bi bi-chart-bar"></i> {% trans "Simulation Results" %}</span>
     </div>
     <div class="sim-stats-grid mt-3">
-      <div><span class="text-[0.6rem] text-slate-2 font-mono">Status</span>
+      <div><span class="text-[0.6rem] text-slate-2 font-mono">{% trans "Status" %}</span>
         <div class="font-semibold text-sm text-white flex items-center gap-2"><span class="badge-status"
             id="resultStatusBadge"></span></div>
       </div>
-      <div><span class="text-[0.6rem] text-slate-2 font-mono">Spam Check</span>
+      <div><span class="text-[0.6rem] text-slate-2 font-mono">{% trans "Spam Check" %}</span>
         <div class="font-semibold text-sm text-white" id="resultSpam"></div>
       </div>
-      <div><span class="text-[0.6rem] text-slate-2 font-mono">Sentiment</span>
+      <div><span class="text-[0.6rem] text-slate-2 font-mono">{% trans "Sentiment" %}</span>
         <div class="font-semibold text-sm text-white" id="resultSentiment"></div>
       </div>
     </div>
     <div class="mt-3 p-3 bg-white-5 rounded-xl text-sm text-slate border border-white-10" id="resultDraftBox">
-      <span class="font-semibold text-white">AI draft:</span> <span id="resultDraftText"></span>
+      <span class="font-semibold text-white">{% trans "AI draft" %}:</span> <span id="resultDraftText"></span>
     </div>
     <div class="flex gap-2 mt-3 flex-wrap">
-      <a href="{% url 'dashboard' %}" class="btn-outline text-xs"><i class="fa-solid fa-arrow-right"></i> View on
-        Dashboard</a>
-      <button type="button" class="btn-outline text-xs" onclick="copyResultDraft()"><i class="fa-regular fa-copy"></i>
-        Copy response</button>
+      <a href="{% url 'dashboard' %}" class="btn-outline text-xs"><i class="bi bi-arrow-right"></i> {% trans "View on Dashboard" %}</a>
+      <button type="button" class="btn-outline text-xs" onclick="copyResultDraft()"><i class="bi bi-copy"></i>
+        {% trans "Copy response" %}</button>
     </div>
   </div>
 
   <div class="glass-card" id="comparisonCard" style="display:none;">
     <div class="flex items-center justify-between flex-wrap gap-2">
       <span class="text-xs font-bold text-slate uppercase tracking-wider font-mono"><i
-          class="fa-solid fa-arrows-left-right"></i> Original vs AI Response</span>
-      <span class="text-[0.6rem] text-slate-2 font-mono">Tone: {{ profile.get_brand_tone_display|default:"Friendly" }}
-        (from AI &amp; Tone Settings)</span>
+          class="bi bi-arrows-left-right"></i> {% trans "Original vs AI Response" %}</span>
+      <span class="text-[0.6rem] text-slate-2 font-mono">{% trans "Tone" %}: {{ profile.get_brand_tone_display|default:"Friendly" }}
+        ({% trans "from AI & Tone Settings" %})</span>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
       <div class="p-3 bg-white-5 rounded-xl border border-white-10">
-        <div class="text-[0.6rem] text-slate-2 uppercase tracking-wider font-mono">Original review</div>
+        <div class="text-[0.6rem] text-slate-2 uppercase tracking-wider font-mono">{% trans "Original review" %}</div>
         <p class="text-sm text-slate mt-1" id="origReviewDemo"></p>
       </div>
       <div class="p-3 ai-response-box rounded-xl border border-gold/20 relative">
         <div class="text-[0.6rem] text-gold uppercase tracking-wider flex items-center gap-2 font-mono"><i
-            class="fa-solid fa-wand-magic-sparkles"></i> AI response</div>
+            class="bi bi-magic"></i> {% trans "AI response" %}</div>
         <p class="text-sm text-slate mt-1" id="aiResponseDemo"></p>
       </div>
     </div>
@@ -981,31 +979,31 @@
   <div class="glass-card">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <span class="text-xs font-bold text-slate uppercase tracking-wider font-mono"><i
-          class="fa-solid fa-clock-rotate-left"></i> Simulation History</span>
+          class="bi bi-clock-history"></i> {% trans "Simulation History" %}</span>
       <div class="flex gap-2 flex-wrap">
-        <input id="historySearch" placeholder="Search…"
+        <input id="historySearch" placeholder="{% trans "Search…" %}"
           class="px-3 py-1.5 border border-white-10 rounded-xl text-xs focus:ring-2 focus:ring-gold focus:outline-none bg-white-5 w-32 sm:w-40">
         <select id="historyStatusFilter"
           class="px-3 py-1.5 border border-white-10 rounded-xl text-xs focus:ring-2 focus:ring-gold focus:outline-none bg-white-5">
-          <option value="">All</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="flagged">Flagged</option>
-          <option value="generation_failed">Generation Failed</option>
+          <option value="">{% trans "All" %}</option>
+          <option value="pending">{% trans "Pending" %}</option>
+          <option value="approved">{% trans "Approved" %}</option>
+          <option value="flagged">{% trans "Flagged" %}</option>
+          <option value="generation_failed">{% trans "Generation Failed" %}</option>
         </select>
-        <a href="{% url 'export_simulated_csv' %}" class="btn-outline text-xs"><i class="fa-solid fa-file-csv"></i>
-          Export CSV</a>
+        <a href="{% url 'export_simulated_csv' %}" class="btn-outline text-xs"><i class="bi bi-filetype-csv"></i>
+          {% trans "Export CSV" %}</a>
       </div>
     </div>
     <div class="overflow-x-auto mt-3">
       <table class="history-table">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Reviewer</th>
-            <th>Rating</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>{% trans "Time" %}</th>
+            <th>{% trans "Reviewer" %}</th>
+            <th>{% trans "Rating" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Actions" %}</th>
           </tr>
         </thead>
         <tbody id="historyTableBody">
@@ -1019,7 +1017,7 @@
               <button type="button" class="text-xs text-gold" onclick="toggleRowDetail(this)" title="View"><i
                   class="fa-regular fa-eye"></i></button>
               <button type="button" class="text-xs text-slate" onclick="regenerateRow(this)" title="Regenerate"><i
-                  class="fa-solid fa-rotate"></i></button>
+                  class="bi bi-arrow-repeat"></i></button>
               <button type="button" class="text-xs text-rose-500" onclick="deleteRow(this)" title="Delete"><i
                   class="fa-regular fa-trash-can"></i></button>
             </td>
@@ -1027,21 +1025,21 @@
           <tr class="detail-row" data-detail-for="{{ r.id }}" style="display:none;">
             <td colspan="5" class="bg-white-5">
               <div class="p-3 space-y-2 text-xs">
-                <div><span class="text-slate-2 font-mono">Comment:</span> <span class="text-slate">{{ r.comment }}</span></div>
-                <div><span class="text-slate-2 font-mono">AI Draft:</span> <span class="text-slate">{{ r.ai_draft_reply|default:"—" }}</span></div>
+                <div><span class="text-slate-2 font-mono">{% trans "Comment" %}:</span> <span class="text-slate">{{ r.comment }}</span></div>
+                <div><span class="text-slate-2 font-mono">{% trans "AI Draft" %}:</span> <span class="text-slate">{{ r.ai_draft_reply|default:"—" }}</span></div>
               </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="5" class="text-center text-slate-2 py-4">No simulations yet — inject a test review above.</td>
+            <td colspan="5" class="text-center text-slate-2 py-4">{% trans "No simulations yet — inject a test review above." %}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     <div class="flex justify-between items-center mt-3 text-xs text-slate-2">
-      <span class="font-mono" id="historyCountLabel">Showing {{ sim_reviews|length }} of {{ sim_stats.total }}</span>
+      <span class="font-mono" id="historyCountLabel">{% trans "Showing" %} {{ sim_reviews|length }} {% trans "of" %} {{ sim_stats.total }}</span>
       <div class="flex gap-1">
         {% if sim_reviews.has_previous %}
         <a href="?page={{ sim_reviews.previous_page_number }}"
@@ -1090,7 +1088,7 @@
 
     function setStars(val) {
       stars.forEach((el, i) => {
-        el.className = i < val ? 'fa-solid fa-star active' : 'fa-regular fa-star';
+        el.className = i < val ? 'bi bi-star-fill active' : 'bi bi-star';
       });
       ratingInput.value = val;
       selected = val;
@@ -1126,8 +1124,8 @@
       star.addEventListener('mouseenter', function () {
         const v = parseInt(this.dataset.val);
         stars.forEach((el, i) => {
-          if (i < v) el.className = 'fa-solid fa-star hover';
-          else el.className = 'fa-regular fa-star';
+          if (i < v) el.className = 'bi bi-star-fill hover';
+          else el.className = 'bi bi-star';
         });
       });
       star.addEventListener('mouseleave', function () {
@@ -1165,7 +1163,7 @@
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
       toast.className = 'toast ' + type;
-      toast.innerHTML = `<i class="${type === 'success' ? 'fa-regular fa-circle-check' : type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-info'}"></i> ${msg}`;
+      toast.innerHTML = `<i class="${type === 'success' ? 'fa-regular fa-circle-check' : type === 'error' ? 'bi bi-x-circle-fill' : 'bi bi-info-circle-fill'}"></i> ${msg}`;
       container.appendChild(toast);
       setTimeout(() => { toast.remove(); }, 3000);
     }

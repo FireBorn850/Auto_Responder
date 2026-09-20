@@ -423,6 +423,8 @@ def analyze_complaints(comments_list):
     You are an expert customer experience analyst.
     Analyze the following list of negative customer review comments (1-3 stars) and cluster recurring complaints into clear categories.
 
+    IMPORTANT — before clustering, judge whether each comment is a genuine complaint or clearly sarcastic, exaggerated, absurd, or joking in tone (e.g. impossible claims, over-the-top phrasing, obvious hyperbole). Real customer complaints are specific and plausible for the business type. Exclude comments that are jokes, trolling, or absurd exaggeration from "top_issues" entirely — do not cluster them as a genuine category, and do not let a single joking comment drive a "High" severity rating on its own. If ALL negative comments turn out to be jokes/spam with no genuine complaints, return an empty top_issues list and say so plainly in the summary.
+
     Review Comments:
     {formatted_comments}
 

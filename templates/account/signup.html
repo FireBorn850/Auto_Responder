@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load i18n %}
 {% load socialaccount %}
 
 {% block head_title %}Sign Up | SwissReply.AI{% endblock %}
@@ -182,6 +183,7 @@
         .auth-card {
             padding: 1.75rem 1.25rem;
         }
+
         .auth-logo h1 {
             font-size: 1.25rem;
         }
@@ -208,16 +210,27 @@
             </div>
             {% endif %}
 
+            {% if form.errors %}
+            <div
+                style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 1rem; font-size: 0.8rem;">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <!-- Email -->
             <div class="mb-3">
                 <label class="field-label">Email Address</label>
-                <input type="email" name="email" placeholder="name@business.ch" class="field-input" required>
+                <input type="email" name="email" placeholder="example@gmail.com" class="field-input" required>
             </div>
 
             <!-- Username -->
             <div class="mb-3">
                 <label class="field-label">Username</label>
-                <input type="text" name="username" placeholder="yourusername" class="field-input" required>
+                <input type="text" name="username" placeholder="your username" class="field-input" required>
             </div>
 
             <!-- Password -->
@@ -243,11 +256,11 @@
 
         {% get_providers as socialaccount_providers %}
         {% for provider in socialaccount_providers %}
-            {% if provider.id == 'google' %}
-            <a href="{% provider_login_url provider.id process='login' %}" class="btn-social">
-                <i class="fa-brands fa-google"></i> Google Account
-            </a>
-            {% endif %}
+        {% if provider.id == 'google' %}
+        <a href="{% provider_login_url provider.id process='login' %}" class="btn-social">
+            <i class="fa-brands fa-google"></i> Google Account
+        </a>
+        {% endif %}
         {% endfor %}
 
         <!-- Sign In Link -->

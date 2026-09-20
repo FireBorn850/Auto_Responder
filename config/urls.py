@@ -18,9 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),  # Handles Google OAuth login & callback routes
+
+    # Django's built-in language-switcher endpoint (POST here to change
+    # the active language, stored in session + cookie). Deliberately NOT
+    # wrapped in i18n_patterns() / URL-prefixed — this app has public
+    # URLs (QR code redirects scanned from print, webhook endpoints
+    # called by external systems) that must never change shape based on
+    # language, so language selection is cookie/session-based instead.
+    path('i18n/', include('django.conf.urls.i18n')),
+
     path('', include('reviews.urls')),          # Main dashboard & reviews views
 ]
 if settings.DEBUG:

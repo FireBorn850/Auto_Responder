@@ -1,5 +1,6 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="{{ LANGUAGE_CODE }}" class="h-full">
 
 <head>
     <script>
@@ -17,6 +18,8 @@
 
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -251,6 +254,15 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
+        .lang-switcher-btn,
+        #langSwitcherForm,
+        .icon-btn[title="Language"] {
+            display: inline-flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
         .rb-header {
             --ink: #0B1220;
             --ink-2: #111A2C;
@@ -306,14 +318,15 @@
             padding: 0.5rem;
             z-index: 50;
             opacity: 0;
-            transform: translateY(-6px) scale(0.98);
+            transform: translateY(-6px) scale(0.98) translateZ(0);
             pointer-events: none;
             transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
         }
 
         .rb-dropdown-menu.open {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0) scale(1) translateZ(0);
             pointer-events: auto;
         }
 
@@ -517,13 +530,34 @@
                             class="text-gold">Reply</span><span class="text-white">.AI</span></span>
                     <div class="flex items-center gap-1 mt-0.5">
                         <span class="live-dot"></span>
-                        <span
-                            class="text-[9px] font-bold text-emerald-500 uppercase tracking-wider font-mono">Live</span>
+                        <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-wider font-mono">{% trans "Live" %}</span>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
+
+                {% load i18n %}
+                <div class="rb-dropdown" id="langSwitcherForm">
+                    <button type="button" class="icon-btn" onclick="toggleDropdown('langMenu')" title="Language">
+                        <span style="font-size: 11px; font-weight: 800; font-family: var(--font-mono);">{{ LANGUAGE_CODE|upper }}</span>
+                    </button>
+                    <div id="langMenu" class="rb-dropdown-menu" style="min-width: 160px;">
+                        {% get_current_language as CURRENT_LANGUAGE %}
+                        {% get_available_languages as AVAILABLE_LANGUAGES %}
+                        {% for lang_code, lang_name in AVAILABLE_LANGUAGES %}
+                        <form action="{% url 'set_language' %}" method="POST" style="display: contents;"
+                            class="lang-switch-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" name="language" value="{{ lang_code }}" class="rb-dropdown-item"
+                                style="width:100%; {% if lang_code == CURRENT_LANGUAGE %}color: var(--gold);{% endif %}">
+                                {% if lang_code == CURRENT_LANGUAGE %}✓{% else %}&nbsp;&nbsp;{% endif %} {{ lang_name }}
+                            </button>
+                        </form>
+                        {% endfor %}
+                    </div>
+                </div>
                 {% if user.is_authenticated %}
                 <button type="button" class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
                     <svg id="themeIconMoon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -543,7 +577,7 @@
                         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                     </svg>
                 </button>
-                <span class="text-xs text-slate-2 hidden md:inline font-mono">Workspace</span>
+                <span class="text-xs text-slate-2 hidden md:inline font-mono">{% trans "Workspace" %}</span>
                 <div class="rb-dropdown">
                     <button type="button" onclick="toggleDropdown('profileMenu')"
                         class="avatar-gradient w-8 h-8 rounded-lg text-xs cursor-pointer flex items-center justify-center">
@@ -554,15 +588,16 @@
                             <div class="text-xs font-bold text-white truncate">{{ user.username }}</div>
                             <div class="text-[10px] text-slate-2 font-mono">{{ user.email }}</div>
                         </div>
-                        <a href="{% url 'dashboard' %}" class="rb-dropdown-item">Dashboard</a>
-                        <a href="{% url 'account_settings' %}" class="rb-dropdown-item">Account settings</a>
-                        <a href="{% url 'account_logout' %}" class="rb-dropdown-item text-rose-500">Sign out</a>
+                        <a href="{% url 'dashboard' %}" class="rb-dropdown-item">{% trans "Dashboard" %}</a>
+                        <a href="{% url 'account_settings' %}" class="rb-dropdown-item">{% trans "Account settings" %}</a>
+                        <a href="{% url 'account_logout' %}" class="rb-dropdown-item text-rose-500">{% trans "Sign out"  %}</a>
                     </div>
                 </div>
                 {% else %}
                 <a href="{% url 'account_login' %}"
-                    class="text-xs font-semibold text-slate hover:text-white transition px-3 py-2">Sign In</a>
-                <a href="{% url 'account_signup' %}" class="btn-primary text-xs">Start Free Trial</a>
+                    class="text-xs font-semibold text-slate hover:text-white transition px-3 py-2">{% trans "Sign In"
+                    %}</a>
+                <a href="{% url 'account_signup' %}" class="btn-primary text-xs">{% trans "Start Free Trial" %}</a>
                 {% endif %}
             </div>
         </div>
@@ -571,9 +606,9 @@
     <!-- ===== MAIN LAYOUT ===== -->
     <div class="flex max-w-7xl mx-auto px-4 sm:px-6 gap-6 relative z-10">
 
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and request.resolver_match.url_name != 'account_logout' %}
         <nav class="nav-sidebar hidden md:block w-56 flex-shrink-0">
-            <div class="nav-label">Main</div>
+            <div class="nav-label">{% trans "Main" %}</div>
 
             <a href="{% url 'dashboard' %}" class="nav-link-item {% if active_tab == 'dashboard' %}active{% endif %}">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -582,7 +617,7 @@
                     <rect x="14" y="14" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
                 </svg>
-                Dashboard &amp; Reviews
+                {% trans "Dashboard & Reviews" %}
             </a>
 
             <a href="{% url 'ai_settings' %}"
@@ -593,7 +628,7 @@
                     <circle cx="9" cy="15" r="1" />
                     <circle cx="15" cy="15" r="1" />
                 </svg>
-                AI &amp; Tone Settings
+                {% trans "AI & Tone Settings" %}
             </a>
 
             <a href="{% url 'qr_booster' %}" class="nav-link-item {% if active_tab == 'qr_booster' %}active{% endif %}">
@@ -603,7 +638,7 @@
                     <rect x="14" y="14" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
                 </svg>
-                QR Code Booster
+                {% trans "QR Code Booster" %}
             </a>
 
             <a href="{% url 'competitors' %}"
@@ -614,7 +649,7 @@
                     <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
-                Team &amp; Access
+                {% trans "Team & Access" %}
             </a>
 
             <a href="{% url 'integrations' %}"
@@ -626,7 +661,7 @@
                     <line x1="2" y1="8" x2="22" y2="8" />
                     <line x1="2" y1="16" x2="22" y2="16" />
                 </svg>
-                Integrations
+                {% trans "Integrations" %}
             </a>
 
             <a href="{% url 'review_simulator' %}"
@@ -634,7 +669,7 @@
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-                Review Simulator
+                {% trans "Review Simulator" %}
             </a>
         </nav>
 
@@ -645,15 +680,16 @@
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
-            Menu
+            {% trans "Menu" %}
         </button>
 
         <nav id="mobileSidebar" class="nav-sidebar md:hidden">
             <div class="flex items-center justify-between mb-3 pb-3 border-b border-white-5">
-                <span class="text-xs font-bold text-slate-2 uppercase tracking-wider font-mono">Menu</span>
+                <span class="text-xs font-bold text-slate-2 uppercase tracking-wider font-mono">{% trans "Menu"
+                    %}</span>
                 <button onclick="toggleMobileNav()" class="text-slate-2 hover:text-white transition">✕</button>
             </div>
-            <div class="nav-label">Main</div>
+            <div class="nav-label">{% trans "Main" %}</div>
 
             <a href="{% url 'dashboard' %}" class="nav-link-item {% if active_tab == 'dashboard' %}active{% endif %}">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -662,7 +698,7 @@
                     <rect x="14" y="14" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
                 </svg>
-                Dashboard &amp; Reviews
+                {% trans "Dashboard & Reviews" %}
             </a>
 
             <a href="{% url 'ai_settings' %}"
@@ -673,7 +709,7 @@
                     <circle cx="9" cy="15" r="1" />
                     <circle cx="15" cy="15" r="1" />
                 </svg>
-                AI &amp; Tone Settings
+                {% trans "AI & Tone Settings" %}
             </a>
 
             <a href="{% url 'qr_booster' %}" class="nav-link-item {% if active_tab == 'qr_booster' %}active{% endif %}">
@@ -683,7 +719,7 @@
                     <rect x="14" y="14" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
                 </svg>
-                QR Code Booster
+                {% trans "QR Code Booster" %}
             </a>
 
             <a href="{% url 'competitors' %}"
@@ -694,7 +730,7 @@
                     <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
-                Team &amp; Access
+                {% trans "Team & Access" %}
             </a>
 
             <a href="{% url 'integrations' %}"
@@ -706,7 +742,7 @@
                     <line x1="2" y1="8" x2="22" y2="8" />
                     <line x1="2" y1="16" x2="22" y2="16" />
                 </svg>
-                Integrations
+                {% trans "Integrations" %}
             </a>
 
             <a href="{% url 'review_simulator' %}"
@@ -714,7 +750,7 @@
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-                Review Simulator
+                {% trans "Review Simulator" %}
             </a>
         </nav>
         {% endif %}
@@ -727,20 +763,20 @@
     <footer class="relative z-10 border-t border-white/5 py-6 mt-8">
         <div
             class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-2">
-            <span class="font-display font-semibold">Swiss<span class="text-gold">Reply</span><span
-                    class="text-white">.AI</span></span>
+            <span class="font-display font-semibold">Swiss<span class="text-gold">Reply</span><span class="text-white">.AI</span></span>
             <div class="flex items-center gap-4">
                 <span>© 2026</span>
                 <span>·</span>
                 <span class="flex items-center gap-1.5">
                     <span class="live-dot"></span>
-                    <span class="font-mono text-[9px]">operational</span>
+                    <span class="font-mono text-[9px]">{% trans "operational" %}</span>
                 </span>
             </div>
             <div class="flex items-center gap-4">
-                <a href="{% url 'privacy_policy' %}" class="hover:text-white transition">Privacy</a>
-                <a href="{% url 'terms_of_service' %}" class="hover:text-white transition">Terms</a>
-                <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request" class="hover:text-slate-300 transition" title="Get help">Support</a>
+                <a href="{% url 'privacy_policy' %}" class="hover:text-white transition">{% trans "Privacy" %}</a>
+                <a href="{% url 'terms_of_service' %}" class="hover:text-white transition">{% trans "Terms" %}</a>
+                <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request"
+                    class="hover:text-slate-300 transition" title="Get help">{% trans "Support" %}</a>
             </div>
         </div>
     </footer>
@@ -764,12 +800,13 @@
             }
         }
 
-        function toggleQrDropdown(id) {
+        function toggleDropdown(id) {
             const menu = document.getElementById(id);
             const wasOpen = menu.classList.contains('open');
             document.querySelectorAll('.rb-dropdown-menu.open').forEach(m => m.classList.remove('open'));
             if (!wasOpen) menu.classList.add('open');
         }
+        function toggleQrDropdown(id) { toggleDropdown(id); }
 
         document.addEventListener('click', function (e) {
             if (!e.target.closest('.rb-dropdown')) {

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block page_title %}QR Code Booster{% endblock %}
 {% block head_title %}QR Code Booster | SwissReply.AI{% endblock %}
@@ -748,32 +749,28 @@
                 <div class="qr-hero-icon"><i class="bi bi-qr-code-scan"></i></div>
                 <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
-                        <h1 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-white">QR Code
-                            Booster</h1>
+                        <h1 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-white">{% trans "QR Code Booster" %}</h1>
                         <span
-                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/5 border border-white-10 font-mono text-gold">Production
-                            Ready</span>
+                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/5 border border-white-10 font-mono text-gold">{% trans "Production Ready" %}</span>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate max-w-lg">Print these on table tents, receipts, or stickers
-                        — a customer scans, and lands straight on your Google review box instead of never bothering to
-                        leave one.</p>
+                        <p class="text-xs sm:text-sm text-slate max-w-lg">{% trans "Print these on table tents, receipts, or stickers — a customer scans, and lands straight on your Google review box instead of never bothering to leave one." %}</p>
                 </div>
             </div>
 
             <div class="rb-dropdown">
                 <button type="button" onclick="toggleQrMenu('quickActionsMenu')" class="btn-line">
-                    <i class="bi bi-lightning-charge-fill"></i> Quick Actions <i
+                    <i class="bi bi-lightning-charge-fill"></i> {% trans "Quick Actions" %} <i
                         class="bi bi-chevron-down text-[9px]"></i>
                 </button>
                 <div id="quickActionsMenu" class="rb-dropdown-menu">
                     <a href="#generatorForm" class="rb-dropdown-item"><i class="bi bi-plus-circle text-gold"></i>
-                        Generate QR code</a>
+                        {% trans "Generate QR code" %}</a>
                     <button type="button" onclick="exportAnalyticsCSV()" class="rb-dropdown-item"><i
-                            class="bi bi-download text-slate"></i> Export analytics (CSV)</button>
+                            class="bi bi-download text-slate"></i> {% trans "Export analytics (CSV)" %}</button>
                     {% if qr_codes %}
                     <a href="{% url 'qr_print_template' qr_codes.first.slug %}?template=tent"
                         class="rb-dropdown-item"><i class="bi bi-printer text-slate"></i>
-                        Print latest ({{ qr_codes.first.title|truncatechars:20 }})</a>
+                        {% trans "Print latest" %} ({{ qr_codes.first.title|truncatechars:20 }})</a>
                     {% endif %}
                 </div>
             </div>
@@ -782,15 +779,15 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
             <div class="hero-stat">
                 <div class="val" id="statTotalCodes">0</div>
-                <div class="lbl">QR Codes Generated</div>
+                <div class="lbl">{% trans "QR Codes Generated" %}</div>
             </div>
             <div class="hero-stat">
                 <div class="val" id="statTotalScans">0</div>
-                <div class="lbl">Total Scans Tracked</div>
+                <div class="lbl">{% trans "Total Scans Tracked" %}</div>
             </div>
             <div class="hero-stat">
                 <div class="val" id="statAvgScans">0</div>
-                <div class="lbl">Avg Scans / Code</div>
+                <div class="lbl">{% trans "Avg Scans / Code" %}</div>
             </div>
         </div>
     </div>
@@ -799,11 +796,8 @@
     <div class="bg-ink-2 border border-white-10 rounded-2xl p-4 flex items-start gap-3">
         <i class="bi bi-info-circle-fill text-gold mt-0.5"></i>
         <div class="text-xs text-slate leading-relaxed">
-            <span class="font-semibold text-white">How it works:</span> generate a QR code below, print it, and place it
-            somewhere customers see it after a good experience.
-            Add a <span class="font-semibold text-gold">Private Feedback URL</span> too, and scanning first asks "How
-            was your visit?" — 4-5★ sends them to Google,
-            1-3★ routes privately to you instead, so upset customers reach you before they reach the public.
+            <span class="font-semibold text-white">{% trans "How it works:" %}</span> {% trans "generate a QR code below, print it, and place it somewhere customers see it after a good experience." %}
+            Add a <span class="font-semibold text-gold">{% trans "Private Feedback URL" %}</span> {% trans "too, and scanning first asks 'How was your visit?' — 4-5★ sends them to Google, 1-3★ routes privately to you instead, so upset customers reach you before they reach the public." %}
         </div>
     </div>
 
@@ -814,8 +808,8 @@
             <div class="w-9 h-9 rounded-xl bg-teal-10 text-teal flex items-center justify-center flex-shrink-0"
                 style="background: rgba(45,212,167,0.08);"><i class="bi bi-shield-check"></i></div>
             <div>
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Business Logo</h2>
-                <p class="text-xs text-slate mt-0.5">Embedded in the center of every QR code you generate.</p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Business Logo" %}</h2>
+                <p class="text-xs text-slate mt-0.5">{% trans "Embedded in the center of every QR code you generate." %}</p>
             </div>
         </div>
         <form action="{% url 'update_settings' %}" method="POST" enctype="multipart/form-data"
@@ -828,10 +822,9 @@
             {% endif %}
             <input type="file" name="logo" accept="image/png,image/jpeg" class="flex-1"
                 style="color: var(--slate); font-size: 0.8rem;">
-            <button type="submit" class="btn-dark whitespace-nowrap">Upload Logo</button>
+            <button type="submit" class="btn-dark whitespace-nowrap">{% trans "Upload Logo" %}</button>
         </form>
-        <p class="text-[11px] text-slate-2 mt-2">PNG or JPG, square images work best. Existing QR codes update
-            automatically.</p>
+        <p class="text-[11px] text-slate-2 mt-2">{% trans "PNG or JPG, square images work best. Existing QR codes update automatically." %}</p>
     </div>
 
 
@@ -842,48 +835,47 @@
             <div class="w-9 h-9 rounded-xl bg-teal-10 text-teal flex items-center justify-center flex-shrink-0"
                 style="background: rgba(45,212,167,0.08);"><i class="bi bi-graph-up"></i></div>
             <div>
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Scan Analytics</h2>
-                <p class="text-xs text-slate mt-0.5">Trends across all your QR campaigns, last 14 days.</p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Scan Analytics" %}</h2>
+                <p class="text-xs text-slate mt-0.5">{% trans "Trends across all your QR campaigns, last 14 days." %}</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div>
-                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Daily Scans</p>
+                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">{% trans "Daily Scans" %}</p>
                 <canvas id="dailyTrendChart" height="140"></canvas>
             </div>
             <div>
-                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Device Type</p>
+                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">{% trans "Device Type" %}</p>
                 <canvas id="deviceChart" height="140"></canvas>
             </div>
         </div>
 
         <div>
-            <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Time of Day</p>
+            <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">{% trans "Time of Day" %}</p>
             <div class="flex items-end gap-[3px] h-16" id="hourlyHeatmap"></div>
             <div class="flex justify-between text-[9px] text-slate-2 font-mono mt-1">
-                <span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span>
+                <span>{% trans "12am" %}</span><span>{% trans "6am" %}</span><span>{% trans "12pm" %}</span><span>{% trans "6pm" %}</span><span>{% trans "11pm" %}</span>
             </div>
             {% if funnel.scanned > 0 %}
             <div class="border-t border-white-5 mt-6 pt-6">
                 <div class="flex items-center justify-between mb-4 flex-wrap gap-1">
                     <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono">
-                        Conversion Funnel <span class="text-slate-2 font-normal normal-case">— Smart Rating Gate
-                            codes</span>
+                        {% trans "Conversion Funnel" %} <span class="text-slate-2 font-normal normal-case">— {% trans "Smart Rating Gate codes" %}</span>
                     </p>
                     {% if funnel.non_gated_scans %}
-                    <span class="text-[10px] text-slate-2 font-mono">+{{ funnel.non_gated_scans }} scan{{ funnel.non_gated_scans|pluralize }} on non-gated codes went straight to Google</span>
+                    <span class="text-[10px] text-slate-2 font-mono">+{{ funnel.non_gated_scans }} {% trans "scan" %}{{ funnel.non_gated_scans|pluralize }} {% trans "on non-gated codes went straight to Google" %}</span>
                     {% endif %}
                 </div>
 
                 <div class="funnel-stage">
-                    <div class="funnel-label"><span class="funnel-num">{{ funnel.scanned }}</span> Scanned</div>
+                    <div class="funnel-label"><span class="funnel-num">{{ funnel.scanned }}</span> {% trans "Scanned" %}</div>
                     <div class="funnel-bar-track">
                         <div class="funnel-bar" style="width:100%; background: var(--gold);"></div>
                     </div>
                 </div>
                 <div class="funnel-stage">
-                    <div class="funnel-label"><span class="funnel-num">{{ funnel.rated }}</span> Rated <span
+                    <div class="funnel-label"><span class="funnel-num">{{ funnel.rated }}</span> {% trans "Rated" %} <span
                             class="text-slate-2 font-normal">({{ funnel.rated_pct }}%)</span></div>
                     <div class="funnel-bar-track">
                         <div class="funnel-bar" style="width:{{ funnel.rated_pct }}%; background: var(--gold-soft);">
@@ -896,14 +888,14 @@
                         <i class="bi bi-google"></i>
                         <div>
                             <div class="funnel-outcome-num">{{ funnel.to_google }}</div>
-                            <div class="funnel-outcome-lbl">Sent to Google (4-5★)</div>
+                            <div class="funnel-outcome-lbl">{% trans "Sent to Google (4-5★)" %}</div>
                         </div>
                     </div>
                     <div class="funnel-outcome funnel-outcome-shield">
                         <i class="bi bi-shield-check"></i>
                         <div>
                             <div class="funnel-outcome-num">{{ funnel.to_private }}</div>
-                            <div class="funnel-outcome-lbl">Caught privately (1-3★)</div>
+                            <div class="funnel-outcome-lbl">{% trans "Caught privately (1-3★)" %}</div>
                         </div>
                     </div>
                 </div>
@@ -919,72 +911,64 @@
         <!-- ===== Generator Form ===== -->
         <div id="generatorForm" class="lg:col-span-5 settings-card space-y-6">
             <div>
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Create New QR Code</h2>
-                <p class="text-xs text-slate mt-1">Configure a target landing page and custom URL slug for your print
-                    campaigns.</p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Create New QR Code" %}</h2>
+                <p class="text-xs text-slate mt-1">{% trans "Configure a target landing page and custom URL slug for your print campaigns." %}</p>
             </div>
 
             <form action="{% url 'create_qr' %}" method="POST" class="space-y-5">
                 {% csrf_token %}
 
                 <div>
-                    <div class="step-label"><span class="step-num">1</span> Campaign Details</div>
-                    <label>Campaign Label</label>
+                    <div class="step-label"><span class="step-num">1</span> {% trans "Campaign Details" %}</div>
+                    <label>{% trans "Campaign Label" %}</label>
                     <input type="text" name="name" required placeholder="e.g. Table Tents - Main Dining" id="fieldName"
                         class="w-full">
-                    <p class="text-[11px] text-slate-2 mt-1">Internal name to identify scan sources.</p>
+                    <p class="text-[11px] text-slate-2 mt-1">{% trans "Internal name to identify scan sources." %}</p>
                 </div>
 
                 <div>
-                    <label>Target Google Review URL</label>
+                    <label>{% trans "Target Google Review URL" %}</label>
                     <input type="url" name="target_url" required value="{{ profile.google_review_url|default:'' }}"
                         placeholder="https://g.page/r/your-google-review-link" class="w-full">
                     {% if profile.google_review_url %}
                     <p class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1"><i class="bi bi-check-lg"></i>
-                        Auto-filled from {{ profile.business_name }}'s synced Google listing — edit if needed.</p>
+                        {% trans "Auto-filled from" %} {{ profile.business_name }}'s {% trans "synced Google listing — edit if needed." %}</p>
                     {% else %}
-                    <p class="text-[11px] text-slate-2 mt-1">Sync this business on the Dashboard first to auto-fill
-                        this, or paste your review link directly.</p>
+                    <p class="text-[11px] text-slate-2 mt-1">{% trans "Sync this business on the Dashboard first to auto-fill this, or paste your review link directly." %}</p>
                     {% endif %}
                     <details class="help-details mt-1.5">
-                        <summary>Where do I find this?</summary>
-                        <p>Search your business on Google, click "Write a review" on your own listing, then copy the URL
-                            from your browser's address bar. It usually starts with <span
-                                class="font-mono">g.page/r/</span>
-                            or <span class="font-mono">search.google.com/local/writereview</span>.</p>
+    <summary>{% trans "Where do I find this?" %}</summary>
+    <p>{% trans "Search your business on Google, click \"Write a review\" on your own listing, then copy the URL from your browser's address bar. It usually starts with" %} <span class="font-mono">g.page/r/</span> {% trans "or" %} <span class="font-mono">search.google.com/local/writereview</span>.</p>
                     </details>
                 </div>
 
                 <div class="pt-1">
                     <div class="step-label">
-                        <span class="step-num">2</span> Smart Rating Gate
+                        <span class="step-num">2</span> {% trans "Smart Rating Gate" %}
                         <span
                             class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-white/5 border border-white-10 text-slate-2 font-normal normal-case"
-                            style="font-size: 9px; letter-spacing: 0;">optional</span>
+                            style="font-size: 9px; letter-spacing: 0;">{% trans "optional" %}</span>
                     </div>
-                    <label>Private Feedback URL</label>
+                    <label>{% trans "Private Feedback URL" %}</label>
                     <input type="url" name="private_feedback_url"
                         placeholder="https://forms.gle/your-private-feedback-form" class="w-full">
-                    <p class="text-[11px] text-slate-2 mt-1">If set, customers see a quick "How was your visit?" star
-                        picker first — 1-3★ comes here instead of Google.</p>
+                    <p class="text-[11px] text-slate-2 mt-1">{% trans "If set, customers see a quick \"How was your visit?\" star picker first — 1-3★ comes here instead of Google." %}</p>
                     <details class="help-details mt-1.5">
-                        <summary>Don't have one yet?</summary>
-                        <p>Create a free 2-question form at <a href="https://forms.google.com" target="_blank"
-                                rel="noopener noreferrer">forms.google.com</a> — ask "What went wrong?" and "How can we
-                            make it right?" — then paste the shareable link here. Or just leave this blank; the gate
-                            simply won't be used.</p>
+                        <summary>{% trans "Don't have one yet?" %}</summary>
+                        <p>{% trans "Create a free 2-question form at " %}<a href="https://forms.google.com" target="_blank"
+                                rel="noopener noreferrer">{% trans "forms.google.com" %}</a>{% trans " — ask \"What went wrong?\" and \"How can we make it right?\" — then paste the shareable link here. Or just leave this blank; the gate simply won't be used." %}</p>
                     </details>
                 </div>
 
                 <div>
-                    <label>Custom URL Slug <span class="text-slate-2 font-normal">(optional)</span></label>
+                    <label>{% trans "Custom URL Slug" %} <span class="text-slate-2 font-normal">({% trans "optional" %})</span></label>
                     <div class="flex items-center">
                         <span
                             class="px-3 py-2.5 bg-ink border border-r-0 border-white-10 rounded-l-xl text-xs text-slate-2 font-mono">/qr/</span>
                         <input type="text" name="slug" id="fieldSlug" placeholder="main-table-1"
                             class="w-full rounded-r-xl">
                     </div>
-                    <p class="text-[11px] text-slate-2 mt-1">Leave blank for auto-generated short ID.</p>
+                    <p class="text-[11px] text-slate-2 mt-1">{% trans "Leave blank for auto-generated short ID." %}</p>
                 </div>
 
                 <!-- Live preview -->
@@ -996,7 +980,7 @@
                 </div>
 
                 <div>
-                    <label>QR Color</label>
+                    <label>{% trans "QR Color" %}</label>
                     <div class="flex items-center gap-2">
                         <span class="swatch active" data-color="000000" style="background:#000000"
                             onclick="setPreviewColor(this)" title="Black"></span>
@@ -1010,37 +994,37 @@
                 </div>
 
                 <div class="pt-1">
-                    <div class="step-label"><span class="step-num">3</span> Team & Scheduling
+                    <div class="step-label"><span class="step-num">3</span> {% trans "Team & Scheduling" %}
                         <span
                             class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-white/5 border border-white-10 text-slate-2 font-normal normal-case"
-                            style="font-size: 9px; letter-spacing: 0;">optional</span>
+                            style="font-size: 9px; letter-spacing: 0;">{% trans "optional" %}</span>
                     </div>
-                    <label>Assign to teammate</label>
+                    <label>{% trans "Assign to teammate" %}</label>
                     <select name="assigned_to" class="w-full mini-select"
                         style="padding:0.65rem 0.8rem; font-size:0.8rem;">
                         <option value="">Unassigned</option>
                         {% for member in team_members %}
-                        <option value="{{ member.id }}">{{ member.username }}{% if member == request.user %} (you){% endif %}</option>
+                        <option value="{{ member.id }}">{{ member.username }}{% if member == request.user %} ({% trans "you" %}){% endif %}</option>
                         {% endfor %}
                     </select>
 
                     <div class="flex items-center gap-2 mt-3">
                         <input type="checkbox" name="active_hours_enabled" id="activeHoursToggle" style="width:auto;">
-                        <label for="activeHoursToggle" style="margin:0;">Only active during set hours</label>
+                        <label for="activeHoursToggle" style="margin:0;">{% trans "Only active during set hours" %}</label>
                     </div>
                     <div class="grid grid-cols-2 gap-2 mt-2">
                         <input type="time" name="active_hours_start" class="w-full">
                         <input type="time" name="active_hours_end" class="w-full">
                     </div>
 
-                    <label class="block mt-3">Expires on <span
-                            class="text-slate-2 font-normal">(optional)</span></label>
+                    <label class="block mt-3">{% trans "Expires on" %} <span
+                            class="text-slate-2 font-normal">({% trans "optional" %})</span></label>
                     <input type="date" name="expires_at" class="w-full">
                 </div>
 
                 <div class="pt-2">
                     <button type="submit" class="btn-primary-grad">
-                        <i class="bi bi-qr-code-scan"></i> Generate Trackable QR Code
+                        <i class="bi bi-qr-code-scan"></i> {% trans "Generate Trackable QR Code" %}
                     </button>
                 </div>
             </form>
@@ -1049,25 +1033,25 @@
         <!-- ===== Active QR Codes & Analytics ===== -->
         <div class="lg:col-span-7 space-y-4">
             <div class="bulk-bar" id="bulkBar">
-                <span class="text-xs font-semibold"><span id="bulkCount">0</span> selected</span>
+                <span class="text-xs font-semibold"><span id="bulkCount">0</span> {% trans "selected" %}</span>
                 <div class="flex items-center gap-2">
                     <button type="button" onclick="clearBulkSelection()"
-                        class="text-xs font-semibold text-slate hover:text-white">Cancel</button>
+                        class="text-xs font-semibold text-slate hover:text-white">{% trans "Cancel" %}</button>
                     <button type="button" onclick="bulkDeleteSelected()"
                         class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition"><i
-                            class="bi bi-trash3"></i> Delete selected</button>
+                            class="bi bi-trash3"></i> {% trans "Delete selected" %}</button>
                 </div>
             </div>
 
             <div class="flex justify-between items-center border-b border-white-5 pb-3">
-                <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">Active Campaign QR Codes
+                <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">{% trans "Active Campaign QR Codes" %}
                 </h2>
                 <span class="text-xs text-slate-2 font-mono">{{ qr_codes|length }} campaign{{ qr_codes|length|pluralize }}</span>
             </div>
 
             {% if qr_codes %}
             <div class="settings-card" style="padding: 1.25rem 1.5rem;">
-                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">Scans by Campaign
+                <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono mb-2">{% trans "Scans by Campaign" %}
                 </p>
                 <canvas id="scansChart" height="90"></canvas>
             </div>
@@ -1091,20 +1075,19 @@
                                 <p class="text-xs text-slate truncate max-w-md mt-0.5">{{ qr.google_review_url }}</p>
                                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                                     {% if qr.private_feedback_url %}
-                                    <span class="gate-badge"><i class="bi bi-shield-check"></i> Smart Rating Gate
-                                        active</span>
+                                        <span class="gate-badge"><i class="bi bi-shield-check"></i> {% trans "Smart Rating Gate active" %}</span>
                                     {% endif %}
                                     {% if qr.private_feedback_url and qr.funnel_scanned %}
                                     <span class="text-[10px] text-slate-2 font-mono">{{ qr.funnel_rated_pct }}% rated · {{ qr.funnel_to_google }} → Google</span>
                                     {% endif %}
                                     {% if qr.created_at %}
-                                    <span class="text-[10px] text-slate-2 font-mono">Created {{ qr.created_at|timesince }} ago</span>
+                                    <span class="text-[10px] text-slate-2 font-mono">{% trans "Created" %} {{ qr.created_at|timesince }} {% trans "ago" %}</span>
                                     {% endif %}
                                     {% if qr.assigned_to %}
-                                    <span class="text-[10px] text-slate-2 font-mono">· Assigned: {{ qr.assigned_to.username }}</span>
+                                    <span class="text-[10px] text-slate-2 font-mono">· {% trans "Assigned" %}: {{ qr.assigned_to.username }}</span>
                                     {% endif %}
                                     {% if qr.expires_at %}
-                                    <span class="text-[10px] text-slate-2 font-mono">· Expires {{ qr.expires_at|date:"M, d, Y" }}</span>
+                                    <span class="text-[10px] text-slate-2 font-mono">· {% trans "Expires" %} {{ qr.expires_at|date:"M, d, Y" }}</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -1113,8 +1096,8 @@
                         <div
                             class="text-left sm:text-right bg-ink/50 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-white-10 relative">
                             {% if qr.total_scans > 0 %}<span class="hot-badge qr-hot-slot" style="display:none;"><i
-                                    class="bi bi-fire"></i> Hot</span>{% endif %}
-                            <span class="text-[10px] font-bold text-slate uppercase font-mono block">Total Scans</span>
+                                    class="bi bi-fire"></i> {% trans "Hot" %}</span>{% endif %}
+                            <span class="text-[10px] font-bold text-slate uppercase font-mono block">{% trans "Total Scans" %}</span>
                             <span class="text-2xl font-display font-semibold text-white">{{ qr.total_scans|default:"0" }}</span>
                         </div>
                     </div>
@@ -1166,9 +1149,8 @@
                     class="w-14 h-14 mx-auto bg-gold-10 rounded-full flex items-center justify-center text-gold text-2xl">
                     <i class="bi bi-qr-code"></i>
                 </div>
-                <p class="text-sm font-semibold text-white">No active QR codes generated yet.</p>
-                <p class="text-xs text-slate max-w-sm mx-auto">Fill out the campaign form to create your first print
-                    media review link.</p>
+                <p class="text-sm font-semibold text-white">{% trans "No active QR codes generated yet." %}</p>
+                <p class="text-xs text-slate max-w-sm mx-auto">{% trans "Fill out the campaign form to create your first print media review link." %}</p>
             </div>
             {% endfor %}
         </div>
@@ -1180,13 +1162,13 @@
             <div class="w-9 h-9 rounded-xl bg-white/5 text-slate flex items-center justify-center flex-shrink-0"><i
                     class="bi bi-signpost-split-fill"></i></div>
             <div>
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Roadmap</h2>
-                <p class="text-xs text-slate mt-0.5">Planned features — shown for context, not yet built.</p>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{% trans "Roadmap" %}</h2>
+                <p class="text-xs text-slate mt-0.5">{% trans "Planned features — shown for context, not yet built." %}</p>
             </div>
         </div>
-        <div class="roadmap-item"><span class="roadmap-tag"><i class="bi bi-hourglass-split"></i> Planned</span>
-            <p class="text-xs font-bold text-white mt-2">Custom Domain &amp; Embed</p>
-            <p class="text-[11px] text-slate mt-1">qr.yourbrand.com short links, and an embeddable website widget.
+        <div class="roadmap-item"><span class="roadmap-tag"><i class="bi bi-hourglass-split"></i> {% trans "Planned" %}</span>
+            <p class="text-xs font-bold text-white mt-2">{% trans "Custom Domain & Embed" %}</p>
+            <p class="text-[11px] text-slate mt-1">{% trans "qr.yourbrand.com short links, and an embeddable website widget." %}    
             </p>
         </div>
     </div>

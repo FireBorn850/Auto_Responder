@@ -6,18 +6,25 @@ from django.contrib.auth.signals import user_logged_in
 from .models import UserSession
 
 
-@receiver(post_save, sender=User)
-def link_team_invite_on_signup(sender, instance, created, **kwargs):
+def _link_pending_invites(user):
     """
-    The moment a new account is created, check if the email matches a
-    pending TeamInvite with no linked_user yet. If so, link it — this is
-    what turns a recorded invite into real, enforceable staff access.
+    Shared logic: link any pending TeamInvite matching this user's email
+    that hasn't been claimed yet. Called both on brand-new signup and on
+    every login, so an invite sent to an *already-existing* account still
+    gets linked the next time they sign in — not just at signup time.
     """
-    if not created or not instance.email:
+    if not user.email:
         return
     TeamInvite.objects.filter(
-        email__iexact=instance.email, linked_user__isnull=True
-    ).update(linked_user=instance)
+        email__iexact=user.email, linked_user__isnull=True
+    ).update(linked_user=user)
+
+
+@receiver(post_save, sender=User)
+def link_team_invite_on_signup(sender, instance, created, **kwargs):
+    if not created:
+        return
+    _link_pending_invites(instance)
 
 
 def _get_client_ip(request):
@@ -29,6 +36,7 @@ def _get_client_ip(request):
 
 @receiver(user_logged_in)
 def track_session_on_login(sender, request, user, **kwargs):
+    _link_pending_invites(user)
     if not request.session.session_key:
         request.session.save()
     UserSession.objects.update_or_create(

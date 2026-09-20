@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load socialaccount %}
+
+{% block head_title %}Complete Your Account | SwissReply.AI{% endblock %}
+
+{% block content %}
+<style>
+    .auth-page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+        padding: 2rem;
+    }
+    .auth-card-wrapper {
+        width: 100%;
+        max-width: 420px;
+    }
+    .auth-card-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .auth-logo-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        background: #E8B94A;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #0B0B0F;
+        margin-bottom: 1.5rem;
+    }
+    .auth-card-header h1 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: white;
+        margin: 0 0 0.5rem 0;
+    }
+    .auth-card-header p {
+        font-size: 0.95rem;
+        color: #B7B7C2;
+        margin: 0;
+    }
+    .auth-form-container {
+        background: rgba(20, 30, 48, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group:last-of-type {
+        margin-bottom: 2rem;
+    }
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: #888;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        color: white;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+    .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    .form-input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #E8B94A;
+        box-shadow: 0 0 0 3px rgba(232, 185, 74, 0.1);
+    }
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: #E8B94A;
+        color: #0B0B0F;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .btn-submit:hover {
+        background: #f0c855;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(232, 185, 74, 0.2);
+    }
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: #888;
+        margin-bottom: 0;
+    }
+    .auth-footer a {
+        color: #E8B94A;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
+    .auth-footer a:hover {
+        color: #f0c855;
+    }
+    .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+    .error-message ul {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+    .error-message li {
+        margin: 0.25rem 0;
+    }
+</style>
+
+<div class="auth-page-wrapper">
+    <div class="auth-card-wrapper">
+        <!-- Header -->
+        <div class="auth-card-header">
+            <div class="auth-logo-badge">SR</div>
+            <h1>Complete Your Account</h1>
+            <p>Finish setting up your SwissReply.AI account</p>
+        </div>
+
+        <!-- Form -->
+        <div class="auth-form-container">
+            {% if form.non_field_errors %}
+                <div class="error-message">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'socialaccount_signup' %}">
+                {% csrf_token %}
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" value="{{ form.email.value|default:'' }}" placeholder="name@business.ch" class="form-input" required>
+                    {% if form.email.errors %}
+                        <div class="error-message" style="margin-top: 0.5rem; padding: 0.5rem 0.75rem;">
+                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" placeholder="yourusername" class="form-input" required>
+                    {% if form.username.errors %}
+                        <div class="error-message" style="margin-top: 0.5rem; padding: 0.5rem 0.75rem;">
+                            {% for error in form.username.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-arrow-right"></i> Complete Sign Up
+                </button>
+            </form>
+
+            <!-- Sign In Link -->
+            <p class="auth-footer">
+                Already have an account? <a href="/accounts/login/">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
