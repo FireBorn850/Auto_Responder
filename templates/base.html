@@ -1,3 +1,4 @@
+{% load static %}
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="h-full">
@@ -11,7 +12,12 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block head_title %}Mehrly{% endblock %}</title>
+    <title>{% block head_title %}Mehrly — Automate Your Google Review Replies{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Mehrly drafts bilingual, on-brand replies to every Google review automatically. Built for French & English hospitality businesses in Geneva.{% endblock %}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/mehrly-logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/mehrly-logo.png' %}">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>

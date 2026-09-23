@@ -1256,29 +1256,32 @@ def request_access_code_view(request):
             messages.error(request, "That doesn't look like a valid email.")
             return redirect('request_access_code')
 
-        code = 'FOUNDER-' + secrets.token_hex(3).upper()  # e.g. FOUNDER-A1B2C3
-        AccessCode.objects.create(code=code, business_name=business_name, notes=f"Requested by {email}")
+        code = 'FOUNDER-' + secrets.token_hex(3).upper()
+        AccessCode.objects.create(
+            code=code,
+            business_name=business_name,
+            requested_email=email,
+            status='pending',
+            notes=f"Requested by {email}",
+        )
 
         try:
             send_mail(
-                subject="Your Mehrly Founding Partner code",
+                subject=f"New Founder access request: {business_name}",
                 message=(
-                    f"Hi,\n\n"
-                    f"Thanks for your interest in Mehrly! Here is your Founding Partner access code:\n\n"
-                    f"{code}\n\n"
-                    f"1. Sign up here: {request.build_absolute_uri('/accounts/signup/')}\n"
-                    f"2. Once logged in, go to: {request.build_absolute_uri('/redeem/')}\n"
-                    f"3. Enter the code above to unlock full Premium access, free for 30 days.\n\n"
-                    f"— Mehrly"
+                    f"Business: {business_name}\n"
+                    f"Email: {email}\n\n"
+                    f"Review and approve in Django admin:\n"
+                    f"{request.build_absolute_uri('/admin/reviews/accesscode/')}"
                 ),
                 from_email=None,
-                recipient_list=[email],
-                fail_silently=False,
+                recipient_list=['azizovjasur2007@gmail.com'],
+                fail_silently=True,
             )
-            messages.success(request, "Check your inbox — we've sent your access code!")
         except Exception:
-            messages.error(request, "Something went wrong sending the email. Please try again or contact us directly.")
+            pass
 
+        messages.success(request, "Thanks! We've received your request — you'll get an email once it's approved.")
         return redirect('request_access_code')
 
     return render(request, 'reviews/request_access_code.html')

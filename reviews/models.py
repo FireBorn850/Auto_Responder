@@ -164,8 +164,16 @@ class BusinessProfile(models.Model):
 
 
 class AccessCode(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved & Sent'),
+        ('rejected', 'Rejected'),
+    ]
+
     code = models.CharField(max_length=32, unique=True)
     business_name = models.CharField(max_length=255, blank=True, help_text="Who this code was generated for")
+    requested_email = models.EmailField(blank=True, help_text="Email that requested this code")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     redeemed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='redeemed_access_codes')
     redeemed_at = models.DateTimeField(null=True, blank=True)
     expires_at = models.DateTimeField(null=True, blank=True)
