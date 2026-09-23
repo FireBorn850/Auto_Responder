@@ -23,7 +23,7 @@ SUPPORTED_LANGUAGES = {
 }
 
 
-def detect_review_language(comment: str) -> str:
+def detect_review_language(comment: str, fallback_language: str = 'fr') -> str:
     """
     Uses Gemini to detect which of our supported languages a review is
     written in — including distinguishing standard German from Swiss
@@ -34,12 +34,12 @@ def detect_review_language(comment: str) -> str:
     """
     text = (comment or '').strip()
     if not text:
-        return 'fr'
+        return fallback_language
 
     load_dotenv()
     api_key = os.getenv('GEMINI_API_KEY')
     if not api_key:
-        return 'fr'
+        return fallback_language
 
     client = genai.Client(api_key=api_key)
 
@@ -70,10 +70,12 @@ def detect_review_language(comment: str) -> str:
             code = data.get('language', 'fr')
             if code in SUPPORTED_LANGUAGES:
                 return code
-    except Exception:
-        pass
-
-    return 'fr'
+    except Exception as e:
+        error_str = str(e)
+        if '429' in error_str or 'RESOURCE_EXHAUSTED' in error_str:
+            print(f"[ai_responder] Language detection quota exceeded: {error_str}")
+        else:
+            print(f"[ai_responder] Language detection failed: {error_str}")
 
 
 def is_authentic_review(comment: str) -> bool:

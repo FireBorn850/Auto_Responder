@@ -14,7 +14,7 @@
 # def _guess_language(text: str) -> str:
 #     lowered = f" {text.lower()} "
 #     hits = sum(1 for marker in FRENCH_MARKERS if marker in lowered)
-#     return 'fr' if hits >= 2 else 'en'
+#     return fallback_language if hits >= 2 else 'en'
 
 
 # def find_data_id(business_name: str, location: str = "") -> str | None:

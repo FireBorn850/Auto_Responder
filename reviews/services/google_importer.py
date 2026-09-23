@@ -49,7 +49,7 @@ def _guess_language(text: str) -> str:
         return detected
 
     if detected == "de":
-        return detect_review_language(text)
+        return detect_review_language(text, fallback_language="de")
 
     # Unrecognized by langdetect (too short, ambiguous, or a language
     # outside our five) — fall back to the French/English word-hint

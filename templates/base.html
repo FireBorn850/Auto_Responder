@@ -11,7 +11,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block head_title %}SwissReply.AI{% endblock %}</title>
+    <title>{% block head_title %}Mehrly{% endblock %}</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -523,12 +523,12 @@
     <header class="rb-header z-40 relative">
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-                <div class="rb-logo-mark">SR</div>
+                {% load static %}
+                <div class="bg-slate-50 rounded-xl p-1.5 flex items-center" style="background: #F7F5F0;">
+                    <img src="{% static 'images/mehrly-logo.png' %}" alt="Mehrly.AI" class="h-8 w-auto" />
+                </div>
                 <div class="hidden sm:block">
-                    <span
-                        class="font-display font-semibold text-white text-[15px] tracking-tight leading-none">Swiss<span
-                            class="text-gold">Reply</span><span class="text-white">.AI</span></span>
-                    <div class="flex items-center gap-1 mt-0.5">
+                    <div class="flex items-center gap-1">
                         <span class="live-dot"></span>
                         <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-wider font-mono">{% trans "Live" %}</span>
                     </div>
@@ -595,8 +595,7 @@
                 </div>
                 {% else %}
                 <a href="{% url 'account_login' %}"
-                    class="text-xs font-semibold text-slate hover:text-white transition px-3 py-2">{% trans "Sign In"
-                    %}</a>
+                    class="text-xs font-semibold text-slate hover:text-white transition px-3 py-2">{% trans "Sign In" %}</a>
                 <a href="{% url 'account_signup' %}" class="btn-primary text-xs">{% trans "Start Free Trial" %}</a>
                 {% endif %}
             </div>
@@ -763,7 +762,7 @@
     <footer class="relative z-10 border-t border-white/5 py-6 mt-8">
         <div
             class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-2">
-            <span class="font-display font-semibold">Swiss<span class="text-gold">Reply</span><span class="text-white">.AI</span></span>
+            <span class="font-display font-semibold">Mehrly<span class="text-gold">.AI</span></span>
             <div class="flex items-center gap-4">
                 <span>© 2026</span>
                 <span>·</span>
@@ -775,7 +774,7 @@
             <div class="flex items-center gap-4">
                 <a href="{% url 'privacy_policy' %}" class="hover:text-white transition">{% trans "Privacy" %}</a>
                 <a href="{% url 'terms_of_service' %}" class="hover:text-white transition">{% trans "Terms" %}</a>
-                <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Support%20Request"
+                <a href="mailto:azizovjasur2007@gmail.com?subject=Mehrly%20Support%20Request"
                     class="hover:text-slate-300 transition" title="Get help">{% trans "Support" %}</a>
             </div>
         </div>

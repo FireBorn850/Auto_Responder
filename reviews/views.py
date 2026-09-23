@@ -431,13 +431,13 @@ def _send_invite_email(request, invite_email, role):
     login_url = request.build_absolute_uri('/accounts/login/')
     profile, _ = get_or_create_owned_profile(request.user)
     send_mail(
-        subject=f"You've been invited to {profile.business_name} on SwissReply.AI",
+        subject=f"You've been invited to {profile.business_name} on Mehrly",
         message=(
             f"Hi,\n\n"
             f"{request.user.username} invited you to help manage review replies "
             f"as a {dict(TeamInvite.ROLE_CHOICES).get(role, role)}.\n\n"
             f"Sign in here: {login_url}\n\n"
-            f"— SwissReply.AI"
+            f"— Mehrly"
         ),
         from_email=None,
         recipient_list=[invite_email],
@@ -879,7 +879,7 @@ def export_insights_report_view(request):
 
     writer = csv.writer(response)
 
-    writer.writerow(['SwissReply.AI — Insights Report'])
+    writer.writerow(['Mehrly — Insights Report'])
     writer.writerow([f'Business: {profile.business_name}'])
     writer.writerow([f'Generated: {timezone.now().strftime("%Y-%m-%d %H:%M")}'])
     writer.writerow([])
@@ -1104,7 +1104,7 @@ def request_integration_view(request):
                     f"Requested tool: {tool_name}\n"
                 ),
                 from_email=None,
-                recipient_list=['hello@swissreply.ai'],
+                recipient_list=['hello@mehrly.com'],
                 fail_silently=True,
             )
         except Exception:
@@ -1261,15 +1261,15 @@ def request_access_code_view(request):
 
         try:
             send_mail(
-                subject="Your SwissReply.AI Founding Partner code",
+                subject="Your Mehrly Founding Partner code",
                 message=(
                     f"Hi,\n\n"
-                    f"Thanks for your interest in SwissReply.AI! Here is your Founding Partner access code:\n\n"
+                    f"Thanks for your interest in Mehrly! Here is your Founding Partner access code:\n\n"
                     f"{code}\n\n"
                     f"1. Sign up here: {request.build_absolute_uri('/accounts/signup/')}\n"
                     f"2. Once logged in, go to: {request.build_absolute_uri('/redeem/')}\n"
                     f"3. Enter the code above to unlock full Premium access, free for 30 days.\n\n"
-                    f"— SwissReply.AI"
+                    f"— Mehrly"
                 ),
                 from_email=None,
                 recipient_list=[email],

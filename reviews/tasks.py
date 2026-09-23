@@ -84,7 +84,7 @@ def send_negative_review_alert(review_id):
         f"for {review.business_name}:\n\n"
         f"\"{review.comment}\"\n\n"
         f"An AI-drafted reply is already waiting for your approval in your dashboard.\n\n"
-        f"— SwissReply.AI"
+        f"— Mehrly"
     )
 
     send_mail(

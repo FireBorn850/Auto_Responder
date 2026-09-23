@@ -6,23 +6,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwissReply.AI | Automate Google Reviews in French & English</title>
+    <title>Mehrly | Automate Google Reviews in French & English</title>
     <meta name="description"
         content="Gemini AI drafts bilingual replies to your Google reviews in seconds. You approve, it posts. Built for hospitality and retail.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://swissreply.ai/">
-    <meta property="og:title" content="SwissReply.AI | Automate Google Reviews in French & English">
+    <meta property="og:url" content="https://Mehrly/">
+    <meta property="og:title" content="Mehrly | Automate Google Reviews in French & English">
     <meta property="og:description"
         content="Gemini AI drafts bilingual replies to your Google reviews in seconds. You approve, it posts. Built for hospitality and retail.">
-    <!-- <meta property="og:image" content="https://swissreply.ai/static/og-image.png"> -->
-    <meta property="og:site_name" content="SwissReply.AI">
+    <!-- <meta property="og:image" content="https://Mehrly/static/og-image.png"> -->
+    <meta property="og:site_name" content="Mehrly">
 
     <!-- Twitter/X Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SwissReply.AI | Automate Google Reviews in French & English">
+    <meta name="twitter:title" content="Mehrly | Automate Google Reviews in French & English">
     <meta name="twitter:description"
         content="Gemini AI drafts bilingual replies to your Google reviews in seconds. You approve, it posts.">
-    <!-- <meta name="twitter:image" content="https://swissreply.ai/static/og-image.png"> -->
+    <!-- <meta name="twitter:image" content="https://Mehrly/static/og-image.png"> -->
     <meta name="description" content="Gemini AI drafts bilingual replies to your Google Reviews reviews in seconds. You approve, it posts. Built
     for hospitality and retail.">
     <script>
@@ -440,14 +440,11 @@
     <!-- NAV -->
     <header class="relative z-20 border-b border-white/5 bg-[#0B1220]/85 backdrop-blur-md sticky top-0">
         <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            {% load static %}
             <div class="flex items-center gap-3">
-                <div
-                    class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center font-black text-slate-950 text-base">
-                    SR
+                <div class="rounded-xl p-1.5 flex items-center" style="background: #F7F5F0;">
+                    <img src="{% static 'images/mehrly-logo.png' %}" alt="Mehrly.AI" class="h-8 w-auto" />
                 </div>
-                <span class="font-display font-semibold text-lg tracking-tight text-white">
-                    SwissReply<span class="text-amber-400">.AI</span>
-                </span>
             </div>
 
             <nav class="hidden md:flex items-center gap-8 text-sm text-slate-300">
@@ -863,7 +860,7 @@
                 <p class="font-mono text-xs text-amber-400 mb-3">BEYOND GOOGLE</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">One inbox for every review, from
                     everywhere.</h2>
-                <p class="text-slate-400 mt-3">Google isn't the only place customers talk about you. SwissReply.AI
+                <p class="text-slate-400 mt-3">Google isn't the only place customers talk about you. Mehrly
                     pulls reviews in from multiple sources so nothing falls through the cracks.</p>
             </div>
 
@@ -929,7 +926,7 @@
                     </div>
                     <h3 class="text-base font-bold text-white">Webhook API</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">Have reviews coming from your own booking
-                        system, POS, or a custom form? Push them into SwissReply.AI via webhook and get the same
+                        system, POS, or a custom form? Push them into Mehrly via webhook and get the same
                         AI drafts, sentiment analysis, and approval flow — no manual re-entry.</p>
                 </div>
 
@@ -977,7 +974,7 @@
                 </div>
 
                 <div class="bg-[#111A2C] border border-amber-400/40 rounded-2xl p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-amber-400 font-mono">SWISSREPLY.AI</h3>
+                    <h3 class="text-sm font-bold text-amber-400 font-mono">Mehrly</h3>
                     <ul class="space-y-3 text-sm text-slate-300">
                         <li class="flex gap-2"><span class="text-emerald-400">✓</span> Reviews sync automatically, no
                             checking</li>
@@ -1249,11 +1246,11 @@
     <footer class="relative z-10 border-t border-white/5 py-10">
         <div
             class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-            <p>© 2026 SwissReply.AI. Built for high-conversion hospitality and retail management.</p>
+            <p>© 2026 Mehrly. Built for high-conversion hospitality and retail management.</p>
             <div class="flex items-center gap-6">
                 <a href="{% url 'privacy_policy' %}" class="hover:text-slate-300 transition">Privacy</a>
                 <a href="{% url 'terms_of_service' %}" class="hover:text-slate-300 transition">Terms</a>
-                <a href="mailto:azizovjasur2007@gmail.com?subject=SwissReply.AI%20Inquiry"
+                <a href="mailto:azizovjasur2007@gmail.com?subject=Mehrly%20Inquiry"
                     class="hover:text-slate-300 transition">Contact</a>
             </div>
         </div>
