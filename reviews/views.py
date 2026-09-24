@@ -1539,12 +1539,13 @@ def _add_review_impl(request):
     rating = int(request.POST.get('rating', 5))
     comment = request.POST.get('comment', '')
     language = request.POST.get('language', 'fr')
-    business_name = request.POST.get('business_name', 'Geneva Bistro')
 
     if language == 'auto':
         language = detect_review_language(comment)
 
     profile, role = get_or_create_owned_profile(request.user)
+    business_name = profile.business_name  # always match what the Dashboard filters by
+
     review = Review.objects.create(
         user=profile.user,
         reviewer_name=reviewer_name,
