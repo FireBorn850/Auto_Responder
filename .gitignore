@@ -12,4 +12,8 @@ __pycache__/
 *.pyc
 
 # Collected Static Files
+staticfiles/.env
+venv/
+db.sqlite3*
 staticfiles/
+__pycache__/
