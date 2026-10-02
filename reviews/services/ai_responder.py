@@ -79,7 +79,8 @@ def detect_review_language(comment: str, fallback_language: str = 'fr') -> str:
     if _client is None:
         return fallback_language
 
-    lang_list = ', '.join(f'"{code}" ({name})' for code, name in SUPPORTED_LANGUAGES.items())
+    all_languages = {**SUPPORTED_LANGUAGES, **EXTRA_LANGUAGES}
+    lang_list = ', '.join(f'"{code}" ({name})' for code, name in all_languages.items())
     prompt = f"""
     Identify which language this customer review is written in.
 
@@ -107,7 +108,7 @@ def detect_review_language(comment: str, fallback_language: str = 'fr') -> str:
                 raw = re.sub(r'```(?:json)?\s*([\s\S]*?)\s*```', r'\1', raw).strip()
             data = json.loads(raw)
             code = data.get('language', fallback_language)
-            if code in SUPPORTED_LANGUAGES:
+            if code in all_languages:
                 return code
     except Exception as e:
         error_str = str(e)
