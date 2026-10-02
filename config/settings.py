@@ -88,9 +88,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600
+        conn_max_age=600,
+        conn_health_checks=True,
     )
 }
+# Required because Neon's pooled endpoint uses PgBouncer
+DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -222,9 +225,22 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {'protocol_version': 2}
 CELERY_BEAT_SCHEDULE = {
     'poll-google-reviews-every-5-min': {
         'task': 'reviews.tasks.poll_google_reviews',
-        'schedule': crontab(minute='*/5'),
+        'schedule': crontab(minute=0),
     },
 }
 
 
 SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')
+
+DATAFORSEO_LOGIN = os.environ.get('DATAFORSEO_LOGIN', '')
+DATAFORSEO_PASSWORD = os.environ.get('DATAFORSEO_PASSWORD', '')
+DATAFORSEO_BASE_URL = os.environ.get('DATAFORSEO_BASE_URL') or 'https://api.dataforseo.com/v3'
+
+
+# ==========================================
+# Google Business Profile (optional auto-posting)
+# ==========================================
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+TOKEN_ENCRYPTION_KEY = os.environ.get('TOKEN_ENCRYPTION_KEY', '')
