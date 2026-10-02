@@ -1112,7 +1112,7 @@
 
         <span class="chip" title="{% trans "AI replies generated today, resets at midnight" %}">
             <i class="bi bi-stars"></i>
-            <span class="font-mono">{% blocktrans %}{{ ai_used_today }}/{{ profile.ai_daily_limit }} AI today{% endblocktrans %}</span>
+            <span class="font-mono">{% blocktrans with used=ai_used_today limit=profile.ai_daily_limit %}{{ used }}/{{ limit }} AI today{% endblocktrans %}</span>
         </span>
 
         <button onclick="toggleSyncModal()" class="btn-primary">
@@ -1500,7 +1500,8 @@
 
             <!-- ===== AI DRAFT AVAILABLE ===== -->
             {% elif review.ai_draft_reply %}
-            <form action="{% url 'approve_review' review.id %}" method="POST" class="ai-draft-panel">
+            <form action="{% url 'approve_review' review.id %}" method="POST" class="ai-draft-panel"
+            data-review-url="{{ review.review_url|default:'' }}" onsubmit="return approveAndOpen(this)">
                 {% csrf_token %}
                 <div class="flex items-center justify-between mb-2">
                     <span class="ai-badge">{% trans "AI Draft" %}</span>
@@ -1525,12 +1526,14 @@
                     <span class="kbd-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> {% trans "to post" %}</span>
                 </div>
             </form>
-            {% if review.status == 'approved' and profile.google_maps_url %}
-            <div class="mt-2 text-[10px] text-slate-500">
-                {% trans "Approved, not yet posted automatically —" %}
-                <a href="{{ profile.google_maps_url }}" target="_blank" rel="noopener noreferrer"
-                    class="text-gold hover:text-gold-soft font-medium">{% trans "open Google Business" %}</a>
-                {% trans "to post it yourself, or click Approve & Post above to retry." %}
+            {% if review.status == 'approved' %}
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-slate-500">
+                <a href="{{ review.review_url|default:'https://business.google.com/reviews' }}" target="_blank"
+                rel="noopener noreferrer" class="text-gold hover:text-gold-soft font-medium">{% trans "Open review on Google" %}</a>
+                <form action="{% url 'mark_posted' review.id %}" method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-ghost">{% trans "I posted it ✓" %}</button>
+                </form>
             </div>
             {% endif %}
 
@@ -1762,6 +1765,20 @@
             setTimeout(() => { buttonEl.innerHTML = original; }, 2000);
         };
         navigator.clipboard.writeText(textarea.value).then(done).catch(() => { document.execCommand('copy'); done(); });
+    }
+
+
+        // ===== APPROVE & POST: copy reply + open that review on Google =====
+    function approveAndOpen(form) {
+        const textarea = form.querySelector('.draft-textarea');
+        if (textarea) {
+            textarea.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            if (navigator.clipboard) navigator.clipboard.writeText(textarea.value).catch(() => {});
+        }
+        const url = form.getAttribute('data-review-url') || 'https://business.google.com/reviews';
+        window.open(url, '_blank');
+        return true;
     }
 
     // ===== COPY TO CLIPBOARD (for manual posting) =====

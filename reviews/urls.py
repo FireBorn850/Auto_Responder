@@ -29,6 +29,7 @@ urlpatterns = [
     path('billing/success/', views.checkout_success_view, name='checkout_success'),
     path('billing/cancel/', views.checkout_cancel_view, name='checkout_cancel'),
     path('api/webhook/stripe/', views.stripe_webhook_view, name='stripe_webhook'),
+    path('mark-posted/<int:review_id>/', views.mark_posted_view, name='mark_posted'),
 
     # ==========================================
     # 2. REVIEW & SETTINGS ACTIONS

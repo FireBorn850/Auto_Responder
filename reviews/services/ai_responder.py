@@ -2,11 +2,45 @@ import os
 import json
 import re
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 
+# ---------------------------------------------------------------------------
+# Shared client + model settings (created ONCE, not on every call)
+# ---------------------------------------------------------------------------
+load_dotenv()
+_API_KEY = os.getenv('GEMINI_API_KEY')
+_client = genai.Client(api_key=_API_KEY) if _API_KEY else None
+
+# Fast + cheap model for per-review work (drafts, sentiment, language).
+# Override on Render with the env var GEMINI_MODEL - no code edit needed.
+FAST_MODEL = os.getenv('GEMINI_MODEL', 'gemini-3.5-flash-lite')
+
+# Stronger model kept for rare, heavier jobs (complaint analysis, style training).
+# Override on Render with GEMINI_SMART_MODEL.
+SMART_MODEL = os.getenv('GEMINI_SMART_MODEL', 'gemini-3.6-flash')
+
+# Turns off / minimizes "thinking", which is the main cause of slow replies.
+# Falls back gracefully if the installed SDK doesn't know the newer field.
+try:
+    _NO_THINK = types.ThinkingConfig(thinking_level="minimal")
+except Exception:
+    try:
+        _NO_THINK = types.ThinkingConfig(thinking_budget=0)
+    except Exception:
+        _NO_THINK = None
+
+
+def _config(**kwargs):
+    """Builds a GenerateContentConfig, adding the no-thinking setting when available."""
+    if _NO_THINK is not None:
+        kwargs['thinking_config'] = _NO_THINK
+    return types.GenerateContentConfig(**kwargs)
+
+
 class QuotaExceededError(Exception):
-    """Raised when Gemini returns a 429 RESOURCE_EXHAUSTED — lets callers
+    """Raised when Gemini returns a 429 RESOURCE_EXHAUSTED - lets callers
     show 'try again later' instead of a generic failure message."""
     pass
 
@@ -22,26 +56,28 @@ SUPPORTED_LANGUAGES = {
     'gsw': 'Swiss German (Schwiizerdütsch)',
 }
 
+# Extra languages we can reply in. Not used for detection, only for writing the reply.
+EXTRA_LANGUAGES = {
+    'nl': 'Dutch', 'es': 'Spanish', 'pt': 'Portuguese', 'ru': 'Russian',
+    'ar': 'Arabic', 'tr': 'Turkish', 'pl': 'Polish', 'zh': 'Chinese',
+    'ja': 'Japanese', 'ko': 'Korean', 'sv': 'Swedish', 'da': 'Danish',
+    'no': 'Norwegian', 'fi': 'Finnish', 'el': 'Greek', 'uk': 'Ukrainian',
+}
+
 
 def detect_review_language(comment: str, fallback_language: str = 'fr') -> str:
     """
     Uses Gemini to detect which of our supported languages a review is
-    written in — including distinguishing standard German from Swiss
+    written in - including distinguishing standard German from Swiss
     German dialect, which a simple word-list detector can't reliably do.
-    Falls back to 'fr' (Geneva's default) if detection fails, since an
-    unrecognized comment is more likely a data glitch than a genuinely
-    unsupported language for a Geneva-based business.
+    Falls back to 'fr' (Geneva's default) if detection fails.
     """
     text = (comment or '').strip()
     if not text:
         return fallback_language
 
-    load_dotenv()
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
+    if _client is None:
         return fallback_language
-
-    client = genai.Client(api_key=api_key)
 
     lang_list = ', '.join(f'"{code}" ({name})' for code, name in SUPPORTED_LANGUAGES.items())
     prompt = f"""
@@ -57,17 +93,20 @@ def detect_review_language(comment: str, fallback_language: str = 'fr') -> str:
     """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
+        response = _client.models.generate_content(
+            model=FAST_MODEL,
             contents=prompt,
-            config={'response_mime_type': 'application/json'}
+            config=_config(
+                response_mime_type='application/json',
+                max_output_tokens=50,
+            ),
         )
         if response and response.text:
             raw = response.text.strip()
             if "```" in raw:
                 raw = re.sub(r'```(?:json)?\s*([\s\S]*?)\s*```', r'\1', raw).strip()
             data = json.loads(raw)
-            code = data.get('language', 'fr')
+            code = data.get('language', fallback_language)
             if code in SUPPORTED_LANGUAGES:
                 return code
     except Exception as e:
@@ -77,12 +116,14 @@ def detect_review_language(comment: str, fallback_language: str = 'fr') -> str:
         else:
             print(f"[ai_responder] Language detection failed: {error_str}")
 
+    return fallback_language
+
 
 def is_authentic_review(comment: str) -> bool:
     """
     Lightweight heuristic to catch keyboard-mash / gibberish input before
     it reaches the AI. Checks EACH WORD independently, not the whole
-    comment averaged together — a single vowel-empty gibberish word (e.g.
+    comment averaged together - a single vowel-empty gibberish word (e.g.
     "kjtdthrgwshtgdfkjhgn") shouldn't be able to hide behind a second,
     coincidentally vowel-rich nonsense word in the same comment.
     """
@@ -109,29 +150,23 @@ def is_authentic_review(comment: str) -> bool:
         if vowel_ratio < 0.15:
             long_gibberish_words += 1
 
-    # If there are no words long enough to judge, fall back to treating
-    # the comment as authentic (short reviews like "Nul." or "Great!"
-    # should never be flagged).
+    # If there are no words long enough to judge, treat the comment as
+    # authentic (short reviews like "Nul." or "Great!" must never be flagged).
     if long_words == 0:
         return True
 
-    # Flag as inauthentic if ANY sufficiently long word looks like
-    # keyboard-mash — a real review very rarely contains even one.
+    # Flag as inauthentic if ANY sufficiently long word looks like keyboard-mash.
     return long_gibberish_words == 0
 
 
 def analyze_review_sentiment(comment, rating):
     """
     Uses Gemini to classify a review's true sentiment (which can differ
-    from star rating — e.g. a sarcastic 5-star) and flag likely spam/fake
+    from star rating - e.g. a sarcastic 5-star) and flag likely spam/fake
     content that the simpler is_authentic_review() heuristic might miss.
     """
-    load_dotenv()
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
+    if _client is None:
         return {'sentiment': 'neutral', 'is_likely_spam': False}
-
-    client = genai.Client(api_key=api_key)
 
     prompt = f"""
     Analyze this customer review for a local business.
@@ -147,15 +182,18 @@ def analyze_review_sentiment(comment, rating):
 
     Rules:
     - sentiment reflects the actual emotional tone of the text, which may contradict the star rating (e.g. sarcasm).
-    - is_likely_spam is true only for bot-like, irrelevant, promotional, or nonsensical content — not for genuine negative feedback.
+    - is_likely_spam is true only for bot-like, irrelevant, promotional, or nonsensical content - not for genuine negative feedback.
     """
 
-    for model_name in ["gemini-3.6-flash"]:
+    for model_name in [FAST_MODEL]:
         try:
-            response = client.models.generate_content(
+            response = _client.models.generate_content(
                 model=model_name,
                 contents=prompt,
-                config={'response_mime_type': 'application/json'}
+                config=_config(
+                    response_mime_type='application/json',
+                    max_output_tokens=100,
+                ),
             )
             if response and response.text:
                 raw = response.text.strip()
@@ -166,7 +204,8 @@ def analyze_review_sentiment(comment, rating):
                     'sentiment': data.get('sentiment', 'neutral'),
                     'is_likely_spam': bool(data.get('is_likely_spam', False)),
                 }
-        except Exception:
+        except Exception as e:
+            print(f"[ai_responder] Sentiment analysis failed: {e}")
             continue
 
     return {'sentiment': 'neutral', 'is_likely_spam': False}
@@ -175,20 +214,16 @@ def analyze_review_sentiment(comment, rating):
 def generate_review_draft(reviewer_name, star_rating, comment, language='fr', business_name="Geneva Bistro",
                            tone='friendly', custom_prompt='', signature='',
                            response_length='medium', creativity='medium', blacklisted_words='',
-                           learned_patterns='', seo_keywords='', action_offer_label=''):
+                           learned_patterns='', seo_keywords='', action_offer_label='', is_regeneration=False, contact_email=''):
     """
     Generates an AI-drafted review reply using Gemini. Enforces blacklisted
     words two ways: (1) the model is told never to use them, and (2) the
-    output is checked afterward — if a banned word slipped through anyway,
+    output is checked afterward - if a banned word slipped through anyway,
     it retries once with a stricter instruction before giving up.
     """
-    load_dotenv()
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
+    if _client is None:
         print("[ai_responder] GEMINI_API_KEY is missing from environment variables.")
         return None
-
-    client = genai.Client(api_key=api_key)
 
     tone_instructions = {
         'friendly': "Tone: Warm, welcoming, friendly, and grateful. Use a cheerful and conversational voice.",
@@ -198,13 +233,13 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
     selected_tone = tone_instructions.get(tone, tone_instructions['friendly'])
 
     length_instructions = {
-        'short': "Keep the response very concise — 1 to 2 sentences maximum.",
-        'medium': "Keep the response concise — 2 to 4 sentences maximum.",
-        'long': "Write a fuller, more detailed response — 4 to 6 sentences.",
+        'short': "Keep the response very concise - 1 to 2 sentences maximum.",
+        'medium': "Keep the response concise - 2 to 4 sentences maximum.",
+        'long': "Write a fuller, more detailed response - 4 to 6 sentences.",
     }
     selected_length = length_instructions.get(response_length, length_instructions['medium'])
 
-    temperature_map = {'low': 0.3, 'medium': 0.7, 'high': 1.1}
+    temperature_map = {'low': 0.4, 'medium': 0.85, 'high': 1.2}
     selected_temperature = temperature_map.get(creativity, 0.7)
 
     banned_words = [w.strip() for w in (blacklisted_words or '').split(',') if w.strip()]
@@ -224,43 +259,49 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
     learned_patterns_block = ""
     if learned_patterns and learned_patterns.strip():
         learned_patterns_block = f"""
-    8. Learned Style (based on how this owner has edited past AI drafts — match this from the start): {learned_patterns.strip()}
+    8. Learned Style (based on how this owner has edited past AI drafts - match wording, formality and phrasing from the start). This applies to style ONLY. It must NEVER override Rules 1-4: always keep the language, the sentiment strategy (including the contact invitation for 1-3 star reviews) and the length rule: {learned_patterns.strip()}
     """
 
     seo_keywords_list = [w.strip() for w in (seo_keywords or '').split(',') if w.strip()]
     seo_block = ""
     if seo_keywords_list:
         seo_block = f"""
-    9. Local SEO Reinforcement (OPTIONAL — use only if it fits naturally): If, and only if, the review's own content gives a genuine, natural opening, you may weave in ONE of these phrases exactly as written, used at most once: {', '.join(seo_keywords_list)}. Do NOT force one in if nothing in the review relates to it — a reply with none of these phrases is completely normal and expected for most reviews. Never let this compromise Rule 3 (sentiment strategy) or make the reply sound like keyword stuffing — it must read exactly like something a real manager would naturally say.
+    9. Local SEO Reinforcement (OPTIONAL - use only if it fits naturally): If, and only if, the review's own content gives a genuine, natural opening, you may weave in ONE of these phrases exactly as written, used at most once: {', '.join(seo_keywords_list)}. Do NOT force one in if nothing in the review relates to it - a reply with none of these phrases is completely normal and expected for most reviews. Never let this compromise Rule 3 (sentiment strategy) or make the reply sound like keyword stuffing - it must read exactly like something a real manager would naturally say.
     """
 
     action_block = ""
     if action_offer_label and action_offer_label.strip():
         action_block = f"""
-    10. Warm Invitation: Since this is a happy customer, end with one brief, natural sentence inviting them to check out {action_offer_label.strip()}. Do NOT include a URL or link yourself — one will be appended automatically after your response. Just mention it warmly, like a manager casually telling a regular about something new.
+    10. Warm Invitation: Since this is a happy customer, end with one brief, natural sentence inviting them to check out {action_offer_label.strip()}. Do NOT include a URL or link yourself - one will be appended automatically after your response. Just mention it warmly, like a manager casually telling a regular about something new.
     """
 
+    regen_block = ""
+    if is_regeneration:
+        regen_block = """
+    11. Regeneration Rule: This is a regenerated draft, not the first attempt. Write a noticeably different opening line and different closing line than a typical generic reply, and lead with a different specific detail from the review than the most obvious one. Vary the sentence structure throughout - do not just reword the same sentence shape with synonyms.
+    """
 
-
-    language_name = SUPPORTED_LANGUAGES.get(language, 'French')
+    language_name = (
+        SUPPORTED_LANGUAGES.get(language)
+        or EXTRA_LANGUAGES.get(language)
+        or "the same language the review is written in"
+    )
     language_nuance_notes = {
-        'fr': "Write in standard Swiss French — natural for Geneva, not Parisian slang.",
-        'en': "Write in clear, warm international English — the reviewer may be a tourist.",
-        'de': "Write in standard High German (Hochdeutsch), polite register — appropriate for a Swiss-German-speaking visitor, not a Geneva local.",
+        'fr': "Write in standard Swiss French - natural for Geneva, not Parisian slang.",
+        'en': "Write in clear, warm international English - the reviewer may be a tourist.",
+        'de': "Write in standard High German (Hochdeutsch), polite register - appropriate for a Swiss-German-speaking visitor, not a Geneva local.",
         'it': "Write in standard Italian, warm and polite register.",
         'gsw': "The review was written in Swiss German dialect. Reply in standard High German (Hochdeutsch) rather than attempting to write dialect yourself, since dialect spelling varies by canton and a mismatched dialect can feel more off than standard German. Keep the tone as warm as the dialect original suggested.",
     }
-    selected_nuance = language_nuance_notes.get(language, language_nuance_notes['fr'])
+    selected_nuance = language_nuance_notes.get(
+        language, "Write naturally, warmly and politely in that language."
+    )
 
-    language_name = SUPPORTED_LANGUAGES.get(language, 'French')
-    language_nuance_notes = {
-        'fr': "Write in standard Swiss French — natural for Geneva, not Parisian slang.",
-        'en': "Write in clear, warm international English — the reviewer may be a tourist.",
-        'de': "Write in standard High German (Hochdeutsch), polite register — appropriate for a Swiss-German-speaking visitor, not a Geneva local.",
-        'it': "Write in standard Italian, warm and polite register.",
-        'gsw': "The review was written in Swiss German dialect. Reply in standard High German (Hochdeutsch) rather than attempting to write dialect yourself, since dialect spelling varies by canton and a mismatched dialect can feel more off than standard German. Keep the tone as warm as the dialect original suggested.",
-    }
-    selected_nuance = language_nuance_notes.get(language, language_nuance_notes['fr'])
+    contact_phrase = (
+        f"politely ask them to contact us directly at {contact_email.strip()} so we can resolve it offline."
+        if contact_email and contact_email.strip()
+        else "politely invite them to contact the business directly so we can resolve it offline. Do NOT invent or include any email address or phone number."
+    )
 
     def build_prompt(extra_warning=""):
         return f"""
@@ -278,20 +319,20 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
     2. Voice/Tone Rule: {selected_tone}
     3. Sentiment Strategy:
        - If rating is 4 or 5 stars: Express warm gratitude and thank them for visiting.
-       - If rating is 1, 2, or 3 stars: Be empathetic, apologize sincerely, avoid being defensive, and politely ask them to contact us directly at azizovjasur2007@gmail.com so we can resolve it offline.
+       - If rating is 1, 2, or 3 stars: Be empathetic, apologize sincerely, avoid being defensive, and {contact_phrase}
     4. Length Rule: {selected_length}
-    5. Output ONLY the response text. Do not include markdown headers, meta instructions, or a signature line — that gets appended separately.
-    {custom_context_block}{blacklist_block}{learned_patterns_block}{seo_block}{action_block}{extra_warning}
+    5. Output ONLY the response text. Do not include markdown headers, meta instructions, or a signature line - that gets appended separately.
+    {regen_block}{custom_context_block}{blacklist_block}{learned_patterns_block}{seo_block}{action_block}{extra_warning}
     """
 
-    def violates_blacklist(text: str) -> str | None:
+    def violates_blacklist(text: str):
         lowered = text.lower()
         for word in banned_words:
             if word.lower() in lowered:
                 return word
         return None
 
-    available_models = ["gemini-3.6-flash"]
+    available_models = [FAST_MODEL]
     last_error = ""
 
     for attempt in range(2):  # first try, then one stricter retry if a banned word slips through
@@ -303,10 +344,13 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
 
         for model_name in available_models:
             try:
-                response = client.models.generate_content(
+                response = _client.models.generate_content(
                     model=model_name,
                     contents=prompt,
-                    config={'temperature': selected_temperature}
+                    config=_config(
+                        temperature=selected_temperature,
+                        max_output_tokens=400,
+                    ),
                 )
                 if response and response.text:
                     draft = response.text.strip()
@@ -325,6 +369,7 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
                 if '429' in last_error or 'RESOURCE_EXHAUSTED' in last_error:
                     print(f"[ai_responder] Gemini quota exceeded: {last_error}")
                     raise QuotaExceededError(last_error)
+                print(f"[ai_responder] Draft generation error: {last_error}")
                 continue
 
     print(f"[ai_responder] Gemini generation failed for all models/attempts. Last error: {last_error}")
@@ -333,7 +378,7 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
 
 def append_action_link(draft_text: str, url: str, label: str) -> str:
     """
-    Deterministically appends the real, exact link after generation —
+    Deterministically appends the real, exact link after generation -
     never trusted to the AI, so it can never be broken, hallucinated, or
     mistyped. Mirrors how the signature field is appended.
     """
@@ -343,7 +388,7 @@ def append_action_link(draft_text: str, url: str, label: str) -> str:
 def detect_seo_keyword_used(draft_text: str, seo_keywords: str) -> str:
     """
     Checks whether the AI's draft reply naturally included one of the
-    business's target local-SEO phrases. Pure post-hoc substring check —
+    business's target local-SEO phrases. Pure post-hoc substring check -
     no extra API call, so this costs nothing to run. Returns the matched
     phrase (in the owner's original casing) or '' if none was used.
     """
@@ -361,16 +406,13 @@ def summarize_edit_patterns(pairs):
     Given [{'draft': ai_text, 'final': human_edited_text}, ...], asks Gemini
     to summarize the RECURRING style differences as plain writing guidance.
     Returns a short string ready to inject into future prompts, or None.
+    Runs rarely in the background, so it uses the stronger model.
     """
     if not pairs:
         return None
 
-    load_dotenv()
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
+    if _client is None:
         return None
-
-    client = genai.Client(api_key=api_key)
 
     formatted_pairs = "\n\n".join(
         f'AI Draft: "{p["draft"]}"\nPublished: "{p["final"]}"' for p in pairs[:20]
@@ -389,12 +431,13 @@ def summarize_edit_patterns(pairs):
     could follow to match this owner's voice from the first draft. Do not mention "AI" or "draft".
     """
 
-    for model_name in ["gemini-3.6-flash"]:
+    for model_name in [SMART_MODEL]:
         try:
-            response = client.models.generate_content(model=model_name, contents=prompt)
+            response = _client.models.generate_content(model=model_name, contents=prompt)
             if response and response.text:
                 return response.text.strip()
-        except Exception:
+        except Exception as e:
+            print(f"[ai_responder] summarize_edit_patterns failed: {e}")
             continue
 
     return None
@@ -404,6 +447,7 @@ def analyze_complaints(comments_list):
     """
     Analyzes a list of negative review comments, clusters recurring complaints,
     and returns a structured JSON summary with keywords, counts, and recommendations.
+    Runs on demand from the dashboard / export, so it uses the stronger model.
     """
     if not comments_list:
         return {
@@ -412,12 +456,8 @@ def analyze_complaints(comments_list):
             "actionable_tip": "Keep up the excellent service!"
         }
 
-    load_dotenv()
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
+    if _client is None:
         return {"summary": "API Key Missing", "top_issues": []}
-
-    client = genai.Client(api_key=api_key)
 
     formatted_comments = "\n".join([f"- {c}" for c in comments_list])
 
@@ -425,7 +465,7 @@ def analyze_complaints(comments_list):
     You are an expert customer experience analyst.
     Analyze the following list of negative customer review comments (1-3 stars) and cluster recurring complaints into clear categories.
 
-    IMPORTANT — before clustering, judge whether each comment is a genuine complaint or clearly sarcastic, exaggerated, absurd, or joking in tone (e.g. impossible claims, over-the-top phrasing, obvious hyperbole). Real customer complaints are specific and plausible for the business type. Exclude comments that are jokes, trolling, or absurd exaggeration from "top_issues" entirely — do not cluster them as a genuine category, and do not let a single joking comment drive a "High" severity rating on its own. If ALL negative comments turn out to be jokes/spam with no genuine complaints, return an empty top_issues list and say so plainly in the summary.
+    IMPORTANT - before clustering, judge whether each comment is a genuine complaint or clearly sarcastic, exaggerated, absurd, or joking in tone (e.g. impossible claims, over-the-top phrasing, obvious hyperbole). Real customer complaints are specific and plausible for the business type. Exclude comments that are jokes, trolling, or absurd exaggeration from "top_issues" entirely - do not cluster them as a genuine category, and do not let a single joking comment drive a "High" severity rating on its own. If ALL negative comments turn out to be jokes/spam with no genuine complaints, return an empty top_issues list and say so plainly in the summary.
 
     Review Comments:
     {formatted_comments}
@@ -446,12 +486,13 @@ def analyze_complaints(comments_list):
     IMPORTANT: Respond ONLY with raw JSON text. Do not wrap in markdown or backticks.
     """
 
-    available_models = ["gemini-3.6-flash"]
+    available_models = [SMART_MODEL]
     last_error = ""
 
     for model_name in available_models:
+        raw_text = ""
         try:
-            response = client.models.generate_content(
+            response = _client.models.generate_content(
                 model=model_name,
                 contents=prompt,
                 config={'response_mime_type': 'application/json'}
@@ -466,7 +507,7 @@ def analyze_complaints(comments_list):
                 return json.loads(raw_text)
 
         except json.JSONDecodeError as e:
-            last_error = f"Malformed JSON from model: {e}. Raw response: {raw_text[:300] if 'raw_text' in dir() else 'N/A'}"
+            last_error = f"Malformed JSON from model: {e}. Raw response: {raw_text[:300] or 'N/A'}"
             print(f"[ai_responder] analyze_complaints JSON parse failed: {last_error}")
             continue
         except Exception as e:

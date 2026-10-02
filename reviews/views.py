@@ -662,6 +662,7 @@ def regenerate_simulated_review_view(request, review_id):
             learned_patterns=profile.learned_patterns or '',
             seo_keywords=active_seo_keywords,
             action_offer_label=action_offer_label,
+            contact_email=profile.user.email,
         )
     except QuotaExceededError:
         review.status = 'generation_failed'
@@ -709,10 +710,18 @@ def regenerate_simulated_review_view(request, review_id):
 @login_required
 def sync_google_reviews_view(request):
     if request.method == 'POST':
+        last_sync = SyncLog.objects.filter(user=request.user, platform='google').first()
+        if last_sync and (timezone.now() - last_sync.created_at) < timedelta(hours=1):
+            messages.info(request, "You synced recently. New reviews are also checked automatically every day. You can sync again in about an hour.")
+            return redirect('dashboard')
+
         business_name = request.POST.get('business_name', 'Geneva Bistro').strip()
         place_id = request.POST.get('place_id', '').strip()
 
         profile, role = get_or_create_owned_profile(request.user)
+        if profile.business_name != business_name:
+            profile.google_review_url = None
+            profile.google_maps_url = None
         profile.business_name = business_name
         profile.save()
 
@@ -1161,6 +1170,7 @@ def preview_ai_response_view(request):
                 response_length=response_length,
                 creativity=creativity_level,
                 blacklisted_words=blacklisted_words,
+                contact_email=profile.user.email,
             )
         except QuotaExceededError:
             return JsonResponse({'error': "Gemini's daily free-tier quota is exhausted — try again later."}, status=429)
@@ -1361,6 +1371,7 @@ def _generate_draft_impl(request, review_id):
 
     review = get_object_or_404(Review, id=review_id, user=profile.user)
     force = request.POST.get('force') == '1'
+    is_regen = bool(review.ai_draft_reply)
 
     if not force and not is_authentic_review(review.comment):
         review.status = 'flagged'
@@ -1404,6 +1415,8 @@ def _generate_draft_impl(request, review_id):
             learned_patterns=profile.learned_patterns or '',
             seo_keywords=active_seo_keywords,
             action_offer_label=action_offer_label,
+            is_regeneration=is_regen,
+            contact_email=profile.user.email,
         )
     except QuotaExceededError:
         return JsonResponse({'ok': False, 'reason': "Gemini's daily free-tier quota is exhausted for now — try again later, or enable billing on your Google AI project to raise the limit."})
@@ -1456,36 +1469,21 @@ def approve_review_view(request, review_id):
                 final_text=edited_text,
             )
 
-        has_google_maps_url = bool(profile.google_maps_url)
-
-        if has_google_maps_url:
+        if profile.google_business_token:
             success, google_url = post_reply_to_google(review.id, edited_text, request.user)
+        else:
+            success = False
 
-            if success:
-                review.status = 'posted'
-                messages.success(request, f"Reply to {review.reviewer_name} was posted to Google.")
-            else:
-                review.status = 'approved'
-                if google_url:
-                    request.session['pending_post_url'] = google_url
-                    request.session['pending_reply_text'] = edited_text
-                    messages.warning(
-                        request,
-                        f"Reply is ready! Click the 'Open Google Business' button below to post it manually."
-                    )
-                else:
-                    messages.warning(
-                        request,
-                        f"Reply to {review.reviewer_name} was approved but needs to be posted manually."
-                    )
+        if success:
+            review.status = 'posted'
+            messages.success(request, f"Reply to {review.reviewer_name} was posted to Google.")
         else:
             review.status = 'approved'
-            messages.info(
+            messages.success(
                 request,
-                f"Reply to {review.reviewer_name} was saved. Connect your Google Business Profile on the Dashboard to auto-post."
+                f"Reply to {review.reviewer_name} is copied. Paste it on the Google tab "
+                f"that just opened, then click “I posted it” here."
             )
-
-        review.save()
 
         ActivityLog.objects.create(user=request.user, action='review_approved', detail=f"Reply to {review.reviewer_name}")
 
@@ -1621,6 +1619,7 @@ def _add_review_impl(request):
             learned_patterns=profile.learned_patterns or '',
             seo_keywords=active_seo_keywords,
             action_offer_label=action_offer_label,
+            contact_email=profile.user.email,
         )
     except QuotaExceededError:
         review.status = 'generation_failed'
@@ -1930,3 +1929,21 @@ def delete_qr_view(request, qr_id):
         qr.delete()
         messages.info(request, "QR code deleted.")
     return redirect('qr_booster')
+
+
+
+@login_required
+@require_POST
+def mark_posted_view(request, review_id):
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    if not can_approve_reviews(role):
+        messages.error(request, "You don't have permission to do that.")
+        return redirect('dashboard')
+    review = get_object_or_404(Review, id=review_id, user=profile.user, status='approved')
+    review.status = 'posted'
+    review.save()
+    ActivityLog.objects.create(user=request.user, action='review_approved', detail=f"Marked posted: {review.reviewer_name}")
+    messages.success(request, f"Marked as posted for {review.reviewer_name}.")
+    return redirect('dashboard')

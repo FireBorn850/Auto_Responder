@@ -11,7 +11,6 @@ from reviews.permissions import get_business_context
 from django.contrib.auth.models import User
 
 SYNC_INTERVALS = {
-    'realtime': timedelta(minutes=5),
     'hourly': timedelta(hours=1),
     'daily': timedelta(days=1),
 }
@@ -19,7 +18,7 @@ SYNC_INTERVALS = {
 @shared_task
 def poll_google_reviews():
     """
-    Runs every 5 min via Celery Beat. For each business with auto-sync
+    Runs hourly via Celery Beat; each business syncs at its own frequency. For each business with auto-sync
     enabled, checks whether enough time has passed for their chosen
     frequency, and if so, pulls new reviews the same way the manual
     'Sync Reviews' button does.

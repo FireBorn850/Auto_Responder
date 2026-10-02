@@ -7,6 +7,7 @@ from reviews.models import Review, BusinessProfile
 from reviews.tasks import send_negative_review_alert
 from reviews.services.ai_responder import detect_review_language
 from .exceptions import RateLimitError
+from reviews.services.dataforseo_importer import fetch_reviews, place_id_from_url
 
 # langdetect isn't fully deterministic run-to-run unless seeded — pin it so
 # the same review text always yields the same language, not a coin flip.
@@ -45,11 +46,9 @@ def _guess_language(text: str) -> str:
     except LangDetectException:
         detected = None
 
-    if detected in ("fr", "en", "it"):
-        return detected
+    if detected in ("fr", "en", "it", "de"):
+        return detect_review_language(text, fallback_language=detected)
 
-    if detected == "de":
-        return detect_review_language(text, fallback_language="de")
 
     # Unrecognized by langdetect (too short, ambiguous, or a language
     # outside our five) — fall back to the French/English word-hint
@@ -81,177 +80,104 @@ def _maps_url_from_data_id(data_id: str):
         return None
 
 
-def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva Bistro", max_reviews: int = 30) -> int:
+def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva Bistro", max_reviews: int = 100):
     """
-    Fetches real public Google Maps reviews for a business by name, using
-    SerpAPI (no Google Business Profile API approval required). Falls back
-    to demo sample reviews if no SERPAPI_KEY is configured.
-
-    `place_id` is accepted for backward compatibility but is no longer
-    required — SerpAPI looks the business up by name.
-
-    Paginates through SerpAPI's next_page_token up to `max_reviews` total,
-    since a single call only returns ~8 reviews.
+    Fetches Google reviews via DataForSEO. Returns (imported_count, auto_posted_count).
+    Falls back to demo reviews if DataForSEO credentials are missing.
     """
-    api_key = getattr(settings, 'SERPAPI_KEY', None)
-
-    if not api_key:
-        logger.warning("SERPAPI_KEY not found in settings. Running demo importer.")
+    if not (getattr(settings, 'DATAFORSEO_LOGIN', None) and getattr(settings, 'DATAFORSEO_PASSWORD', None)):
+        logger.warning("DataForSEO credentials not found in settings. Running demo importer.")
         return _import_demo_real_reviews(user, business_name), 0
 
+    profile = BusinessProfile.objects.filter(user=user).first()
+    place_id = (place_id or '').strip() or place_id_from_url(profile.google_review_url if profile else None)
+
+    # Cost control: full backlog only on the first sync, then the 10 newest.
+    first_sync = not Review.objects.filter(user=user, business_name=business_name, source='google').exists()
+    depth = max_reviews if first_sync else 30
+    depth = ((depth + 9) // 10) * 10  # DataForSEO bills per 10 reviews
+
     try:
-        # Step 1: find the business on Google Maps to get its data_id
-        search_params = {
-            'engine': 'google_maps',
-            'q': business_name,
-            'type': 'search',
-            'api_key': api_key,
-        }
-        search_resp = requests.get(SERPAPI_BASE_URL, params=search_params, timeout=15)
-        if search_resp.status_code == 429:
-            raise RateLimitError("SerpAPI rate limit hit while searching Google Maps.")
-        search_data = search_resp.json()
-        if 'error' in search_data:
-            err_msg = search_data['error']
-            if any(w in err_msg.lower() for w in ['rate limit', 'quota', 'run out of searches', 'account has run out']):
-                raise RateLimitError(err_msg)
-            raise Exception(f"SerpAPI error: {err_msg}")
-
-        local_results = search_data.get('local_results') or []
-        place_data = search_data.get('place_results')
-
-        data_id = None
-        place_id = None
-        if place_data:
-            data_id = place_data.get('data_id')
-            place_id = place_data.get('place_id')
-        elif local_results:
-            data_id = local_results[0].get('data_id')
-            place_id = local_results[0].get('place_id')
-
-        if not data_id:
-            logger.error(f"SerpAPI: no Google Maps listing found for '{business_name}'.")
-            return 0, 0
-
-        # Build the real Google Maps URL from data_id directly, rather than
-        # relying on a 'link' field SerpAPI doesn't consistently return.
-        # data_id looks like "0x4761xxxx:0x89abxxxx" — the part after the
-        # colon, read as hex, is the place's Maps CID, and
-        # maps.google.com/?cid=<decimal CID> reliably opens that exact
-        # business's public Maps page for anyone, no login required.
-        maps_url = _maps_url_from_data_id(data_id)
-
-        # Google's official "write a review" deep link — sends a customer
-        # straight to the review composer for this exact business, not just
-        # its general page. Powers QR Code Booster's auto-fill.
-        review_url = f"https://search.google.com/local/writereview?placeid={place_id}" if place_id else None
-
-        # Save both so the dashboard's "Open Google Business" button and
-        # QR Code Booster's auto-fill both work off real data.
-        update_fields = {}
-        if maps_url:
-            update_fields['google_maps_url'] = maps_url
-        if review_url:
-            update_fields['google_review_url'] = review_url
-        if update_fields:
-            BusinessProfile.objects.filter(user=user).update(**update_fields)
-
-        # Step 2: fetch reviews for that listing, paginating for more than
-        # the ~8 a single call returns.
-        reviews_list = []
-        next_page_token = None
-
-        while len(reviews_list) < max_reviews:
-            reviews_params = {
-                'engine': 'google_maps_reviews',
-                'data_id': data_id,
-                'api_key': api_key,
-                'hl': 'en',
-            }
-            if next_page_token:
-                reviews_params['next_page_token'] = next_page_token
-
-            reviews_resp = requests.get(SERPAPI_BASE_URL, params=reviews_params, timeout=15)
-            if reviews_resp.status_code == 429:
-                raise RateLimitError("SerpAPI rate limit hit while fetching reviews.")
-            reviews_data = reviews_resp.json()
-            if 'error' in reviews_data:
-                err_msg = reviews_data['error']
-                if any(w in err_msg.lower() for w in ['rate limit', 'quota', 'run out of searches', 'account has run out']):
-                    raise RateLimitError(err_msg)
-                raise Exception(f"SerpAPI error: {err_msg}")
-
-            page_reviews = reviews_data.get('reviews') or []
-            if not page_reviews:
-                break
-
-            reviews_list.extend(page_reviews)
-
-            next_page_token = (reviews_data.get('serpapi_pagination') or {}).get('next_page_token')
-            if not next_page_token:
-                break
-
-        reviews_list = reviews_list[:max_reviews]
-        imported_count = 0
-        auto_posted_count = 0
-
-        # Reversed on purpose: SerpAPI returns the top/most-relevant review
-        # first, but Review.created_at is set at save time, and the
-        # dashboard sorts newest-first. Saving in reverse means the review
-        # that's actually first on Google Maps gets the latest timestamp,
-        # so it correctly shows up first on the dashboard too.
-        for r in reversed(reviews_list):
-            comment_text = (r.get('snippet') or '').strip()
-            if not comment_text:
-                continue
-
-            reviewer_name = (r.get('user') or {}).get('name', 'Anonymous Customer')
-            rating = r.get('rating', 5)
-            language = _guess_language(comment_text)
-
-            # SerpAPI includes the owner's existing reply (if any) under
-            # 'response'. If it's there, the reply is genuinely live on
-            # Google — this is how we auto-detect "posted" instead of
-            # guessing or asking the manager to confirm.
-            response_obj = r.get('response') or {}
-            has_owner_response = bool((response_obj.get('snippet') or '').strip())
-
-            existing = Review.objects.filter(
-                user=user,
-                business_name=business_name,
-                reviewer_name=reviewer_name,
-                comment=comment_text,
-            ).first()
-
-            if existing:
-                if has_owner_response and existing.status != 'posted':
-                    existing.status = 'posted'
-                    existing.save()
-                    auto_posted_count += 1
-                continue
-
-            new_review = Review.objects.create(
-                user=user,
-                reviewer_name=reviewer_name,
-                rating=rating,
-                comment=comment_text,
-                detected_language=language,
-                business_name=business_name,
-                source='google',
-                status='posted' if has_owner_response else 'pending',
-            )
-            imported_count += 1
-
-            if rating <= 2 and not has_owner_response:
-                send_negative_review_alert.delay(new_review.id)
-
-        return imported_count, auto_posted_count
-
+        items, info = fetch_reviews(business_name, place_id=place_id, depth=depth)
     except RateLimitError:
         raise
     except Exception as e:
-        logger.error(f"Failed to fetch Google reviews via SerpAPI: {e}")
+        logger.error(f"Failed to fetch Google reviews via DataForSEO: {e}")
         raise
+
+    update_fields = {}
+    if info.get('cid'):
+        update_fields['google_maps_url'] = f"https://www.google.com/maps?cid={info['cid']}"
+    if info.get('place_id'):
+        update_fields['google_review_url'] = f"https://search.google.com/local/writereview?placeid={info['place_id']}"
+    if update_fields:
+        BusinessProfile.objects.filter(user=user).update(**update_fields)
+
+    imported_count = 0
+    auto_posted_count = 0
+
+    # Reversed on purpose: items arrive newest-first, and created_at is set
+    # at save time, so saving oldest-first keeps the dashboard order right.
+    for item in reversed(items):
+        comment_text = (item.get('original_review_text') or item.get('review_text') or '').strip()
+        if not comment_text:
+            continue
+
+        external_id = item.get('review_id')
+        review_url = item.get('review_url')
+        reviewer_name = item.get('profile_name') or 'Anonymous Customer'
+        rating = (item.get('rating') or {}).get('value') or 5
+        has_owner_response = bool((item.get('owner_answer') or '').strip())
+
+        existing = None
+        if external_id:
+            existing = Review.objects.filter(
+                user=user, business_name=business_name, external_id=external_id
+            ).first()
+        if existing is None:
+            existing = Review.objects.filter(
+                user=user, business_name=business_name,
+                reviewer_name=reviewer_name, comment=comment_text,
+            ).first()
+
+        if existing:
+            changed = False
+            if external_id and not existing.external_id:
+                existing.external_id = external_id
+                changed = True
+            if review_url and not existing.review_url:
+                existing.review_url = review_url
+                changed = True
+            if has_owner_response and existing.status != 'posted':
+                existing.status = 'posted'
+                changed = True
+                auto_posted_count += 1
+            if changed:
+                existing.save()
+            continue
+
+        orig_lang = (item.get('original_language') or '').lower()
+        language = orig_lang if (orig_lang and orig_lang != 'de') else _guess_language(comment_text)
+
+        new_review = Review.objects.create(
+            user=user,
+            reviewer_name=reviewer_name,
+            rating=rating,
+            comment=comment_text,
+            detected_language=language,
+            business_name=business_name,
+            source='google',
+            status='posted' if has_owner_response else 'pending',
+            external_id=external_id,
+            review_url=review_url,
+        )
+        imported_count += 1
+
+        if rating <= 2 and not has_owner_response:
+            send_negative_review_alert.delay(new_review.id)
+
+    return imported_count, auto_posted_count
+
 
 
 def _import_demo_real_reviews(user, business_name: str) -> int:

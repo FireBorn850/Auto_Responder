@@ -135,7 +135,6 @@ class BusinessProfile(models.Model):
         ('manual', 'Manual only (click Sync Reviews yourself)'),
         ('daily', 'Daily'),
         ('hourly', 'Hourly'),
-        ('realtime', 'Real-time (checks every 5 min)'),
     ]
     sync_frequency = models.CharField(
         max_length=10, choices=SYNC_FREQUENCY_CHOICES, default='manual',
@@ -161,6 +160,11 @@ class BusinessProfile(models.Model):
 
     def __str__(self):
         return f"{self.business_name} ({self.get_automation_mode_display()})"
+
+    @property
+    def gbp_connected(self):
+        """True once the owner has linked their own Google Business Profile and picked a location."""
+        return bool(self.google_business_refresh_token and self.google_business_location_id)
 
 
 class AccessCode(models.Model):
@@ -250,6 +254,14 @@ class Review(models.Model):
     action_link_shown = models.BooleanField(
         default=False,
         help_text="True if a promotional action link (booking, event, store) was appended to this reply."
+    )
+    external_id = models.CharField(
+        max_length=255, blank=True, null=True, db_index=True,
+        help_text="Review ID from the data provider, used to avoid duplicates."
+    )
+    review_url = models.URLField(
+        max_length=1000, blank=True, null=True,
+        help_text="Direct Google Maps link to this specific review."
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
