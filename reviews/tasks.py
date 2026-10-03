@@ -37,7 +37,8 @@ def poll_google_reviews():
             continue
 
         now = dj_timezone.now()
-        if profile.last_auto_sync and (now - profile.last_auto_sync) < interval:
+        # 30 min grace: a scheduler firing slightly early must not skip a whole day
+        if profile.last_auto_sync and (now - profile.last_auto_sync) < interval - timedelta(minutes=30):
             continue
 
         try:
@@ -45,6 +46,8 @@ def poll_google_reviews():
                 place_id='',
                 user=profile.user,
                 business_name=profile.business_name,
+                priority=1,
+                wait_seconds=300,
             )
             profile.last_auto_sync = now
             profile.save(update_fields=['last_auto_sync'])

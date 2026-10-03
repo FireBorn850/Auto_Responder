@@ -80,7 +80,7 @@ def _maps_url_from_data_id(data_id: str):
         return None
 
 
-def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva Bistro", max_reviews: int = 100):
+def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva Bistro", max_reviews: int = 100, priority: int = 2, wait_seconds: int = 90):
     """
     Fetches Google reviews via DataForSEO. Returns (imported_count, auto_posted_count).
     Falls back to demo reviews if DataForSEO credentials are missing.
@@ -102,11 +102,11 @@ def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva 
 
     # Cost control: full backlog only on the first sync, then the 10 newest.
     first_sync = not Review.objects.filter(user=user, business_name=business_name, source='google').exists()
-    depth = max_reviews if first_sync else 30
+    depth = max_reviews if first_sync else 10
     depth = ((depth + 9) // 10) * 10  # DataForSEO bills per 10 reviews
 
     try:
-        items, info = fetch_reviews(business_name, place_id=place_id, depth=depth)
+        items, info = fetch_reviews(business_name, place_id=place_id, depth=depth, priority=priority, wait_seconds=wait_seconds)
     except RateLimitError:
         raise
     except Exception as e:
