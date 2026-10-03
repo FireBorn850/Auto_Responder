@@ -134,7 +134,6 @@ class BusinessProfile(models.Model):
     SYNC_FREQUENCY_CHOICES = [
         ('manual', 'Manual only (click Sync Reviews yourself)'),
         ('daily', 'Daily'),
-        ('hourly', 'Hourly'),
     ]
     sync_frequency = models.CharField(
         max_length=10, choices=SYNC_FREQUENCY_CHOICES, default='manual',
