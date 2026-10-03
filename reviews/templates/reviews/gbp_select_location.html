@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Choose your business" %}{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-lg mx-auto px-4 py-10 space-y-5">
+    <div>
+        <h1 class="font-display text-xl font-semibold text-white">{% trans "Choose your Google Business location" %}</h1>
+        <p class="text-xs text-slate-400 mt-1">{% trans "Pick the business whose reviews you want Mehrly to manage." %}</p>
+    </div>
+
+    <form method="POST" class="space-y-2">
+        {% csrf_token %}
+        {% for loc in locations %}
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer">
+            <input type="radio" name="choice" value="{{ loc.value }}" required class="mt-1">
+            <span>
+                <span class="block text-sm font-semibold text-white">{{ loc.title }}</span>
+                {% if loc.address %}<span class="block text-[11px] text-slate-400">{{ loc.address }}</span>{% endif %}
+            </span>
+        </label>
+        {% endfor %}
+
+        <div class="flex items-center gap-3 pt-2">
+            <button type="submit"
+                style="background: linear-gradient(135deg, var(--gold), var(--gold-soft)); color: var(--ink);"
+                class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider">{% trans "Use this location" %}</button>
+            <a href="{% url 'dashboard' %}" class="text-xs text-slate-400 hover:text-slate-200">{% trans "Cancel" %}</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

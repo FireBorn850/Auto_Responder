@@ -36,6 +36,7 @@ import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
+from .services import gbp_client
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -1469,10 +1470,12 @@ def approve_review_view(request, review_id):
                 final_text=edited_text,
             )
 
-        if profile.google_business_token:
-            success, google_url = post_reply_to_google(review.id, edited_text, request.user)
-        else:
-            success = False
+        success = False
+        if profile.gbp_connected and (review.external_id or '').startswith('gbp:') and edited_text:
+            try:
+                success = gbp_client.post_reply(profile, review.external_id[4:], edited_text.strip())
+            except gbp_client.GBPError as e:
+                messages.error(request, f"Couldn't post to Google automatically: {e}")
 
         if success:
             review.status = 'posted'

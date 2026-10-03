@@ -9,6 +9,7 @@ from django.utils import timezone as dj_timezone
 from reviews.models import BusinessProfile
 from reviews.permissions import get_business_context
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 SYNC_INTERVALS = {
     'hourly': timedelta(hours=1),
@@ -25,7 +26,10 @@ def poll_google_reviews():
     """
     from reviews.services.google_importer import fetch_live_google_reviews
 
-    profiles = BusinessProfile.objects.exclude(sync_frequency='manual').exclude(google_maps_url__isnull=True).exclude(google_maps_url='')
+    profiles = BusinessProfile.objects.exclude(sync_frequency='manual').filter(
+        (Q(google_maps_url__isnull=False) & ~Q(google_maps_url='')) |
+        (Q(google_business_location_id__isnull=False) & ~Q(google_business_location_id=''))
+    )
 
     for profile in profiles:
         interval = SYNC_INTERVALS.get(profile.sync_frequency)

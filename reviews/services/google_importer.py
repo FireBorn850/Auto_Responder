@@ -85,6 +85,14 @@ def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva 
     Fetches Google reviews via DataForSEO. Returns (imported_count, auto_posted_count).
     Falls back to demo reviews if DataForSEO credentials are missing.
     """
+    # Optional: owner connected their own Google Business Profile -> read reviews straight from Google
+    _profile = BusinessProfile.objects.filter(user=user).first()
+    if _profile and _profile.gbp_connected:
+        from reviews.services import gbp_client, gbp_importer
+        try:
+            return gbp_importer.import_reviews(_profile, user, business_name)
+        except gbp_client.GBPError as e:
+            logger.warning(f"Google Business Profile import failed, falling back to DataForSEO: {e}")
     if not (getattr(settings, 'DATAFORSEO_LOGIN', None) and getattr(settings, 'DATAFORSEO_PASSWORD', None)):
         logger.warning("DataForSEO credentials not found in settings. Running demo importer.")
         return _import_demo_real_reviews(user, business_name), 0

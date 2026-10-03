@@ -1,0 +1,45 @@
+[1mdiff --git a/config/settings.py b/config/settings.py[m
+[1mindex 6065ce0..a8f0e7b 100644[m
+[1m--- a/config/settings.py[m
+[1m+++ b/config/settings.py[m
+[36m@@ -88,9 +88,12 @@[m [mWSGI_APPLICATION = 'config.wsgi.application'[m
+ DATABASES = {[m
+     'default': dj_database_url.config([m
+         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",[m
+[31m-        conn_max_age=600[m
+[32m+[m[32m        conn_max_age=600,[m[41m[m
+[32m+[m[32m        conn_health_checks=True,[m[41m[m
+     )[m
+ }[m
+[32m+[m[32m# Required because Neon's pooled endpoint uses PgBouncer[m[41m[m
+[32m+[m[32mDATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True[m[41m[m
+ [m
+ # Password validation[m
+ AUTH_PASSWORD_VALIDATORS = [[m
+[36m@@ -222,9 +225,22 @@[m [mCELERY_BROKER_TRANSPORT_OPTIONS = {'protocol_version': 2}[m
+ CELERY_BEAT_SCHEDULE = {[m
+     'poll-google-reviews-every-5-min': {[m
+         'task': 'reviews.tasks.poll_google_reviews',[m
+[31m-        'schedule': crontab(minute='*/5'),[m
+[32m+[m[32m        'schedule': crontab(minute=0),[m[41m[m
+     },[m
+ }[m
+ [m
+ [m
+[31m-SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')[m
+\ No newline at end of file[m
+[32m+[m[32mSERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mDATAFORSEO_LOGIN = os.environ.get('DATAFORSEO_LOGIN', '')[m[41m[m
+[32m+[m[32mDATAFORSEO_PASSWORD = os.environ.get('DATAFORSEO_PASSWORD', '')[m[41m[m
+[32m+[m[32mDATAFORSEO_BASE_URL = os.environ.get('DATAFORSEO_BASE_URL') or 'https://api.dataforseo.com/v3'[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# ==========================================[m[41m[m
+[32m+[m[32m# Google Business Profile (optional auto-posting)[m[41m[m
+[32m+[m[32m# ==========================================[m[41m[m
+[32m+[m[32mGOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')[m[41m[m
+[32m+[m[32mGOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')[m[41m[m
+[32m+[m[32mSITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')[m[41m[m
+[32m+[m[32mTOKEN_ENCRYPTION_KEY = os.environ.get('TOKEN_ENCRYPTION_KEY', '')[m
+\ No newline at end of file[m

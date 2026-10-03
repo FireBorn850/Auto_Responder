@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import views_api  # Import API views
+from . import views_gbp
 
 urlpatterns = [
     # ==========================================
@@ -22,6 +23,10 @@ urlpatterns = [
     path('privacy-policy/', views.privacy_policy_view, name='privacy_policy'),
     path('terms-of-service/', views.terms_of_service_view, name='terms_of_service'),
     path('getting-started/', views.getting_started_view, name='getting_started'),
+    path('google-business/connect/', views_gbp.gbp_connect_view, name='gbp_connect'),
+    path('google-business/callback/', views_gbp.gbp_callback_view, name='gbp_callback'),
+    path('google-business/select/', views_gbp.gbp_select_location_view, name='gbp_select_location'),
+    path('google-business/disconnect/', views_gbp.gbp_disconnect_view, name='gbp_disconnect'),
     # ==========================================
     # STRIPE BILLING
     # ==========================================
@@ -34,6 +39,7 @@ urlpatterns = [
     # ==========================================
     # 2. REVIEW & SETTINGS ACTIONS
     # ==========================================
+    
     path('sync-google-reviews/', views.sync_google_reviews_view, name='sync_google_reviews'),
     path('sync-tripadvisor-reviews/', views.sync_tripadvisor_reviews_view, name='sync_tripadvisor_reviews'),
     path('sync-frequency/update/', views.update_sync_frequency_view, name='update_sync_frequency'),

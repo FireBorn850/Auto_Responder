@@ -1502,6 +1502,7 @@
             {% elif review.ai_draft_reply %}
             <form action="{% url 'approve_review' review.id %}" method="POST" class="ai-draft-panel"
             data-review-url="{{ review.review_url|default:'' }}" onsubmit="return approveAndOpen(this)">
+            {% if profile.gbp_connected and review.external_id|slice:":4" == "gbp:" %}data-auto-post="1"{% endif %}
                 {% csrf_token %}
                 <div class="flex items-center justify-between mb-2">
                     <span class="ai-badge">{% trans "AI Draft" %}</span>
@@ -1620,6 +1621,10 @@
 
         <form action="{% url 'sync_google_reviews' %}" method="POST" class="space-y-4" onsubmit="showSyncProgress()">
             {% csrf_token %}
+            {% if profile.gbp_connected %}
+                <input type="hidden" name="business_name" value="{{ profile.business_name }}">
+                <p class="text-[11px] text-slate-400">{% trans "Connected to Google. Reviews are imported straight from your Business Profile." %}</p>
+            {% else %}
             <div>
                 <label
                     class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">{% trans "Business Name" %} <span class="text-red-500">*</span></label>
@@ -1636,6 +1641,7 @@
                 <p class="text-[10px] text-slate-600 mt-1">{% trans "Leave empty to auto-load sample live customer feedback." %}</p>
             </div>
 
+            {% endif %}
             <div id="syncProgressWrap" class="hidden space-y-1.5">
                 <div class="sync-progress-track">
                     <div id="syncProgressFill" class="sync-progress-fill"></div>
@@ -1649,6 +1655,25 @@
                 <button type="submit" class="btn-primary"><span>{% trans "Import Reviews" %}</span></button>
             </div>
         </form>
+
+        <!-- Google Business Profile (optional) -->
+        <div class="pt-3 border-t border-white/5 space-y-2">
+            {% if profile.gbp_connected %}
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] text-emerald-400 font-semibold">● {% trans "Google Business Profile connected" %}</span>
+                <form action="{% url 'gbp_disconnect' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="text-[10px] text-slate-500 hover:text-rose-400 font-mono uppercase tracking-wider">{% trans "Disconnect" %}</button>
+                </form>
+            </div>
+            {% else %}
+            <a href="{% url 'gbp_connect' %}" class="btn-ghost w-full justify-center">
+                <i class="bi bi-google"></i>
+                <span>{% trans "Connect Google Business Profile (optional)" %}</span>
+            </a>
+            <p class="text-[10px] text-slate-600">{% trans "Sign in with Google to auto-import reviews and post replies for you. No Place ID or copy-paste needed." %}</p>
+            {% endif %}
+        </div>
 
         <div class="pt-3 border-t border-white/5 flex items-center gap-2 text-[10px] text-slate-600">
             <span>{% trans "Reviews are imported in real-time and analyzed by AI." %}</span>
@@ -1776,6 +1801,7 @@
             try { document.execCommand('copy'); } catch (e) {}
             if (navigator.clipboard) navigator.clipboard.writeText(textarea.value).catch(() => {});
         }
+        if (form.getAttribute('data-auto-post') === '1') return true;  // server posts it, no new tab needed
         const url = form.getAttribute('data-review-url') || 'https://business.google.com/reviews';
         window.open(url, '_blank');
         return true;
