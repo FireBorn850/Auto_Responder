@@ -41,8 +41,6 @@ def _url_path_from_listing(url):
 def _fetch_from_dataforseo(business_name, url_path, depth, wait_seconds=90):
     task = {
         'depth': depth,
-        'sort_by': 'most_recent',
-        'translate_reviews': False,   # keep the original language so replies match it
         'priority': 2,                # high priority: results in about a minute
     }
     if url_path:
@@ -96,9 +94,9 @@ def fetch_live_tripadvisor_reviews(user, business_name: str = "Geneva Bistro", m
     if url_path and _slug(business_name) not in _slug(url_path):
         url_path = None
 
-    depth = max(10, -(-max_reviews // 10) * 10)  # DataForSEO bills per 10 reviews
+    depth = 10  # newest 10 reviews only: DataForSEO bills per 10 reviews
 
-    try:
+    try:    
         result = _fetch_from_dataforseo(business_name, url_path, depth)
     except RateLimitError:
         raise
