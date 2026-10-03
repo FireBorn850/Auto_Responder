@@ -910,17 +910,17 @@
                             <use href="#i-rocket" />
                         </svg></div>
                     <div class="card-title">{% trans "Hands-Free" %}</div>
-                    <div class="card-subtitle">{% trans "Auto-approve ALL ratings" %}</div>
+                    <div class="card-subtitle">{% trans "Auto-post 4-5★, pre-approve 1-3★" %}</div>
                     <ul>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> {% trans "Every reply is auto-approved instantly" %}</li>
+                            </svg> {% trans "4-5★ replies post to Google automatically" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> {% trans "One-click copy to Google — direct auto-posting activates once Google's API access is approved" %}</li>
+                            </svg> {% trans "1-3★ replies are drafted and waiting for one click — never posted without you" %}</li>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
-                            </svg> {% trans "Zero manual approval needed" %}</li>
+                            </svg> {% trans "Least manual work of all modes" %}</li>
                     </ul>
                     <p class="text-[10.5px] mt-2 pt-2"
                         style="color: var(--gold); border-top: 1px dashed rgba(255,255,255,0.08);">
@@ -950,6 +950,19 @@
                     </ul>
                 </label>
             </div>
+            {% if billing_access and not billing_access.is_premium %}
+            <p class="text-[11.5px] text-amber-300 mt-3 leading-relaxed">
+                {% trans "Smart Guardrail and Hands-Free are Premium features — on your current plan every reply waits for your approval." %}
+                <a href="{% url 'billing' %}" class="text-gold font-semibold">{% trans "Upgrade" %}</a>
+            </p>
+            {% endif %}
+            {% if not profile.gbp_connected %}
+            <p class="text-[11.5px] text-slate-2 mt-3 leading-relaxed">
+                {% trans "Automatic posting needs your Google Business Profile connected." %}
+                <a href="{% url 'gbp_connect' %}" class="text-gold font-semibold">{% trans "Connect it" %}</a>.
+                {% trans "Until then, approved replies wait on your dashboard for one-click copy & paste." %}
+            </p>
+            {% endif %}
         </div>
 
         <!-- Section 2: Brand Voice Tone -->

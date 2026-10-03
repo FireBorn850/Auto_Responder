@@ -28,12 +28,12 @@ urlpatterns = [
     path('google-business/select/', views_gbp.gbp_select_location_view, name='gbp_select_location'),
     path('google-business/disconnect/', views_gbp.gbp_disconnect_view, name='gbp_disconnect'),
     # ==========================================
-    # STRIPE BILLING
+    # BILLING (Polar)
     # ==========================================
-    path('billing/checkout/<str:plan>/', views.create_checkout_session_view, name='create_checkout_session'),
-    path('billing/success/', views.checkout_success_view, name='checkout_success'),
-    path('billing/cancel/', views.checkout_cancel_view, name='checkout_cancel'),
-    path('api/webhook/stripe/', views.stripe_webhook_view, name='stripe_webhook'),
+    path('billing/', views.billing_page_view, name='billing'),
+    path('billing/checkout/<str:plan>/<str:interval>/', views.billing_checkout_view, name='billing_checkout'),
+    path('billing/portal/', views.billing_portal_view, name='billing_portal'),
+    path('api/webhook/polar/', views.polar_webhook_view, name='polar_webhook'),
     path('mark-posted/<int:review_id>/', views.mark_posted_view, name='mark_posted'),
 
     # ==========================================
@@ -41,6 +41,7 @@ urlpatterns = [
     # ==========================================
     
     path('sync-google-reviews/', views.sync_google_reviews_view, name='sync_google_reviews'),
+    path('sync/status/', views.sync_status_view, name='sync_status'),
     path('sync-tripadvisor-reviews/', views.sync_tripadvisor_reviews_view, name='sync_tripadvisor_reviews'),
     path('sync-frequency/update/', views.update_sync_frequency_view, name='update_sync_frequency'),
     path('trustpilot/waitlist/', views.join_trustpilot_waitlist_view, name='join_trustpilot_waitlist'),
@@ -73,6 +74,7 @@ urlpatterns = [
     path('qr/delete/<int:qr_id>/', views.delete_qr_view, name='delete_qr'),
     path('qr/<slug:slug>/', views.qr_redirect_view, name='qr_redirect'),  # Public redirection endpoint
     path('qr-image/<slug:slug>.png', views.qr_image_view, name='qr_image'),
+    path('qr-preview.png', views.qr_preview_image_view, name='qr_preview_image'),
     path('qr-print/<slug:slug>/', views.qr_print_template_view, name='qr_print_template'),
 
     # ==========================================

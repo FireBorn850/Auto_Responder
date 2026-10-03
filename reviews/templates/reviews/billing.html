@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}Billing & Plan{% endblock %}
+{% block head_title %}Billing & Plan | Mehrly{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-4xl mx-auto space-y-6">
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
+        <div>
+            <h1 class="font-display text-2xl font-semibold text-white tracking-tight">{% trans "Billing & Plan" %}</h1>
+            <p class="text-xs sm:text-sm text-slate mt-1">{% trans "Prices in CHF. Cancel anytime. Payments are processed securely by Polar, our reseller, which also handles invoices and VAT." %}</p>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="px-4 py-3 rounded-xl text-xs font-semibold border
+            {% if message.tags == 'success' %}bg-emerald-900/20 text-emerald-400 border-emerald-800/30
+            {% elif message.tags == 'error' %}bg-rose-900/20 text-rose-400 border-rose-800/30
+            {% else %}bg-amber-900/20 text-amber-300 border-amber-800/30{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if request.GET.checkout == 'success' %}
+    <div class="px-4 py-3 rounded-xl text-xs font-semibold border bg-emerald-900/20 text-emerald-400 border-emerald-800/30">
+        {% trans "Thank you! Your payment went through. Your plan activates within a minute — refresh this page if it doesn't show yet." %}
+    </div>
+    {% endif %}
+
+    <!-- Current status -->
+    <div class="bg-ink-2 rounded-2xl border border-white/10 p-6 space-y-3">
+        <h2 class="text-xs font-bold text-slate uppercase tracking-wider font-mono">{% trans "Current plan" %}</h2>
+        {% if access.level == 'trial' %}
+            <p class="text-lg font-display text-white">{% trans "Free trial — full Premium" %}</p>
+            <p class="text-xs text-slate">{% blocktrans count days=access.days_left %}{{ days }} day left. No card needed until you choose a plan.{% plural %}{{ days }} days left. No card needed until you choose a plan.{% endblocktrans %}</p>
+        {% elif access.level == 'founding' %}
+            <p class="text-lg font-display text-white">{% trans "Founding Partner — full Premium" %}</p>
+            <p class="text-xs text-slate">{% blocktrans with date=access.ends_at|date:"M d, Y" %}Free until {{ date }}. Thank you for being an early partner!{% endblocktrans %}</p>
+        {% elif access.level == 'paid' %}
+            <p class="text-lg font-display text-white">{{ profile.get_plan_display }} · {% if profile.billing_interval == 'year' %}{% trans "yearly" %}{% else %}{% trans "monthly" %}{% endif %}</p>
+            {% if profile.subscription_status == 'canceled' %}
+            <p class="text-xs text-amber-300">{% blocktrans with date=access.ends_at|date:"M d, Y" %}Cancelled — access continues until {{ date }}.{% endblocktrans %}</p>
+            {% elif access.ends_at %}
+            <p class="text-xs text-slate">{% blocktrans with date=access.ends_at|date:"M d, Y" %}Renews on {{ date }}.{% endblocktrans %}</p>
+            {% endif %}
+        {% elif access.level == 'grace' %}
+            <p class="text-lg font-display text-white">{{ profile.get_plan_display }}</p>
+            <p class="text-xs text-amber-300">{% blocktrans count days=access.days_left %}Last payment failed — update your card within {{ days }} day to keep access.{% plural %}Last payment failed — update your card within {{ days }} days to keep access.{% endblocktrans %}</p>
+        {% else %}
+            <p class="text-lg font-display text-white">{% trans "Read-only" %}</p>
+            <p class="text-xs text-slate">{% trans "You can still see and copy your reviews and replies. Choose a plan to sync new reviews and draft replies again." %}</p>
+        {% endif %}
+
+        {% if can_manage_billing and profile.billing_subscription_id %}
+        <a href="{% url 'billing_portal' %}" class="btn-ghost inline-flex text-xs mt-2">{% trans "Manage subscription, card & invoices" %}</a>
+        {% endif %}
+    </div>
+
+    {% if can_manage_billing %}
+    <!-- Plans -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Starter -->
+        <div class="bg-ink-2 rounded-2xl border border-white/10 p-6 space-y-4 flex flex-col">
+            <div>
+                <h3 class="font-semibold text-white text-lg">Starter</h3>
+                <p class="text-xs text-slate mt-1">{% trans "One venue, full control" %}</p>
+            </div>
+            <div class="font-display text-3xl text-white">CHF {{ prices.starter_month }}<span class="text-sm text-slate">/{% trans "mo" %}</span></div>
+            <ul class="text-xs text-slate-300 space-y-1.5 flex-1">
+                <li>✓ {% trans "1 Google location, daily sync" %}</li>
+                <li>✓ {% trans "AI drafts in FR/EN/DE/IT" %}</li>
+                <li>✓ {% trans "Manual approval on every reply" %}</li>
+                <li>✓ {% trans "Blacklisted-word protection & Review Simulator" %}</li>
+            </ul>
+            <form method="POST" action="{% url 'billing_checkout' 'starter' 'month' %}">
+                {% csrf_token %}
+                {% if access.level == 'paid' and profile.plan == 'starter' and profile.billing_interval == 'month' %}
+                <button type="button" disabled class="w-full btn-ghost opacity-60">{% trans "Your current plan" %}</button>
+                {% else %}
+                <button type="submit" class="w-full btn-ghost">{% trans "Choose Starter — monthly" %}</button>
+                {% endif %}
+            </form>
+            {% if starter_yearly %}
+            <form method="POST" action="{% url 'billing_checkout' 'starter' 'year' %}"
+                  class="p-3 rounded-xl border border-emerald-400/30 bg-emerald-400/5 space-y-2">
+                {% csrf_token %}
+                <p class="text-xs text-emerald-300 font-semibold">
+                    {% blocktrans with per_month=starter_yearly_per_month total=prices.starter_year %}Save 35%: CHF {{ per_month }}/mo, billed yearly (CHF {{ total }}){% endblocktrans %}
+                </p>
+                {% if access.level == 'paid' and profile.plan == 'starter' and profile.billing_interval == 'year' %}
+                <button type="button" disabled class="w-full btn-ghost opacity-60">{% trans "Your current plan" %}</button>
+                {% else %}
+                <button type="submit" class="w-full btn-ghost">{% trans "Choose Starter — yearly" %}</button>
+                {% endif %}
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Premium -->
+        <div class="bg-ink-2 rounded-2xl border border-amber-400/40 p-6 space-y-4 flex flex-col">
+            <div>
+                <h3 class="font-semibold text-white text-lg">Premium</h3>
+                <p class="text-xs text-slate mt-1">{% trans "For venues that want it running itself" %}</p>
+            </div>
+            <div class="font-display text-3xl text-white">CHF {{ prices.premium_month }}<span class="text-sm text-slate">/{% trans "mo" %}</span></div>
+            <ul class="text-xs text-slate-300 space-y-1.5 flex-1">
+                <li>✓ {% trans "Everything in Starter" %}</li>
+                <li>✓ {% trans "Smart Guardrail auto-posting" %}</li>
+                <li>✓ {% trans "TripAdvisor sync" %}</li>
+                <li>✓ {% trans "QR Code Booster" %}</li>
+                <li>✓ {% trans "Competitor benchmarking & complaint analysis" %}</li>
+                <li>✓ {% trans "Team seats & instant negative-review alerts" %}</li>
+            </ul>
+            <form method="POST" action="{% url 'billing_checkout' 'premium' 'month' %}">
+                {% csrf_token %}
+                {% if access.level == 'paid' and profile.plan == 'premium' %}
+                <button type="button" disabled class="w-full btn-ghost opacity-60">{% trans "Your current plan" %}</button>
+                {% else %}
+                <button type="submit" class="w-full btn-primary">{% trans "Choose Premium" %}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {% if access.level == 'trial' or access.level == 'read_only' %}
+    <p class="text-center text-xs text-slate-2">
+        {% trans "Got a Founding Partner code?" %} <a href="{% url 'redeem_access_code' %}" class="text-gold font-semibold">{% trans "Redeem it here" %}</a>
+    </p>
+    {% endif %}
+    {% else %}
+    <p class="text-xs text-slate">{% trans "Only the account owner can change the plan." %}</p>
+    {% endif %}
+</div>
+
+{% endblock %}

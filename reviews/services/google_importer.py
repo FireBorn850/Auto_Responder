@@ -8,6 +8,7 @@ from reviews.tasks import send_negative_review_alert
 from reviews.services.ai_responder import detect_review_language
 from .exceptions import RateLimitError
 from reviews.services.dataforseo_importer import fetch_reviews, place_id_from_url
+from reviews.services.review_pipeline import auto_draft_new_reviews
 
 # langdetect isn't fully deterministic run-to-run unless seeded — pin it so
 # the same review text always yields the same language, not a coin flip.
@@ -97,13 +98,7 @@ def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva 
         logger.warning("DataForSEO credentials not found in settings. Running demo importer.")
         return _import_demo_real_reviews(user, business_name), 0
 
-    profile = BusinessProfile.objects.filter(user=user).first()
-    place_id = (place_id or '').strip() or place_id_from_url(profile.google_review_url if profile else None)
-
-    # Cost control: full backlog only on the first sync, then the 10 newest.
-    first_sync = not Review.objects.filter(user=user, business_name=business_name, source='google').exists()
-    depth = max_reviews if first_sync else 10
-    depth = ((depth + 9) // 10) * 10  # DataForSEO bills per 10 reviews
+    place_id, depth = plan_google_fetch(user, place_id, max_reviews)
 
     try:
         items, info = fetch_reviews(business_name, place_id=place_id, depth=depth, priority=priority, wait_seconds=wait_seconds)
@@ -113,6 +108,27 @@ def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva 
         logger.error(f"Failed to fetch Google reviews via DataForSEO: {e}")
         raise
 
+    return import_google_items(user, business_name, items, info)
+
+
+def plan_google_fetch(user, place_id='', max_reviews=100):
+    """Which place to ask for, and how many reviews (cost control)."""
+    profile = BusinessProfile.objects.filter(user=user).first()
+    place_id = (place_id or '').strip() or place_id_from_url(profile.google_review_url if profile else None)
+
+    # Cost control: full backlog only on the first sync, then the 10 newest.
+    first_sync = not Review.objects.filter(user=user, source='google', is_simulated=False).exists()
+    depth = max_reviews if first_sync else 10
+    depth = ((depth + 9) // 10) * 10  # DataForSEO bills per 10 reviews
+    return place_id, depth
+
+
+def import_google_items(user, business_name, items, info, draft_now=True):
+    """
+    Saves a finished DataForSEO result. With draft_now=False (the dashboard's
+    step-by-step sync) drafting and alerts are left to the sync job, so this
+    stays fast enough for a single web request.
+    """
     update_fields = {}
     if info.get('cid'):
         update_fields['google_maps_url'] = f"https://www.google.com/maps?cid={info['cid']}"
@@ -123,6 +139,7 @@ def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva 
 
     imported_count = 0
     auto_posted_count = 0
+    new_review_ids, alert_review_ids = [], []
 
     # Reversed on purpose: items arrive newest-first, and created_at is set
     # at save time, so saving oldest-first keeps the dashboard order right.
@@ -140,12 +157,11 @@ def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva 
         existing = None
         if external_id:
             existing = Review.objects.filter(
-                user=user, business_name=business_name, external_id=external_id
+                user=user, external_id=external_id
             ).first()
         if existing is None:
             existing = Review.objects.filter(
-                user=user, business_name=business_name,
-                reviewer_name=reviewer_name, comment=comment_text,
+                user=user, reviewer_name=reviewer_name, comment=comment_text,
             ).first()
 
         if existing:
@@ -180,9 +196,17 @@ def fetch_live_google_reviews(place_id: str, user, business_name: str = "Geneva 
             review_url=review_url,
         )
         imported_count += 1
+        if not has_owner_response:
+            new_review_ids.append(new_review.id)
+            if rating <= 2:
+                alert_review_ids.append(new_review.id)
 
-        if rating <= 2 and not has_owner_response:
-            send_negative_review_alert.delay(new_review.id)
+    if draft_now:
+        # Draft the newest few automatically (and auto-post when safe), THEN send
+        # alerts so the email can truthfully say a draft is waiting.
+        auto_draft_new_reviews(new_review_ids)
+        for rid in alert_review_ids:
+            send_negative_review_alert.delay(rid)
 
     return imported_count, auto_posted_count
 
@@ -218,7 +242,6 @@ def _import_demo_real_reviews(user, business_name: str) -> int:
     for s in samples:
         exists = Review.objects.filter(
             user=user,
-            business_name=business_name,
             reviewer_name=s['name'],
             comment=s['comment'],
         ).exists()

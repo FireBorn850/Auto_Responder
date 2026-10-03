@@ -242,10 +242,17 @@
         gap: 0.5rem;
     }
 
-    .qr-preview-frame img {
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: white;
+    .qr-preview-frame img,
+    .qr-card-img {
+        border-radius: 12px;
+        padding: 6px;
+        background: rgba(var(--surface-rgb, 255, 255, 255), 0.03);
+        border: 1px solid rgba(var(--surface-rgb, 255, 255, 255), 0.08);
+        transition: opacity .2s ease;
+    }
+
+    .qr-card-img:hover {
+        border-color: rgba(232, 168, 60, 0.35);
     }
 
     .swatch {
@@ -974,7 +981,7 @@
                 <!-- Live preview -->
                 <div class="qr-preview-frame">
                     <img id="livePreviewImg"
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&color=99999&data=preview"
+                        src="{% url 'qr_preview_image' %}?size=240&theme=dark"
                         alt="Live QR preview" width="120" height="120">
                     <span class="text-[10px] text-slate-2 font-mono">Live preview — updates as you type a slug</span>
                 </div>
@@ -1064,8 +1071,9 @@
                         data-name="{{ qr.title|escapejs }}" onchange="updateBulkBar()">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-1">
                         <div class="flex items-start gap-4">
-                            <img src="{% url 'qr_image' qr.slug %}?size=200" alt="QR code for {{ qr.title }}"
-                                class="w-[72px] h-[72px] rounded-lg border border-white-10 flex-shrink-0 qr-card-img"
+                            <img src="{% url 'qr_image' qr.slug %}?size=200&theme=dark" alt="QR code for {{ qr.title }}"
+                                data-qr-src="{% url 'qr_image' qr.slug %}?size=200"
+                                class="w-[72px] h-[72px] flex-shrink-0 qr-card-img themed-qr"
                                 data-slug="{{ qr.slug }}">
                             <div>
                                 <span
@@ -1244,12 +1252,35 @@
     // ===== LIVE QR PREVIEW =====
     var origin = "{{ request.scheme }}://{{ request.get_host }}";
     var previewColor = '000000';
+    var previewUrl = "{% url 'qr_preview_image' %}";
+    var previewTimer = null;
+
+    // On-screen QR codes follow the app theme (transparent background,
+    // light dots on dark UI / navy dots on light UI). Downloads and print
+    // PDFs stay classic dark-on-white for reliable scanning on paper.
+    function currentQrTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    }
+    function refreshThemedQrs() {
+        var theme = currentQrTheme();
+        document.querySelectorAll('img.themed-qr').forEach(function (img) {
+            img.src = img.getAttribute('data-qr-src') + '&theme=' + theme;
+        });
+    }
     function updateLivePreview() {
         var slug = document.getElementById('fieldSlug').value.trim();
-        var data = slug ? (origin + '/qr/' + encodeURIComponent(slug)) : 'preview';
-        document.getElementById('livePreviewImg').src = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&color=' + previewColor + '&data=' + encodeURIComponent(data);
+        document.getElementById('livePreviewImg').src = previewUrl + '?size=240&theme=' + currentQrTheme() +
+            '&color=' + previewColor + '&slug=' + encodeURIComponent(slug);
     }
-    document.getElementById('fieldSlug').addEventListener('input', updateLivePreview);
+    document.getElementById('fieldSlug').addEventListener('input', function () {
+        clearTimeout(previewTimer);
+        previewTimer = setTimeout(updateLivePreview, 250);
+    });
+    new MutationObserver(function () {
+        refreshThemedQrs();
+        updateLivePreview();
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    refreshThemedQrs();
     function setPreviewColor(el) {
         document.querySelectorAll('.swatch').forEach(function (s) { s.classList.remove('active'); });
         el.classList.add('active');

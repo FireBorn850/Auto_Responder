@@ -1,12 +1,10 @@
 import re
-import time
 import logging
-import unicodedata
-import requests
 from django.conf import settings
 from reviews.models import Review, BusinessProfile
-from .dataforseo_importer import _auth, _base, _STILL_WORKING
+from .dataforseo_importer import TRIPADVISOR, post_task, wait_for_result
 from .exceptions import RateLimitError
+from .review_pipeline import auto_draft_new_reviews
 
 logger = logging.getLogger(__name__)
 
@@ -27,54 +25,33 @@ def _normalize_language(value):
     return text[:2] if text[:2] in _SUPPORTED else 'fr'
 
 
-def _slug(text):
-    ascii_text = unicodedata.normalize('NFKD', text or '').encode('ascii', 'ignore').decode()
-    return re.sub(r'[^a-z0-9]', '', ascii_text.lower())
-
-
 def _url_path_from_listing(url):
     """'https://www.tripadvisor.com/Restaurant_Review-g1-d2-Reviews-X.html' -> 'Restaurant_Review-g1-d2-Reviews-X.html'"""
     match = re.search(r'tripadvisor\.[a-z.]+/(.+?\.html)', url or '')
     return match.group(1) if match else None
 
 
-def _fetch_from_dataforseo(business_name, url_path, depth, wait_seconds=90):
-    task = {
-        'depth': depth,
-        'priority': 2,                # high priority: results in about a minute
-    }
+def tripadvisor_task(business_name, url_path, depth, priority=2):
+    task = {'depth': depth, 'priority': priority}
     if url_path:
         task['url_path'] = url_path
     else:
         task['keyword'] = business_name
         task['location_name'] = TRIPADVISOR_LOCATION
+    return task
 
-    resp = requests.post(
-        f"{_base()}/business_data/tripadvisor/reviews/task_post",
-        json=[task], auth=_auth(), timeout=30,
-    )
-    if resp.status_code == 429:
-        raise RateLimitError("DataForSEO rate limit hit.")
-    body = resp.json()
-    if body.get('status_code') != 20000:
-        raise Exception(f"DataForSEO {body.get('status_code')}: {body.get('status_message')}")
-    created = body['tasks'][0]
-    if created['status_code'] != 20100:
-        raise Exception(f"DataForSEO {created['status_code']}: {created['status_message']}")
 
-    task_id = created['id']
-    deadline = time.time() + wait_seconds
-    while time.time() < deadline:
-        time.sleep(3)
-        got = requests.get(
-            f"{_base()}/business_data/tripadvisor/reviews/task_get/{task_id}",
-            auth=_auth(), timeout=30,
-        ).json()['tasks'][0]
-        if got.get('result'):
-            return got['result'][0]
-        if got['status_code'] not in _STILL_WORKING:
-            raise Exception(f"DataForSEO {got['status_code']}: {got['status_message']}")
-    raise TimeoutError(f"DataForSEO task {task_id} not ready after {wait_seconds}s.")
+def _fetch_from_dataforseo(business_name, url_path, depth, wait_seconds=90, priority=2):
+    """Blocking — background use only."""
+    task_id = post_task(TRIPADVISOR, tripadvisor_task(business_name, url_path, depth, priority))
+    return wait_for_result(TRIPADVISOR, task_id, wait_seconds)
+
+
+def plan_tripadvisor_fetch(user):
+    """(url_path, saved_url): reuse the saved listing for a precise, cheap lookup."""
+    profile = BusinessProfile.objects.filter(user=user).first()
+    saved_url = getattr(profile, 'tripadvisor_url', None)
+    return _url_path_from_listing(saved_url), saved_url
 
 
 def fetch_live_tripadvisor_reviews(user, business_name: str = "Geneva Bistro", max_reviews: int = 30):
@@ -87,12 +64,9 @@ def fetch_live_tripadvisor_reviews(user, business_name: str = "Geneva Bistro", m
         logger.warning("DATAFORSEO credentials not found in settings — cannot fetch TripAdvisor reviews.")
         return 0, None
 
-    profile = BusinessProfile.objects.filter(user=user).first()
-    saved_url = getattr(profile, 'tripadvisor_url', None)
-    url_path = _url_path_from_listing(saved_url)
-    # Only trust the saved link if it belongs to the business being synced.
-    if url_path and _slug(business_name) not in _slug(url_path):
-        url_path = None
+    # The saved listing is reused as-is (a precise lookup, no name search).
+    # Switching to a different business clears it, so it can't be stale.
+    url_path, saved_url = plan_tripadvisor_fetch(user)
 
     depth = 10  # newest 10 reviews only: DataForSEO bills per 10 reviews
 
@@ -104,12 +78,18 @@ def fetch_live_tripadvisor_reviews(user, business_name: str = "Geneva Bistro", m
         logger.error(f"Failed to fetch TripAdvisor reviews via DataForSEO: {e}")
         raise
 
+    return import_tripadvisor_result(user, business_name, result, saved_url, max_reviews)
+
+
+def import_tripadvisor_result(user, business_name, result, saved_url=None, max_reviews=30, draft_now=True):
+    """Saves a finished DataForSEO TripAdvisor result. Returns (imported_count, listing_url)."""
     resolved = result.get('url_path')
     listing_url = f"https://www.tripadvisor.com/{resolved}" if resolved else saved_url
     if resolved:
         BusinessProfile.objects.filter(user=user).update(tripadvisor_url=listing_url)
 
     imported_count = 0
+    new_review_ids = []
     for item in reversed((result.get('items') or [])[:max_reviews]):
         comment_text = (item.get('review_text') or '').strip()
         if not comment_text:
@@ -130,12 +110,11 @@ def fetch_live_tripadvisor_reviews(user, business_name: str = "Geneva Bistro", m
             continue
         # Older reviews imported before this change have no external_id.
         if Review.objects.filter(
-            user=user, business_name=business_name,
-            reviewer_name=reviewer_name, comment=comment_text,
+            user=user, reviewer_name=reviewer_name, comment=comment_text,
         ).exists():
             continue
 
-        Review.objects.create(
+        new_review = Review.objects.create(
             user=user,
             reviewer_name=reviewer_name,
             rating=rating,
@@ -148,5 +127,9 @@ def fetch_live_tripadvisor_reviews(user, business_name: str = "Geneva Bistro", m
             review_url=(item.get('url') or None),
         )
         imported_count += 1
+        new_review_ids.append(new_review.id)
 
+    if draft_now:
+        # TripAdvisor replies can't be posted automatically, but drafts are ready.
+        auto_draft_new_reviews(new_review_ids)
     return imported_count, listing_url

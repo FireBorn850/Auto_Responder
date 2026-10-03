@@ -157,6 +157,24 @@ class BusinessProfile(models.Model):
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='starter')
     plan_expires_at = models.DateTimeField(blank=True, null=True)
 
+    # Billing via a Merchant of Record (Polar). See reviews/services/billing.py
+    # for how these decide access.
+    billing_provider = models.CharField(max_length=20, blank=True, default='')
+    billing_customer_id = models.CharField(max_length=255, blank=True, null=True)
+    billing_subscription_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    billing_interval = models.CharField(max_length=10, blank=True, default='',
+                                        help_text="month or year")
+    current_period_end = models.DateTimeField(blank=True, null=True)
+    past_due_since = models.DateTimeField(blank=True, null=True,
+                                          help_text="When a payment first failed; access continues for 7 days.")
+
+    def save(self, *args, **kwargs):
+        # Every new account starts with a 14-day Premium trial, no card needed.
+        if self._state.adding and self.trial_ends_at is None:
+            from reviews.services.billing import trial_end_for_new_profile
+            self.trial_ends_at = trial_end_for_new_profile()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.business_name} ({self.get_automation_mode_display()})"
 
@@ -261,6 +279,14 @@ class Review(models.Model):
     review_url = models.URLField(
         max_length=1000, blank=True, null=True,
         help_text="Direct Google Maps link to this specific review."
+    )
+    alert_due_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Negative-review alert held back by quiet hours; sent at this time by the send_due_alerts command."
+    )
+    alert_sent_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text="When the negative-review alert email went out. Prevents duplicates."
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -446,3 +472,43 @@ class SyncLog(models.Model):
 
     def __str__(self):
         return f"{self.get_platform_display()} sync ({self.status}) - {self.created_at:%Y-%m-%d %H:%M}"
+
+class SyncJob(models.Model):
+    """
+    One manual sync, run in small steps so no web request waits long:
+      waiting  -> DataForSEO is still preparing the reviews (we only submitted the task)
+      drafting -> reviews imported; AI drafts are being written one per step
+      done / failed
+    The dashboard polls /sync/status/ every few seconds; each poll does one step.
+    """
+    STATE_CHOICES = [
+        ('waiting', 'Waiting for data'),
+        ('drafting', 'Drafting replies'),
+        ('done', 'Done'),
+        ('failed', 'Failed'),
+    ]
+    PLATFORM_CHOICES = [
+        ('google', 'Google'),
+        ('tripadvisor', 'TripAdvisor'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sync_jobs')
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES)
+    state = models.CharField(max_length=10, choices=STATE_CHOICES, default='waiting')
+    task_id = models.CharField(max_length=100, blank=True)
+    business_name = models.CharField(max_length=255, blank=True)
+    draft_queue = models.JSONField(default=list, blank=True)
+    imported_count = models.PositiveIntegerField(default=0)
+    already_answered_count = models.PositiveIntegerField(default=0)
+    detail = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    @property
+    def is_active(self):
+        return self.state in ('waiting', 'drafting')
+
+    def __str__(self):
+        return f"{self.get_platform_display()} sync for {self.user} ({self.state})"

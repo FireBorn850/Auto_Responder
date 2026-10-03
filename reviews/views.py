@@ -12,11 +12,13 @@ from django.utils.text import slugify
 from django.http import HttpResponse, FileResponse
 from .services.qr_generator import generate_qr_with_logo
 from .services.pdf_templates import generate_table_tent_pdf, generate_sticker_sheet_pdf, generate_door_sign_pdf
-from .models import Review, BusinessProfile, SmartQRCode, Competitor, TeamInvite, EditLog, ActivityLog, QRScanEvent, SyncLog, AccessCode
+from .models import Review, BusinessProfile, SmartQRCode, Competitor, TeamInvite, EditLog, ActivityLog, QRScanEvent, SyncLog, AccessCode, SyncJob
+from .services import sync_jobs
 from .services.ai_responder import generate_review_draft, analyze_complaints, is_authentic_review, analyze_review_sentiment, detect_review_language, detect_seo_keyword_used, append_action_link
 from .services.google_api import post_reply_to_google
 from .services.google_importer import fetch_live_google_reviews
 from .services.tripadvisor_importer import fetch_live_tripadvisor_reviews
+from .services.review_pipeline import draft_reply
 from .permissions import get_business_context, get_or_create_owned_profile, can_manage_settings, can_approve_reviews, check_ai_quota
 from django.contrib.sessions.models import Session
 from .models import UserSession
@@ -32,13 +34,12 @@ from django.db.models import DurationField, ExpressionWrapper
 from django.db.models.functions import TruncWeek
 from .services.ai_responder import analyze_complaints
 import secrets
-import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from .services import gbp_client
+from .services import gbp_client, billing, polar_billing
+from django.urls import reverse
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 # ==========================================
@@ -65,114 +66,78 @@ def terms_of_service_view(request):
 
 
 # ==========================================
-# STRIPE BILLING
+# BILLING (Polar — Merchant of Record)
 # ==========================================
 
-PLAN_PRICE_MAP = {
-    'starter': lambda: settings.STRIPE_PRICE_STARTER,
-    'premium': lambda: settings.STRIPE_PRICE_PREMIUM,
-}
+@login_required
+def billing_page_view(request):
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    starter_yearly = ('starter', 'year') in polar_billing.product_map().values()
+    return render(request, 'reviews/billing.html', {
+        'profile': profile,
+        'access': billing.get_access(profile),
+        'prices': {f"{plan}_{interval}": amount for (plan, interval), amount in billing.PRICES.items()},
+        'can_manage_billing': role == 'owner',
+        'active_tab': 'billing',
+        # The yearly Starter option appears once its Polar product is configured.
+        'starter_yearly': starter_yearly,
+        'starter_yearly_per_month': f"{billing.PRICES[('starter', 'year')] / 12:.2f}",
+    })
 
 
 @login_required
-def create_checkout_session_view(request, plan):
-    if plan not in PLAN_PRICE_MAP:
+@require_POST
+def billing_checkout_view(request, plan, interval):
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    if role != 'owner':
+        messages.error(request, "Only the account owner can change the plan.")
+        return redirect('billing')
+    if (plan, interval) not in billing.PRICES:
         messages.error(request, "Unknown plan selected.")
-        return redirect('home')
-
-    price_id = PLAN_PRICE_MAP[plan]()
-    profile, role = get_or_create_owned_profile(request.user)
-
-    session = stripe.checkout.Session.create(
-        mode='subscription',
-        payment_method_types=['card'],
-        customer_email=request.user.email,
-        line_items=[{'price': price_id, 'quantity': 1}],
-        subscription_data={
-            'trial_period_days': settings.STRIPE_TRIAL_DAYS,
-            'metadata': {'user_id': request.user.id, 'plan': plan},
-        },
-        success_url=request.build_absolute_uri('/billing/success/'),
-        cancel_url=request.build_absolute_uri('/billing/cancel/'),
-        metadata={'user_id': request.user.id, 'plan': plan},
-    )
-    return redirect(session.url, permanent=False)
+        return redirect('billing')
+    try:
+        url = polar_billing.create_checkout_url(
+            profile, plan, interval,
+            success_url=request.build_absolute_uri(reverse('billing')) + '?checkout=success',
+            return_url=request.build_absolute_uri(reverse('billing')),
+        )
+    except polar_billing.PolarError as e:
+        messages.error(request, str(e))
+        return redirect('billing')
+    return redirect(url)
 
 
 @login_required
-def checkout_success_view(request):
-    messages.success(request, "You're all set! Your free trial has started.")
-    return redirect('dashboard')
-
-
-@login_required
-def checkout_cancel_view(request):
-    messages.info(request, "Checkout canceled — no charge was made.")
-    return redirect('home')
+def billing_portal_view(request):
+    """Polar's customer portal: change card, switch plan, download invoices, cancel."""
+    profile, role = get_business_context(request.user)
+    if profile is None or role != 'owner':
+        messages.error(request, "Only the account owner can manage billing.")
+        return redirect('billing')
+    try:
+        return redirect(polar_billing.customer_portal_url(profile, request.build_absolute_uri(reverse('billing'))))
+    except polar_billing.PolarError as e:
+        messages.error(request, str(e))
+        return redirect('billing')
 
 
 @csrf_exempt
-def stripe_webhook_view(request):
-    payload = request.body
-    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
-
+@require_POST
+def polar_webhook_view(request):
+    """Polar tells us about subscription changes here. Signature-checked."""
+    if not polar_billing.verify_webhook(request.body, request.headers):
+        return HttpResponse(status=403)
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
-    except (ValueError, stripe.error.SignatureVerificationError):
+        import json
+        event = json.loads(request.body)
+    except ValueError:
         return HttpResponse(status=400)
-
-    if event['type'] in ('customer.subscription.created', 'customer.subscription.updated'):
-        sub = event['data']['object']
-        user_id = sub.get('metadata', {}).get('user_id')
-        plan = sub.get('metadata', {}).get('plan')
-
-        if not user_id:
-            # metadata doesn't propagate to subscription events by default —
-            # fall back to looking up by stripe_customer_id
-            try:
-                profile = BusinessProfile.objects.get(stripe_customer_id=sub['customer'])
-            except BusinessProfile.DoesNotExist:
-                return HttpResponse(status=200)
-        else:
-            try:
-                profile = BusinessProfile.objects.get(user_id=user_id)
-            except BusinessProfile.DoesNotExist:
-                return HttpResponse(status=200)
-
-        profile.stripe_customer_id = sub['customer']
-        profile.stripe_subscription_id = sub['id']
-        profile.subscription_status = sub['status']
-        if plan:
-            profile.plan = plan
-        if sub.get('trial_end'):
-            profile.trial_ends_at = datetime.fromtimestamp(sub['trial_end'], tz=timezone.utc)
-        profile.save()
-
-    elif event['type'] == 'customer.subscription.deleted':
-        sub = event['data']['object']
-        try:
-            profile = BusinessProfile.objects.get(stripe_subscription_id=sub['id'])
-            profile.subscription_status = 'canceled'
-            profile.save(update_fields=['subscription_status'])
-        except BusinessProfile.DoesNotExist:
-            pass
-
-    elif event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        user_id = session.get('metadata', {}).get('user_id')
-        plan = session.get('metadata', {}).get('plan')
-        if user_id:
-            try:
-                profile = BusinessProfile.objects.get(user_id=user_id)
-                profile.stripe_customer_id = session['customer']
-                profile.stripe_subscription_id = session['subscription']
-                if plan:
-                    profile.plan = plan
-                profile.save()
-            except BusinessProfile.DoesNotExist:
-                pass
-
-    return HttpResponse(status=200)
+    polar_billing.apply_event(event)
+    return HttpResponse(status=202)
 
 
 # ==========================================
@@ -183,7 +148,7 @@ def stripe_webhook_view(request):
 def dashboard(request):
     """Page 1: Main Dashboard & Live Customer Reviews Stream."""
     profile, role = get_or_create_owned_profile(request.user)
-    business_reviews = Review.objects.filter(user=profile.user, business_name=profile.business_name)
+    business_reviews = Review.objects.filter(user=profile.user)
 
     # Same reset rule as check_ai_quota(), but read-only — just for display,
     # doesn't touch the actual counter or consume a generation.
@@ -322,6 +287,7 @@ def dashboard(request):
         'sentiment_neutral': sentiment_neutral,
         'sentiment_negative': sentiment_negative,
         'has_sentiment_data': has_sentiment_data,
+        'active_sync': sync_jobs.active_job(profile.user),
     }
     return render(request, 'reviews/dashboard.html', context)
 
@@ -338,18 +304,19 @@ def settings_page_view(request):
 @login_required
 def integrations_page_view(request):
     profile, role = get_or_create_owned_profile(request.user)
-    business_reviews = Review.objects.filter(user=profile.user, business_name=profile.business_name)
+    business_reviews = Review.objects.filter(user=profile.user)
     source_counts = {
         'google': business_reviews.filter(source='google').count(),
         'tripadvisor': business_reviews.filter(source='tripadvisor').count(),
         'webhook': business_reviews.filter(source='webhook').count(),
     }
-    sync_logs = SyncLog.objects.filter(user=request.user)[:8]
+    sync_logs = SyncLog.objects.filter(user=profile.user)[:8]
     context = {
         'profile': profile,
         'active_tab': 'integrations',
         'source_counts': source_counts,
         'sync_logs': sync_logs,
+        'active_sync': sync_jobs.active_job(profile.user),
     }
     return render(request, 'reviews/integrations.html', context)
 
@@ -458,6 +425,9 @@ def competitors_page_view(request):
         if not can_manage_settings(actor_role):
             messages.error(request, "You don't have permission to manage team invites.")
             return redirect('competitors')
+        if not billing.can(profile, 'team'):
+            messages.warning(request, billing.denial_message(profile))
+            return redirect('billing')
 
         role = request.POST.get('role', 'reviewer')
         if role not in dict(TeamInvite.ROLE_CHOICES):
@@ -608,99 +578,25 @@ def regenerate_simulated_review_view(request, review_id):
 
     profile, role = get_or_create_owned_profile(request.user)
     review = get_object_or_404(Review, id=review_id, user=profile.user, is_simulated=True)
-    force = request.POST.get('force') == '1'
+    result = draft_reply(review, profile, force=request.POST.get('force') == '1', is_regeneration=True)
+    return JsonResponse(_simulator_payload(review, result))
 
-    if not force and not is_authentic_review(review.comment):
-        review.status = 'flagged'
-        review.ai_draft_reply = ''
-        review.save()
-        return JsonResponse({
-            'id': review.id, 'status': review.status, 'sentiment': None, 'is_likely_spam': None,
-            'ai_draft_reply': None, 'reject_reason': 'Failed authenticity check.',
-        })
 
-    if not check_ai_quota(profile):
-        review.status = 'flagged'
-        review.save()
-        return JsonResponse({
-            'id': review.id, 'status': review.status, 'sentiment': None, 'is_likely_spam': None,
-            'ai_draft_reply': None, 'reject_reason': f'Daily AI generation limit reached ({profile.ai_daily_limit}/day).',
-        })
-
-    analysis = analyze_review_sentiment(review.comment, review.rating)
-    review.sentiment = analysis['sentiment']
-    review.is_likely_spam = analysis['is_likely_spam']
-
-    if not force and review.is_likely_spam:
-        review.status = 'flagged'
-        review.save()
-        return JsonResponse({
-            'id': review.id, 'status': review.status, 'sentiment': review.sentiment, 'is_likely_spam': True,
-            'ai_draft_reply': None, 'reject_reason': 'Flagged as likely spam.',
-        })
-
-    active_seo_keywords = profile.seo_keywords if (profile.geo_seo_enabled and profile.seo_keywords) else ''
-    offer_qualifies = (
-        profile.action_link_enabled and profile.action_link_url and profile.action_link_label
-        and review.rating >= profile.action_link_min_rating
-    )
-    action_offer_label = profile.action_link_label if offer_qualifies else ''
-
-    from .services.ai_responder import QuotaExceededError
-    try:
-        draft_text = generate_review_draft(
-            reviewer_name=review.reviewer_name,
-            star_rating=review.rating,
-            comment=review.comment,
-            language=review.detected_language,
-            business_name=review.business_name,
-            tone=profile.brand_tone,
-            custom_prompt=profile.custom_prompt or '',
-            signature=profile.signature or '',
-            response_length=profile.response_length,
-            creativity=profile.creativity_level,
-            blacklisted_words=profile.blacklisted_words or '',
-            learned_patterns=profile.learned_patterns or '',
-            seo_keywords=active_seo_keywords,
-            action_offer_label=action_offer_label,
-            contact_email=profile.user.email,
-        )
-    except QuotaExceededError:
-        review.status = 'generation_failed'
-        review.save()
-        return JsonResponse({
-            'id': review.id, 'status': review.status, 'sentiment': review.sentiment, 'is_likely_spam': review.is_likely_spam,
-            'ai_draft_reply': None, 'reject_reason': "Gemini's daily free-tier quota is exhausted — try again later.",
-        })
-
-    if not draft_text:
-        review.status = 'generation_failed'
-        review.save()
-        return JsonResponse({
-            'id': review.id, 'status': review.status, 'sentiment': review.sentiment, 'is_likely_spam': review.is_likely_spam,
-            'ai_draft_reply': None, 'reject_reason': 'AI draft generation failed.',
-        })
-
-    if offer_qualifies:
-        draft_text = append_action_link(draft_text, profile.action_link_url, profile.action_link_label)
-        review.action_link_shown = True
-
-    review.ai_draft_reply = draft_text
-    review.seo_keyword_used = detect_seo_keyword_used(draft_text, active_seo_keywords)
-    mode = profile.automation_mode
-    if mode == 'all':
-        review.status = 'approved'
-    elif mode == 'positive_only' and review.rating >= 4:
-        review.status = 'approved'
-    else:
-        review.status = 'pending'
-    review.save()
-
-    return JsonResponse({
-        'id': review.id, 'status': review.status, 'sentiment': review.sentiment, 'is_likely_spam': review.is_likely_spam,
-        'ai_draft_reply': review.ai_draft_reply, 'reviewer_name': review.reviewer_name, 'rating': review.rating,
-    })
-
+def _simulator_payload(review, result):
+    """JSON shape the Review Simulator page expects."""
+    review.refresh_from_db()
+    payload = {
+        'id': review.id,
+        'status': review.status,
+        'sentiment': review.sentiment if result.code != 'not_authentic' else None,
+        'is_likely_spam': review.is_likely_spam if result.code != 'not_authentic' else None,
+        'ai_draft_reply': review.ai_draft_reply if result.ok else None,
+        'reviewer_name': review.reviewer_name,
+        'rating': review.rating,
+    }
+    if not result.ok:
+        payload['reject_reason'] = result.reason
+    return payload
 
 
 
@@ -708,99 +604,150 @@ def regenerate_simulated_review_view(request, review_id):
 # 3. ACTION & FORM HANDLERS
 # ==========================================
 
+def _rename_business(profile, new_name):
+    """
+    Renaming only changes the label. Reviews belong to the account, not to a
+    name, so nothing is hidden and no API call (or cost) is involved.
+    """
+    new_name = (new_name or '').strip()[:255]
+    if not new_name or new_name == profile.business_name:
+        return False
+    profile.business_name = new_name
+    profile.save(update_fields=['business_name'])
+    Review.objects.filter(user=profile.user).update(business_name=new_name)
+    return True
+
+
+def _start_over_with_new_business(profile, new_name):
+    """
+    Owner explicitly said "this is a different business": forget the old
+    Google/TripAdvisor listing and delete its synced reviews (Review
+    Simulator tests are kept). The next sync looks the new business up.
+    """
+    deleted, _ = Review.objects.filter(user=profile.user, is_simulated=False).delete()
+    profile.google_review_url = None
+    profile.google_maps_url = None
+    profile.tripadvisor_url = None
+    profile.last_auto_sync = None
+    profile.business_name = (new_name or '').strip()[:255] or profile.business_name
+    profile.save(update_fields=['google_review_url', 'google_maps_url', 'tripadvisor_url',
+                                'last_auto_sync', 'business_name'])
+    Review.objects.filter(user=profile.user).update(business_name=profile.business_name)
+    return deleted
+
+
 @login_required
+@require_POST
 def sync_google_reviews_view(request):
-    if request.method == 'POST':
-        last_sync = SyncLog.objects.filter(user=request.user, platform='google').first()
-        if last_sync and (timezone.now() - last_sync.created_at) < timedelta(hours=1):
-            messages.info(request, "You synced recently. New reviews are also checked automatically every day. You can sync again in about an hour.")
-            return redirect('dashboard')
-
-        business_name = request.POST.get('business_name', 'Geneva Bistro').strip()
-        place_id = request.POST.get('place_id', '').strip()
-
+    profile, role = get_business_context(request.user)
+    if profile is None:
         profile, role = get_or_create_owned_profile(request.user)
-        if profile.business_name != business_name:
-            profile.google_review_url = None
-            profile.google_maps_url = None
-        profile.business_name = business_name
-        profile.save()
+    if not can_manage_settings(role):
+        messages.error(request, "Only the owner or an admin can sync reviews.")
+        return redirect('dashboard')
+    if not billing.is_active(profile):
+        messages.warning(request, billing.READ_ONLY_MESSAGE)
+        return redirect('billing')
 
-        try:
-            imported_count, auto_posted_count = fetch_live_google_reviews(
-                place_id=place_id,
-                user=profile.user,
-                business_name=business_name
-            )
-        except Exception as e:
-            SyncLog.objects.create(user=request.user, platform='google', status='failed', detail=str(e)[:255])
-            messages.error(request, f"Google sync failed for {business_name}. Please try again.")
-            return redirect('dashboard')
+    blocked = _sync_blocked_reason(profile, 'google')
+    if blocked:
+        messages.info(request, blocked)
+        return redirect('dashboard')
 
-        parts = []
-        if imported_count > 0:
-            parts.append(f"Imported {imported_count} new review{'s' if imported_count != 1 else ''}")
-        if auto_posted_count > 0:
-            parts.append(f"detected {auto_posted_count} reply{'ies' if auto_posted_count != 1 else 'y'} now live on Google")
+    business_name = (request.POST.get('business_name') or '').strip() or profile.business_name
+    place_id = request.POST.get('place_id', '').strip()
 
-        SyncLog.objects.create(
-            user=request.user, platform='google', status='success',
-            detail=', '.join(parts) if parts else 'No new reviews found'
-        )
+    if request.POST.get('switch_business') == '1':
+        deleted = _start_over_with_new_business(profile, business_name)
+        ActivityLog.objects.create(user=request.user, action='settings_updated',
+                                   detail=f"Switched business to {profile.business_name} ({deleted} old reviews removed)"[:255])
+    elif _rename_business(profile, business_name):
+        ActivityLog.objects.create(user=request.user, action='settings_updated',
+                                   detail=f"Renamed business to {profile.business_name}"[:255])
 
-        if parts:
-            messages.success(request, f"{' and '.join(parts).capitalize()} for {business_name}.")
-        else:
-            messages.info(request, f"Switched to {business_name} — no new reviews found (you may already have them, or none exist yet).")
+    try:
+        sync_jobs.start_google_sync(profile, place_id=place_id)
+    except Exception as e:
+        SyncLog.objects.create(user=profile.user, platform='google', status='failed', detail=str(e)[:255])
+        messages.error(request, f"Google sync failed for {profile.business_name}. Please try again.")
+        return redirect('dashboard')
 
+    messages.info(request, f"Sync started for {profile.business_name} — you can keep working, the reviews appear here when ready.")
     return redirect('dashboard')
 
 
+def _sync_blocked_reason(profile, platform):
+    """Cost guard: one sync at a time, and at most one per platform per hour."""
+    if sync_jobs.active_job(profile.user):
+        return "A sync is already running — it will finish on its own."
+    last = SyncJob.objects.filter(user=profile.user, platform=platform).exclude(state='failed').first()
+    if last and (timezone.now() - last.created_at) < timedelta(hours=1):
+        return "You synced recently. New reviews are also checked automatically every day. You can sync again in about an hour."
+    return None
+
+
 @login_required
+@require_POST
+def sync_status_view(request):
+    """
+    Polled by the dashboard every few seconds while a sync runs. Each call
+    does one short step (check data / import / one AI draft / finish), so no
+    request ever comes close to the server's 30-second limit.
+    """
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        return JsonResponse({'state': 'idle'})
+    job = sync_jobs.active_job(profile.user)
+    if job is None:
+        return JsonResponse({'state': 'idle'})
+
+    job = sync_jobs.advance(job)
+    labels = {
+        'waiting': "Fetching reviews…",
+        'drafting': f"Imported {job.imported_count} new review{'s' if job.imported_count != 1 else ''} — writing AI drafts ({len(job.draft_queue)} left)…",
+        'done': f"Sync finished: {job.detail}.",
+        'failed': f"Sync failed: {job.detail}",
+    }
+    return JsonResponse({'state': job.state, 'platform': job.platform, 'message': labels[job.state]})
+
+
+@login_required
+@require_POST
 def sync_tripadvisor_reviews_view(request):
-    if request.method == 'POST':
-        business_name = request.POST.get('business_name', '').strip()
+    business_name = request.POST.get('business_name', '').strip()
+    if not business_name:
+        messages.warning(request, "Enter a business name to sync TripAdvisor reviews.")
+        return redirect('integrations')
 
-        if not business_name:
-            messages.warning(request, "Enter a business name to sync TripAdvisor reviews.")
-            return redirect('integrations')
-
+    profile, role = get_business_context(request.user)
+    if profile is None:
         profile, role = get_or_create_owned_profile(request.user)
-        if not profile.business_name or profile.business_name == "My Business":
-            profile.business_name = business_name
-            profile.save()
+    if not can_manage_settings(role):
+        messages.error(request, "Only the owner or an admin can sync reviews.")
+        return redirect('integrations')
+    if not billing.can(profile, 'tripadvisor'):
+        messages.warning(request, billing.denial_message(profile))
+        return redirect('billing')
 
-        try:
-            # ✅ CHANGED: Now receives 2 values
-            imported_count, listing_url = fetch_live_tripadvisor_reviews(
-                user=profile.user,
-                business_name=business_name,
-            )
-            
-            # ✅ ADDED: Save the TripAdvisor URL if found
-            if listing_url:
-                profile.tripadvisor_url = listing_url
-                profile.save(update_fields=['tripadvisor_url'])
-                
-        except RateLimitError as e:
-            SyncLog.objects.create(user=request.user, platform='tripadvisor', status='rate_limited', detail=str(e)[:255])
-            messages.error(request, "TripAdvisor sync hit SerpAPI's rate limit — try again shortly.")
-            return redirect('integrations')
-        except Exception as e:
-            SyncLog.objects.create(user=request.user, platform='tripadvisor', status='failed', detail=str(e)[:255])
-            messages.error(request, f"TripAdvisor sync failed for {business_name}. Please try again.")
-            return redirect('integrations')
+    if not profile.business_name or profile.business_name == "My Business":
+        _rename_business(profile, business_name)
 
-        SyncLog.objects.create(
-            user=request.user, platform='tripadvisor', status='success',
-            detail=f"{imported_count} new review{'s' if imported_count != 1 else ''}" if imported_count > 0 else 'No new reviews found'
-        )
+    blocked = _sync_blocked_reason(profile, 'tripadvisor')
+    if blocked:
+        messages.info(request, blocked)
+        return redirect('integrations')
 
-        if imported_count > 0:
-            messages.success(request, f"Imported {imported_count} new TripAdvisor review{'s' if imported_count != 1 else ''} for {business_name}.")
-        else:
-            messages.info(request, f"You're all caught up — no new TripAdvisor reviews found for {business_name}.")
+    try:
+        job = sync_jobs.start_tripadvisor_sync(profile, business_name)
+    except Exception as e:
+        SyncLog.objects.create(user=profile.user, platform='tripadvisor', status='failed', detail=str(e)[:255])
+        messages.error(request, f"TripAdvisor sync failed for {business_name}. Please try again.")
+        return redirect('integrations')
 
+    if job.state == 'failed':
+        messages.error(request, f"TripAdvisor sync failed: {job.detail}")
+    else:
+        messages.info(request, f"TripAdvisor sync started for {business_name} — the reviews appear when ready.")
     return redirect('integrations')
 
 
@@ -816,9 +763,7 @@ def export_reviews_csv_view(request):
     from django.http import HttpResponse
 
     profile, role = get_or_create_owned_profile(request.user)
-    business_reviews = Review.objects.filter(
-        user=profile.user, business_name=profile.business_name
-    ).order_by('-created_at')
+    business_reviews = Review.objects.filter(user=profile.user).order_by('-created_at')
 
     response = HttpResponse(content_type='text/csv')
     safe_name = profile.business_name.replace(' ', '_')
@@ -852,8 +797,13 @@ def export_insights_report_view(request):
     import csv
     from django.http import HttpResponse
 
-    profile, role = get_or_create_owned_profile(request.user)
-    business_reviews = Review.objects.filter(user=profile.user, business_name=profile.business_name)
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    if not billing.can(profile, 'insights'):
+        messages.warning(request, billing.denial_message(profile))
+        return redirect('billing')
+    business_reviews = Review.objects.filter(user=profile.user)
 
     # --- Section 0: time saved (same figures shown on the dashboard) ---
     AVG_HOURS_SAVED_PER_REPLY = 0.1
@@ -941,6 +891,12 @@ def redeem_access_code_view(request):
         if access_code.is_redeemed():
             messages.error(request, "That code has already been used.")
             return redirect('redeem_access_code')
+        if access_code.status != 'approved':
+            messages.error(request, "That code hasn't been approved yet — you'll get an email once it is.")
+            return redirect('redeem_access_code')
+        if billing.get_access(profile).level == 'paid':
+            messages.info(request, "You already have an active paid plan — the code isn't needed.")
+            return redirect('billing')
 
         access_code.redeemed_by = request.user
         access_code.redeemed_at = timezone.now()
@@ -1017,6 +973,9 @@ def update_settings_view(request):
         business_hours_start = request.POST.get('business_hours_start', '09:00')
         business_hours_end = request.POST.get('business_hours_end', '20:00')
         timezone_name = request.POST.get('timezone_name', 'Europe/Zurich')
+        if automation_mode in ('positive_only', 'all') and not billing.can(profile, 'auto_post'):
+            messages.warning(request, "Auto-posting is a Premium feature — saved as manual approval for now.")
+            automation_mode = 'manual'
         if automation_mode in ['positive_only', 'all', 'manual']:
             profile.automation_mode = automation_mode
 
@@ -1044,9 +1003,21 @@ def update_settings_view(request):
         if 'logo' in request.FILES:
             profile.logo = request.FILES['logo']
         profile.quiet_hours_enabled = quiet_hours_enabled
-        profile.business_hours_start = business_hours_start
-        profile.business_hours_end = business_hours_end
-        profile.timezone_name = timezone_name
+        # Validate before saving: a bad time or timezone used to crash the
+        # alert email and the public QR page.
+        try:
+            profile.business_hours_start = datetime.strptime(business_hours_start, '%H:%M').time()
+            profile.business_hours_end = datetime.strptime(business_hours_end, '%H:%M').time()
+        except (TypeError, ValueError):
+            messages.error(request, "Business hours must look like 09:00.")
+            return redirect('ai_settings')
+        try:
+            from zoneinfo import ZoneInfo
+            ZoneInfo(timezone_name)
+            profile.timezone_name = timezone_name
+        except Exception:
+            messages.error(request, f"Unknown timezone \"{timezone_name}\". Use a name like Europe/Zurich.")
+            return redirect('ai_settings')
 
         ActivityLog.objects.create(user=request.user, action='settings_updated', detail=f"Tone: {brand_tone}, Mode: {automation_mode}")
 
@@ -1145,7 +1116,11 @@ def preview_ai_response_view(request):
     if creativity_level not in ['low', 'medium', 'high']:
         creativity_level = 'medium'
 
-    profile, role = get_or_create_owned_profile(request.user)
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    if not billing.is_active(profile):
+        return JsonResponse({'error': billing.READ_ONLY_MESSAGE}, status=402)
 
     if not check_ai_quota(profile, amount=2):
         return JsonResponse({'error': f'Daily AI generation limit reached ({profile.ai_daily_limit}/day).'}, status=429)
@@ -1315,8 +1290,12 @@ def dashboard_insights_view(request):
 
 
 def _dashboard_insights_impl(request):
-    profile, role = get_or_create_owned_profile(request.user)
-    business_reviews = Review.objects.filter(user=profile.user, business_name=profile.business_name)
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    if not billing.can(profile, 'insights'):
+        return JsonResponse({'error': billing.denial_message(profile)}, status=402)
+    business_reviews = Review.objects.filter(user=profile.user)
 
     negative_comments = list(
         business_reviews.filter(rating__lte=3, is_likely_spam=False).exclude(comment='').values_list('comment', flat=True)[:50]
@@ -1371,124 +1350,80 @@ def _generate_draft_impl(request, review_id):
         profile, role = get_or_create_owned_profile(request.user)
 
     review = get_object_or_404(Review, id=review_id, user=profile.user)
-    force = request.POST.get('force') == '1'
-    is_regen = bool(review.ai_draft_reply)
+    if not can_approve_reviews(role):
+        return JsonResponse({'ok': False, 'reason': "Read-only access — you can't generate replies."})
 
-    if not force and not is_authentic_review(review.comment):
-        review.status = 'flagged'
-        review.ai_draft_reply = ''
-        review.save()
-        return JsonResponse({'ok': False, 'reason': "Skipped — this doesn't look like a genuine review (failed authenticity check)."})
-
-    if not check_ai_quota(profile):
-        return JsonResponse({'ok': False, 'reason': f"Daily AI generation limit reached ({profile.ai_daily_limit}/day) — try again tomorrow."})
-
-    analysis = analyze_review_sentiment(review.comment, review.rating)
-    review.sentiment = analysis['sentiment']
-    review.is_likely_spam = analysis['is_likely_spam']
-
-    if not force and review.is_likely_spam:
-        review.status = 'flagged'
-        review.save()
-        return JsonResponse({'ok': False, 'reason': "Skipped — flagged as likely spam."})
-
-    active_seo_keywords = profile.seo_keywords if (profile.geo_seo_enabled and profile.seo_keywords) else ''
-    offer_qualifies = (
-        profile.action_link_enabled and profile.action_link_url and profile.action_link_label
-        and review.rating >= profile.action_link_min_rating
+    result = draft_reply(
+        review, profile,
+        force=request.POST.get('force') == '1',
+        is_regeneration=bool(review.ai_draft_reply),
     )
-    action_offer_label = profile.action_link_label if offer_qualifies else ''
-
-    from .services.ai_responder import QuotaExceededError
-    try:
-        draft_text = generate_review_draft(
-            reviewer_name=review.reviewer_name,
-            star_rating=review.rating,
-            comment=review.comment,
-            language=review.detected_language,
-            business_name=review.business_name,
-            tone=profile.brand_tone,
-            custom_prompt=profile.custom_prompt or '',
-            signature=profile.signature or '',
-            response_length=profile.response_length,
-            creativity=profile.creativity_level,
-            blacklisted_words=profile.blacklisted_words or '',
-            learned_patterns=profile.learned_patterns or '',
-            seo_keywords=active_seo_keywords,
-            action_offer_label=action_offer_label,
-            is_regeneration=is_regen,
-            contact_email=profile.user.email,
-        )
-    except QuotaExceededError:
-        return JsonResponse({'ok': False, 'reason': "Gemini's daily free-tier quota is exhausted for now — try again later, or enable billing on your Google AI project to raise the limit."})
-
-    if not draft_text or draft_text.strip() == "":
-        review.status = 'generation_failed'
-        review.ai_draft_reply = ''
-        review.save()
-        return JsonResponse({'ok': False, 'reason': "AI draft generation failed — please try again."})
-
-    if offer_qualifies:
-        draft_text = append_action_link(draft_text, profile.action_link_url, profile.action_link_label)
-        review.action_link_shown = True
-
-    review.ai_draft_reply = draft_text
-    review.seo_keyword_used = detect_seo_keyword_used(draft_text, active_seo_keywords)
-    mode = profile.automation_mode
-    if mode == 'all':
-        review.status = 'approved'
-    elif mode == 'positive_only' and review.rating >= 4:
-        review.status = 'approved'
-    else:
-        review.status = 'pending'
-
-    review.save()
-    return JsonResponse({'ok': True})
+    if not result.ok:
+        return JsonResponse({'ok': False, 'reason': result.reason})
+    return JsonResponse({'ok': True, 'posted': result.posted})
 
 
 @login_required
+@require_POST
 def approve_review_view(request, review_id):
-    if request.method == 'POST':
-        profile, actor_role = get_business_context(request.user)
-        if profile is None:
-            profile, actor_role = get_or_create_owned_profile(request.user)
-        if not can_approve_reviews(actor_role):
-            messages.error(request, "You don't have permission to approve replies.")
-            return redirect('dashboard')
+    """
+    Saves the (possibly edited) reply and marks it approved. If the owner has
+    connected Google Business Profile and this review came from it, the reply
+    is also published to Google and the review is marked posted.
 
-        review = get_object_or_404(Review, id=review_id, user=profile.user)
-        edited_text = request.POST.get('ai_draft_reply')
-        original_draft = review.ai_draft_reply
+    The review is ALWAYS saved, even if posting to Google fails — the owner's
+    edited text must never be lost.
+    """
+    profile, actor_role = get_business_context(request.user)
+    if profile is None:
+        profile, actor_role = get_or_create_owned_profile(request.user)
 
-        review.ai_draft_reply = edited_text
+    review = get_object_or_404(Review, id=review_id, user=profile.user)
 
-        if original_draft and edited_text and original_draft.strip() != edited_text.strip():
-            EditLog.objects.create(
-                user=request.user,
-                review=review,
-                ai_draft=original_draft,
-                final_text=edited_text,
-            )
+    if not can_approve_reviews(actor_role):
+        messages.error(request, "You don't have permission to approve replies.")
+        return redirect('dashboard')
 
-        success = False
-        if profile.gbp_connected and (review.external_id or '').startswith('gbp:') and edited_text:
-            try:
-                success = gbp_client.post_reply(profile, review.external_id[4:], edited_text.strip())
-            except gbp_client.GBPError as e:
-                messages.error(request, f"Couldn't post to Google automatically: {e}")
+    edited_text = (request.POST.get('ai_draft_reply') or '').strip()
+    if not edited_text:
+        messages.error(request, "The reply is empty — write something before approving.")
+        return redirect('dashboard')
 
-        if success:
-            review.status = 'posted'
-            messages.success(request, f"Reply to {review.reviewer_name} was posted to Google.")
-        else:
-            review.status = 'approved'
-            messages.success(
-                request,
-                f"Reply to {review.reviewer_name} is copied. Paste it on the Google tab "
-                f"that just opened, then click “I posted it” here."
-            )
+    original_draft = (review.ai_draft_reply or '').strip()
+    if original_draft and original_draft != edited_text:
+        EditLog.objects.create(
+            user=request.user,
+            review=review,
+            ai_draft=original_draft,
+            final_text=edited_text,
+        )
 
-        ActivityLog.objects.create(user=request.user, action='review_approved', detail=f"Reply to {review.reviewer_name}")
+    review.ai_draft_reply = edited_text
+
+    posted_to_google = False
+    gbp_failed = False
+    if profile.gbp_connected and (review.external_id or '').startswith('gbp:'):
+        try:
+            posted_to_google = bool(gbp_client.post_reply(profile, review.external_id[4:], edited_text))
+        except gbp_client.GBPError as e:
+            gbp_failed = True
+            messages.error(request, f"Couldn't post to Google automatically: {e}. Your reply is saved — paste it on Google, then click “I posted it”.")
+
+    review.status = 'posted' if posted_to_google else 'approved'
+    if review.first_response_at is None:
+        review.first_response_at = timezone.now()
+    review.save(update_fields=['ai_draft_reply', 'status', 'first_response_at', 'updated_at'])
+
+    ActivityLog.objects.create(user=request.user, action='review_approved', detail=f"Reply to {review.reviewer_name}"[:255])
+
+    if posted_to_google:
+        messages.success(request, f"Reply to {review.reviewer_name} was posted to Google.")
+    elif not gbp_failed:
+        messages.success(
+            request,
+            f"Reply to {review.reviewer_name} is saved and copied. Paste it on the Google tab "
+            f"that just opened, then click “I posted it” here."
+        )
 
     return redirect('dashboard')
 
@@ -1536,8 +1471,11 @@ def add_review_view(request):
 
 
 def _add_review_impl(request):
-    reviewer_name = request.POST.get('reviewer_name', 'Anonymous')
-    rating = int(request.POST.get('rating', 5))
+    reviewer_name = (request.POST.get('reviewer_name') or 'Anonymous').strip()[:255]
+    try:
+        rating = max(1, min(5, int(request.POST.get('rating', 5))))
+    except (TypeError, ValueError):
+        rating = 5
     comment = request.POST.get('comment', '')
     language = request.POST.get('language', 'fr')
 
@@ -1545,7 +1483,6 @@ def _add_review_impl(request):
         language = detect_review_language(comment)
 
     profile, role = get_or_create_owned_profile(request.user)
-    business_name = profile.business_name  # always match what the Dashboard filters by
 
     review = Review.objects.create(
         user=profile.user,
@@ -1553,127 +1490,15 @@ def _add_review_impl(request):
         rating=rating,
         comment=comment,
         detected_language=language,
-        business_name=business_name,
+        business_name=profile.business_name,
         status='pending',
         is_simulated=True,
     )
 
-    if not is_authentic_review(comment):
-        review.status = 'flagged'
-        review.save()
-        return JsonResponse({
-            'id': review.id,
-            'status': review.status,
-            'sentiment': None,
-            'is_likely_spam': None,
-            'ai_draft_reply': None,
-            'reject_reason': 'Failed authenticity check (gibberish/keyboard-mash detected).',
-        })
-
-    if not check_ai_quota(profile):
-        review.status = 'flagged'
-        review.save()
-        return JsonResponse({
-            'id': review.id,
-            'status': review.status,
-            'sentiment': None,
-            'is_likely_spam': None,
-            'ai_draft_reply': None,
-            'reject_reason': f'Daily AI generation limit reached ({profile.ai_daily_limit}/day).',
-        })
-
-    analysis = analyze_review_sentiment(comment, rating)
-    review.sentiment = analysis['sentiment']
-    review.is_likely_spam = analysis['is_likely_spam']
-
-    if review.is_likely_spam:
-        review.status = 'flagged'
-        review.save()
-        return JsonResponse({
-            'id': review.id,
-            'status': review.status,
-            'sentiment': review.sentiment,
-            'is_likely_spam': True,
-            'ai_draft_reply': None,
-            'reject_reason': 'Flagged as likely spam by AI analysis.',
-        })
-
-    active_seo_keywords = profile.seo_keywords if (profile.geo_seo_enabled and profile.seo_keywords) else ''
-    offer_qualifies = (
-        profile.action_link_enabled and profile.action_link_url and profile.action_link_label
-        and rating >= profile.action_link_min_rating
-    )
-    action_offer_label = profile.action_link_label if offer_qualifies else ''
-
-    from .services.ai_responder import QuotaExceededError
-    try:
-        draft_text = generate_review_draft(
-            reviewer_name=reviewer_name,
-            star_rating=rating,
-            comment=comment,
-            language=language,
-            business_name=business_name,
-            tone=profile.brand_tone,
-            custom_prompt=profile.custom_prompt or '',
-            signature=profile.signature or '',
-            response_length=profile.response_length,
-            creativity=profile.creativity_level,
-            blacklisted_words=profile.blacklisted_words or '',
-            learned_patterns=profile.learned_patterns or '',
-            seo_keywords=active_seo_keywords,
-            action_offer_label=action_offer_label,
-            contact_email=profile.user.email,
-        )
-    except QuotaExceededError:
-        review.status = 'generation_failed'
-        review.save()
-        return JsonResponse({
-            'id': review.id,
-            'status': review.status,
-            'sentiment': review.sentiment,
-            'is_likely_spam': review.is_likely_spam,
-            'ai_draft_reply': None,
-            'reject_reason': "Gemini's daily free-tier quota is exhausted — try again later.",
-        })
-
-    if not draft_text:
-        review.status = 'generation_failed'
-        review.save()
-        return JsonResponse({
-            'id': review.id,
-            'status': review.status,
-            'sentiment': review.sentiment,
-            'is_likely_spam': review.is_likely_spam,
-            'ai_draft_reply': None,
-            'reject_reason': 'AI draft generation failed.',
-        })
-
-    if offer_qualifies:
-        draft_text = append_action_link(draft_text, profile.action_link_url, profile.action_link_label)
-        review.action_link_shown = True
-
-    review.ai_draft_reply = draft_text
-    review.seo_keyword_used = detect_seo_keyword_used(draft_text, active_seo_keywords)
-    mode = profile.automation_mode
-    if mode == 'all':
-        review.status = 'approved'
-    elif mode == 'positive_only' and rating >= 4:
-        review.status = 'approved'
-    else:
-        review.status = 'pending'
-    review.save()
-
-    return JsonResponse({
-        'status': review.status,
-        'sentiment': review.sentiment,
-        'is_likely_spam': review.is_likely_spam,
-        'ai_draft_reply': review.ai_draft_reply,
-        'automation_mode': mode,
-        'reviewer_name': review.reviewer_name,
-        'rating': review.rating,
-    })
-
-    return JsonResponse({'error': 'POST required'}, status=405)
+    result = draft_reply(review, profile)
+    payload = _simulator_payload(review, result)
+    payload['automation_mode'] = profile.automation_mode
+    return JsonResponse(payload)
 
 
 @login_required
@@ -1685,6 +1510,9 @@ def run_ai_training_view(request):
         if not can_manage_settings(actor_role):
             messages.error(request, "You don't have permission to run AI training.")
             return redirect('ai_settings')
+        if not billing.is_active(profile):
+            messages.warning(request, billing.READ_ONLY_MESSAGE)
+            return redirect('billing')
 
         from .tasks import analyze_edit_patterns
         analyze_edit_patterns.delay(request.user.id)
@@ -1705,6 +1533,9 @@ def add_competitor_view(request):
         if not can_manage_settings(role):
             messages.error(request, "You don't have permission to manage competitors.")
             return redirect('dashboard')
+        if not billing.can(profile, 'competitors'):
+            messages.warning(request, billing.denial_message(profile))
+            return redirect('billing')
 
         name = request.POST.get('name')
         location = request.POST.get('location', 'Geneva')
@@ -1810,10 +1641,7 @@ def qr_image_view(request, slug):
     in <img> tags and printed materials — it must load for anyone scanning it.
     """
     qr = get_object_or_404(SmartQRCode, slug=slug)
-    size = int(request.GET.get('size', 500))
-    color = request.GET.get('color', '#000000')
-    if not color.startswith('#'):
-        color = '#' + color
+    size, color, theme = _qr_render_params(request)
 
     target_url = f"{request.scheme}://{request.get_host()}/qr/{qr.slug}"
 
@@ -1825,8 +1653,54 @@ def qr_image_view(request, slug):
     except BusinessProfile.DoesNotExist:
         pass
 
-    buffer = generate_qr_with_logo(target_url, logo_path=logo_path, fill_color=color, size=size)
-    return HttpResponse(buffer, content_type='image/png')
+    buffer = generate_qr_with_logo(target_url, logo_path=logo_path, fill_color=color, size=size, theme=theme)
+    response = HttpResponse(buffer, content_type='image/png')
+    response['Cache-Control'] = 'public, max-age=3600'
+    return response
+
+
+def _qr_render_params(request):
+    """
+    Shared, validated rendering options for QR images.
+    ?theme=dark|light -> transparent on-screen variant matching the app UI
+    (default "print" = dark-on-white, used for downloads and PDFs).
+    Size is clamped so a public URL can't be used to render giant images.
+    """
+    try:
+        size = int(request.GET.get('size', 500))
+    except (TypeError, ValueError):
+        size = 500
+    size = max(64, min(size, 1200))
+
+    color = request.GET.get('color', '#000000').strip()
+    if not color.startswith('#'):
+        color = '#' + color
+
+    theme = request.GET.get('theme', 'print')
+    if theme not in ('print', 'dark', 'light'):
+        theme = 'print'
+    return size, color, theme
+
+
+@login_required
+def qr_preview_image_view(request):
+    """
+    Live preview for the 'Create QR' form, rendered by our own generator so it
+    looks identical to the final code (replaces the third-party qrserver.com
+    preview, which also leaked slugs to an outside service).
+    """
+    size, color, theme = _qr_render_params(request)
+    size = min(size, 400)
+    slug = slugify(request.GET.get('slug', ''))[:50] or 'preview'
+    target_url = f"{request.scheme}://{request.get_host()}/qr/{slug}"
+
+    profile, role = get_business_context(request.user)
+    logo_path = profile.logo.path if (profile and profile.logo and profile.logo.name) else None
+
+    buffer = generate_qr_with_logo(target_url, logo_path=logo_path, fill_color=color, size=size, theme=theme)
+    response = HttpResponse(buffer, content_type='image/png')
+    response['Cache-Control'] = 'private, max-age=300'
+    return response
 
 
 
@@ -1870,6 +1744,9 @@ def create_qr_view(request):
         if not can_manage_settings(role):
             messages.error(request, "You don't have permission to create QR codes.")
             return redirect('qr_booster')
+        if not billing.can(profile, 'qr'):
+            messages.warning(request, billing.denial_message(profile))
+            return redirect('billing')
 
         title = request.POST.get('name', '').strip() or 'Main QR Code'
         google_review_url = request.POST.get('target_url', '').strip()
@@ -1946,7 +1823,9 @@ def mark_posted_view(request, review_id):
         return redirect('dashboard')
     review = get_object_or_404(Review, id=review_id, user=profile.user, status='approved')
     review.status = 'posted'
-    review.save()
-    ActivityLog.objects.create(user=request.user, action='review_approved', detail=f"Marked posted: {review.reviewer_name}")
+    if review.first_response_at is None:
+        review.first_response_at = timezone.now()
+    review.save(update_fields=['status', 'first_response_at', 'updated_at'])
+    ActivityLog.objects.create(user=request.user, action='review_approved', detail=f"Marked posted: {review.reviewer_name}"[:255])
     messages.success(request, f"Marked as posted for {review.reviewer_name}.")
     return redirect('dashboard')

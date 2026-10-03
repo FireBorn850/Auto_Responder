@@ -1,11 +1,18 @@
 name: Daily review sync
 on:
   schedule:
-    - cron: "0 2 * * *"   # every day at 02:00 UTC
-  workflow_dispatch:       # adds a manual "Run workflow" button
+    - cron: "0 2 * * *"      # 02:00 UTC daily: sync reviews (DataForSEO)
+    - cron: "5 5-20 * * *"   # hourly 05:05–20:05 UTC: send alerts held back by quiet hours
+  workflow_dispatch:          # adds a manual "Run workflow" button (runs the sync)
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
 jobs:
   sync:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 2 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -17,12 +24,23 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python manage.py sync_reviews
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
           DATAFORSEO_PASSWORD: ${{ secrets.DATAFORSEO_PASSWORD }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TOKEN_ENCRYPTION_KEY: ${{ secrets.TOKEN_ENCRYPTION_KEY }}
+
+  due-alerts:
+    # Cheap: no paid APIs, only reads the database and sends a few emails.
+    if: github.event.schedule == '5 5-20 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py send_due_alerts

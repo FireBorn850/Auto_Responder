@@ -77,6 +77,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
+                'reviews.context_processors.billing_status',
             ],
         },
     },
@@ -157,12 +158,17 @@ GOOGLE_PLACES_API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY', '')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 
 
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
-STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
-STRIPE_PRICE_STARTER = os.environ.get('STRIPE_PRICE_STARTER')
-STRIPE_PRICE_PREMIUM = os.environ.get('STRIPE_PRICE_PREMIUM')
-STRIPE_TRIAL_DAYS = int(os.environ.get('STRIPE_TRIAL_DAYS', 14))
+# ==========================================
+# Billing — Polar (Merchant of Record). See reviews/services/polar_billing.py
+# Use POLAR_SERVER=sandbox while testing, production when live.
+# ==========================================
+POLAR_SERVER = os.environ.get('POLAR_SERVER', 'sandbox')
+POLAR_ACCESS_TOKEN = os.environ.get('POLAR_ACCESS_TOKEN', '')
+POLAR_WEBHOOK_SECRET = os.environ.get('POLAR_WEBHOOK_SECRET', '')
+POLAR_PRODUCT_STARTER_MONTHLY = os.environ.get('POLAR_PRODUCT_STARTER_MONTHLY', '')
+POLAR_PRODUCT_STARTER_YEARLY = os.environ.get('POLAR_PRODUCT_STARTER_YEARLY', '')
+POLAR_PRODUCT_PREMIUM_MONTHLY = os.environ.get('POLAR_PRODUCT_PREMIUM_MONTHLY', '')
+POLAR_PRODUCT_PREMIUM_YEARLY = os.environ.get('POLAR_PRODUCT_PREMIUM_YEARLY', '')
 
 # ==========================================
 # django-allauth & Google OAuth Setup
@@ -235,6 +241,10 @@ SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')
 DATAFORSEO_LOGIN = os.environ.get('DATAFORSEO_LOGIN', '')
 DATAFORSEO_PASSWORD = os.environ.get('DATAFORSEO_PASSWORD', '')
 DATAFORSEO_BASE_URL = os.environ.get('DATAFORSEO_BASE_URL') or 'https://api.dataforseo.com/v3'
+# Manual syncs no longer wait inside the web request, so they can use the
+# cheaper normal queue (1). Set to 2 for faster but pricier high priority.
+DATAFORSEO_MANUAL_PRIORITY = int(os.environ.get('DATAFORSEO_MANUAL_PRIORITY', '1'))
+AUTO_DRAFT_MAX_PER_SYNC = int(os.environ.get('AUTO_DRAFT_MAX_PER_SYNC', '5'))
 
 
 # ==========================================

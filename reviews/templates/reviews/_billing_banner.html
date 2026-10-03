@@ -1,0 +1,21 @@
+{% load i18n %}
+{% if billing_access and request.resolver_match.url_name != 'billing' %}
+  {% if not billing_access.active %}
+  <div class="mb-4 p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/10 flex flex-wrap items-center justify-between gap-3">
+      <p class="text-xs text-rose-300 font-semibold">{% trans "Read-only mode: your trial or plan has ended. Your reviews are safe — choose a plan to keep syncing and drafting replies." %}</p>
+      <a href="{% url 'billing' %}" class="btn-primary text-xs">{% trans "Choose a plan" %}</a>
+  </div>
+  {% elif billing_access.level == 'grace' %}
+  <div class="mb-4 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex flex-wrap items-center justify-between gap-3">
+      <p class="text-xs text-amber-300 font-semibold">{% blocktrans count days=billing_access.days_left %}Your last payment failed. Please update your card — read-only mode starts in {{ days }} day.{% plural %}Your last payment failed. Please update your card — read-only mode starts in {{ days }} days.{% endblocktrans %}</p>
+      <a href="{% url 'billing_portal' %}" class="btn-primary text-xs">{% trans "Update card" %}</a>
+  </div>
+  {% elif billing_access.level == 'trial' or billing_access.level == 'founding' %}
+    {% if billing_access.days_left <= 5 %}
+    <div class="mb-4 p-3 rounded-xl border border-white/10 bg-white/5 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-xs text-slate-300">{% blocktrans count days=billing_access.days_left %}{{ days }} day left of free Premium access.{% plural %}{{ days }} days left of free Premium access.{% endblocktrans %}</p>
+        <a href="{% url 'billing' %}" class="text-xs font-semibold text-gold">{% trans "See plans →" %}</a>
+    </div>
+    {% endif %}
+  {% endif %}
+{% endif %}

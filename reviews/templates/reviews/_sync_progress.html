@@ -1,0 +1,44 @@
+{% load i18n %}
+{% if active_sync %}
+{# Shown while a manual sync runs. Polls one short step every few seconds; reloads when finished. #}
+<div id="syncProgressBanner" class="mb-4 p-3.5 rounded-xl border border-white/10 bg-white/5 flex items-center gap-3"
+     data-status-url="{% url 'sync_status' %}">
+    <i class="bi bi-arrow-repeat spin text-gold"></i>
+    <div class="min-w-0">
+        <p id="syncProgressText" class="text-xs font-semibold text-white">{% trans "Fetching reviews…" %}</p>
+        <p class="text-[10px] text-slate-500">{% trans "You can keep working or close this page — the sync continues and finishes later if needed." %}</p>
+    </div>
+</div>
+<script>
+(function () {
+    var banner = document.getElementById('syncProgressBanner');
+    if (!banner) return;
+    var url = banner.getAttribute('data-status-url');
+    var text = document.getElementById('syncProgressText');
+    var tokenEl = document.querySelector('[name=csrfmiddlewaretoken]');
+    var csrf = tokenEl ? tokenEl.value : (document.cookie.match(/csrftoken=([^;]+)/) || [])[1];
+    var waitingDelay = 5000, draftingDelay = 1500, failures = 0;
+
+    function poll() {
+        fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrf } })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                failures = 0;
+                if (data.message) text.textContent = data.message;
+                if (data.state === 'done' || data.state === 'failed' || data.state === 'idle') {
+                    if (data.message) sessionStorage.setItem('dashboardToast', data.message);
+                    setTimeout(function () { location.reload(); }, 800);
+                    return;
+                }
+                setTimeout(poll, data.state === 'drafting' ? draftingDelay : waitingDelay);
+            })
+            .catch(function () {
+                failures += 1;
+                if (failures < 5) setTimeout(poll, waitingDelay * failures);
+                else text.textContent = '{% trans "Lost connection — reload the page to continue the sync." as lost %}{{ lost|escapejs }}';
+            });
+    }
+    setTimeout(poll, 1500);
+})();
+</script>
+{% endif %}

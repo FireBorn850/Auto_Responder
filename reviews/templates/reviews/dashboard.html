@@ -1092,6 +1092,7 @@
 
 {% block content %}
 <div id="toastHost"></div>
+<div class="w-full max-w-7xl mx-auto">{% include "reviews/_sync_progress.html" %}</div>
 
 <!-- ===== DASHBOARD ACTIONS BAR ===== -->
 <div class="rb-header -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6">
@@ -1498,11 +1499,24 @@
                 </button>
             </div>
 
+            <!-- ===== ALREADY POSTED ===== -->
+            {% elif review.status == 'posted' %}
+            <div class="mt-3 pt-3 border-t border-white/5 space-y-2">
+                {% if review.ai_draft_reply %}
+                <p class="text-[11.5px] text-slate-400 leading-relaxed whitespace-pre-line"><span class="ai-badge mr-1">{% trans "Your reply" %}</span> {{ review.ai_draft_reply }}</p>
+                {% endif %}
+                <div class="flex flex-wrap items-center gap-2 text-[11px] text-emerald-400">
+                    <span class="font-medium">{% trans "Reply is live on Google — no action needed." %}</span>
+                    <a href="{{ review.review_url|default:profile.google_maps_url|default:'https://business.google.com/' }}" target="_blank"
+                        rel="noopener noreferrer" class="text-gold hover:text-gold-soft font-medium ml-1">{% trans "View on Google →" %}</a>
+                </div>
+            </div>
+
             <!-- ===== AI DRAFT AVAILABLE ===== -->
             {% elif review.ai_draft_reply %}
             <form action="{% url 'approve_review' review.id %}" method="POST" class="ai-draft-panel"
-            data-review-url="{{ review.review_url|default:'' }}" onsubmit="return approveAndOpen(this)">
-            {% if profile.gbp_connected and review.external_id|slice:":4" == "gbp:" %}data-auto-post="1"{% endif %}
+            data-review-url="{{ review.review_url|default:'' }}" onsubmit="return approveAndOpen(this)"
+            {% if profile.gbp_connected and review.external_id|slice:":4" == "gbp:" %}data-auto-post="1"{% endif %}>
                 {% csrf_token %}
                 <div class="flex items-center justify-between mb-2">
                     <span class="ai-badge">{% trans "AI Draft" %}</span>
@@ -1537,15 +1551,6 @@
                 </form>
             </div>
             {% endif %}
-
-            <!-- ===== ALREADY POSTED ===== -->
-            {% elif review.status == 'posted' %}
-            <div
-                class="mt-3 pt-3 border-t border-white/5 flex flex-wrap items-center gap-2 text-[11px] text-emerald-400">
-                <span class="font-medium">{% trans "Reply is live on Google — no action needed." %}</span>
-                <a href="{{ profile.google_maps_url|default:'https://business.google.com/' }}" target="_blank"
-                    rel="noopener noreferrer" class="text-gold hover:text-gold-soft font-medium ml-1">{% trans "View on Google →" %}</a>
-            </div>
 
             <!-- ===== NO AI DRAFT ===== -->
             {% else %}
@@ -1619,7 +1624,7 @@
                 class="text-slate-500 hover:text-slate-300 text-sm p-1 transition">✕</button>
         </div>
 
-        <form action="{% url 'sync_google_reviews' %}" method="POST" class="space-y-4" onsubmit="showSyncProgress()">
+        <form action="{% url 'sync_google_reviews' %}" method="POST" class="space-y-4" onsubmit="return confirmSwitchBusiness(this) && showSyncProgress() !== false">
             {% csrf_token %}
             {% if profile.gbp_connected %}
                 <input type="hidden" name="business_name" value="{{ profile.business_name }}">
@@ -1629,8 +1634,13 @@
                 <label
                     class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">{% trans "Business Name" %} <span class="text-red-500">*</span></label>
                 <input type="text" name="business_name" placeholder="{% trans "e.g. Geneva Bistro" %}" required
+                    value="{% if profile.business_name != 'My Business' %}{{ profile.business_name }}{% endif %}"
                     class="w-full p-2.5 border border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-gold focus:outline-none transition placeholder:text-slate-600 bg-white/5 text-white">
+                {% if profile.google_review_url %}
+                <p class="text-[10px] text-emerald-400/80 mt-1">{% trans "Linked to your Google listing. Changing the name here only renames it — your reviews stay." %}</p>
+                {% else %}
                 <p class="text-[10px] text-slate-600 mt-1">{% trans "Enter the exact business name as it appears on Google." %}</p>
+                {% endif %}
             </div>
 
             <div>
@@ -1641,6 +1651,13 @@
                 <p class="text-[10px] text-slate-600 mt-1">{% trans "Leave empty to auto-load sample live customer feedback." %}</p>
             </div>
 
+            {% if profile.google_review_url %}
+            <label class="flex items-start gap-2 text-[11px] text-slate-400 cursor-pointer p-2.5 rounded-xl border border-rose-500/20 bg-rose-500/5">
+                <input type="checkbox" name="switch_business" value="1" class="mt-0.5">
+                <span>{% trans "This is a different business — start over." %}
+                    <span class="block text-[10px] text-rose-400/90">{% trans "Removes all synced reviews of the current business (Review Simulator tests are kept)." %}</span></span>
+            </label>
+            {% endif %}
             {% endif %}
             <div id="syncProgressWrap" class="hidden space-y-1.5">
                 <div class="sync-progress-track">
@@ -1793,7 +1810,14 @@
     }
 
 
-        // ===== APPROVE & POST: copy reply + open that review on Google =====
+        // ===== SYNC: confirm before switching to a different business =====
+    function confirmSwitchBusiness(form) {
+        const box = form.querySelector('input[name="switch_business"]');
+        if (!box || !box.checked) return true;
+        return confirm('{% trans "Start over with a different business? All synced reviews of the current business will be permanently deleted." as switch_msg %}{{ switch_msg|escapejs }}');
+    }
+
+    // ===== APPROVE & POST: copy reply + open that review on Google =====
     function approveAndOpen(form) {
         const textarea = form.querySelector('.draft-textarea');
         if (textarea) {
@@ -1864,6 +1888,8 @@
                 clearInterval(timer);
                 if (!data.ok && data.reason) {
                     sessionStorage.setItem('dashboardToast', data.reason);
+                } else if (data.posted) {
+                    sessionStorage.setItem('dashboardToast', 'Reply drafted and posted to Google automatically.');
                 }
                 location.reload();
             })
