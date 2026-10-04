@@ -14,6 +14,7 @@ urlpatterns = [
     path('integrations/', views.integrations_page_view, name='integrations'),
     path('team-access/', views.competitors_page_view, name='competitors'),
     path('team-access/invite/delete/<int:invite_id>/', views.delete_invite_view, name='delete_invite'),
+    path('team/join/<str:token>/', views.accept_invite_view, name='accept_invite'),
     path('notifications/', views.simulator_page_view, name='review_simulator'),
     path('notifications/review/<int:review_id>/delete/', views.delete_simulated_review_view, name='delete_simulated_review'),
     path('notifications/review/<int:review_id>/regenerate/', views.regenerate_simulated_review_view, name='regenerate_simulated_review'),

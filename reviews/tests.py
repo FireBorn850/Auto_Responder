@@ -1198,3 +1198,105 @@ class DuplicateReviewTests(TestCase):
             Review.objects.create(user=self.owner, reviewer_name="A", rating=5, comment="c",
                                   business_name="X", external_id=ext)
         self.assertEqual(Review.objects.count(), 4)
+
+
+# ---------------------------------------------------------------- security #1: team invite takeover
+
+from allauth.account.models import EmailAddress
+
+from reviews.permissions import get_business_context
+
+
+class TeamInviteSecurityTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        Review.objects.create(user=self.owner, business_name="Cafe Luna", reviewer_name="Ann",
+                              rating=5, comment="Lovely")
+        self.invite = TeamInvite.objects.create(owner=self.owner, email="staff@example.com", role="admin")
+
+    def join_url(self, invite=None):
+        return reverse('accept_invite', args=[(invite or self.invite).token])
+
+    def test_stranger_signing_up_with_the_invited_email_does_not_join(self):
+        self.client.post(reverse('account_signup'), {
+            'email': 'staff@example.com', 'username': 'attacker',
+            'password1': 'Very-long-pw-123', 'password2': 'Very-long-pw-123',
+        })
+        attacker = User.objects.get(username='attacker')
+        self.invite.refresh_from_db()
+        self.assertIsNone(self.invite.linked_user)
+        # ...and logging in again later doesn't link it either.
+        self.client.logout()
+        self.client.force_login(attacker)
+        self.invite.refresh_from_db()
+        self.assertIsNone(self.invite.linked_user)
+        profile, role = get_business_context(attacker)
+        self.assertNotEqual(getattr(profile, 'id', None), self.profile.id)
+
+    def test_invite_email_contains_the_secret_link(self):
+        self.client.force_login(self.owner)
+        self.client.post(reverse('competitors'), {'invite_email': 'new@example.com', 'role': 'reviewer'})
+        invite = TeamInvite.objects.get(email='new@example.com')
+        self.assertTrue(invite.token)
+        self.assertIn(f"/team/join/{invite.token}/", mail.outbox[-1].body)
+
+    def test_logged_out_link_sends_to_signup_and_keeps_the_link(self):
+        resp = self.client.get(self.join_url())
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse('account_signup'), resp['Location'])
+        self.assertIn(self.join_url(), resp['Location'])
+
+    def test_signup_page_keeps_next_for_the_form_and_sign_in_link(self):
+        html = self.client.get(f"{reverse('account_signup')}?next={self.join_url()}").content.decode()
+        self.assertIn(f'name="next" value="{self.join_url()}"', html)
+
+    def test_opening_the_link_joins_the_team(self):
+        staff = User.objects.create_user("staff", "whatever@example.com", "pw-12345-x")
+        BusinessProfile.objects.create(user=staff)   # empty placeholder from a first visit
+        self.client.force_login(staff)
+        self.client.get(self.join_url())
+        self.invite.refresh_from_db()
+        self.assertEqual(self.invite.linked_user, staff)
+        self.assertIsNotNone(self.invite.accepted_at)
+        self.assertEqual(get_business_context(staff), (self.profile, 'admin'))
+        self.assertFalse(BusinessProfile.objects.filter(user=staff).exists())
+
+    def test_link_works_only_once(self):
+        first = User.objects.create_user("first", "a@example.com", "pw-12345-x")
+        second = User.objects.create_user("second", "b@example.com", "pw-12345-x")
+        self.client.force_login(first)
+        self.client.get(self.join_url())
+        self.client.force_login(second)
+        self.client.get(self.join_url())
+        self.invite.refresh_from_db()
+        self.assertEqual(self.invite.linked_user, first)
+        self.assertEqual(get_business_context(second)[0], None)
+
+    def test_wrong_token_does_nothing(self):
+        staff = User.objects.create_user("staff", "staff@example.com", "pw-12345-x")
+        self.client.force_login(staff)
+        self.client.get(reverse('accept_invite', args=['not-a-real-token']))
+        self.invite.refresh_from_db()
+        self.assertIsNone(self.invite.linked_user)
+
+    def test_account_with_its_own_business_is_not_wiped(self):
+        other_owner, other_profile = make_owner("otherowner")
+        Review.objects.create(user=other_owner, business_name="X", reviewer_name="B", rating=4, comment="ok")
+        self.client.force_login(other_owner)
+        self.client.get(self.join_url())
+        self.invite.refresh_from_db()
+        self.assertIsNone(self.invite.linked_user)
+        self.assertTrue(BusinessProfile.objects.filter(id=other_profile.id).exists())
+
+    def test_owner_cannot_accept_own_invite(self):
+        self.client.force_login(self.owner)
+        self.client.get(self.join_url())
+        self.invite.refresh_from_db()
+        self.assertIsNone(self.invite.linked_user)
+
+    def test_verified_google_email_still_joins_automatically_on_login(self):
+        staff = User.objects.create_user("gstaff", "staff@example.com", "pw-12345-x")
+        EmailAddress.objects.create(user=staff, email="staff@example.com", verified=True, primary=True)
+        self.client.login(username="gstaff", password="pw-12345-x")
+        self.invite.refresh_from_db()
+        self.assertEqual(self.invite.linked_user, staff)

@@ -1,3 +1,4 @@
+import secrets
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
@@ -409,9 +410,19 @@ class TeamInvite(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='reviewer')
     linked_user = models.OneToOneField(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name='team_membership',
-        help_text="Set automatically once someone signs up with this invite's email."
+        help_text="Set when the invitee opens their secret invite link (or signs in with that verified email)."
     )
+    token = models.CharField(
+        max_length=64, unique=True, null=True, blank=True,
+        help_text="Secret part of the invite link emailed to the invitee. Only someone with access to that inbox has it."
+    )
+    accepted_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.email} ({self.get_role_display()})"
@@ -453,6 +464,7 @@ class ActivityLog(models.Model):
         ('review_approved', 'Approved a Review Reply'),
         ('team_invite_sent', 'Sent Team Invite'),
         ('team_invite_revoked', 'Revoked Team Invite'),
+        ('team_invite_accepted', 'Team Invite Accepted'),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_logs')
     action = models.CharField(max_length=30, choices=ACTION_CHOICES)

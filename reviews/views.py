@@ -395,22 +395,78 @@ def qr_booster_page_view(request):
     return render(request, 'reviews/qr_booster.html', context)
 
 
-def _send_invite_email(request, invite_email, role):
-    login_url = request.build_absolute_uri('/accounts/login/')
+def _send_invite_email(request, invite):
+    join_url = request.build_absolute_uri(reverse('accept_invite', args=[invite.token]))
     profile, _ = get_or_create_owned_profile(request.user)
     send_mail(
         subject=f"You've been invited to {profile.business_name} on Mehrly",
         message=(
             f"Hi,\n\n"
             f"{request.user.username} invited you to help manage review replies "
-            f"as a {dict(TeamInvite.ROLE_CHOICES).get(role, role)}.\n\n"
-            f"Sign in here: {login_url}\n\n"
+            f"as a {invite.get_role_display()}.\n\n"
+            f"Accept the invitation here (create an account or sign in when asked):\n{join_url}\n\n"
+            f"This link is personal — don't forward it.\n\n"
             f"— Mehrly"
         ),
         from_email=None,
-        recipient_list=[invite_email],
+        recipient_list=[invite.email],
         fail_silently=False,
     )
+
+
+def _is_unused_profile(profile):
+    """An auto-created, never-used owner profile (safe to drop when joining a team)."""
+    return not (
+        Review.objects.filter(user=profile.user, is_simulated=False).exists()
+        or profile.billing_subscription_id
+        or profile.google_maps_url
+        or profile.google_business_location_id
+        or profile.tripadvisor_url
+    )
+
+
+def accept_invite_view(request, token):
+    """
+    The only way (besides a verified Google email) to join a team: open the
+    secret link from the invite email. Having the link proves access to the
+    invited inbox, which plain signup with that email did not.
+    """
+    invite = TeamInvite.objects.select_related('owner').filter(token=token).first()
+    if invite is None:
+        messages.error(request, "This invitation link is invalid or was revoked. Ask the owner to invite you again.")
+        return redirect('dashboard' if request.user.is_authenticated else 'home')
+
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('account_signup')}?next={request.path}")
+
+    user = request.user
+    if invite.linked_user_id == user.id:
+        messages.info(request, "You've already joined this team.")
+        return redirect('dashboard')
+    if invite.linked_user_id:
+        messages.error(request, "This invitation has already been used.")
+        return redirect('dashboard')
+    if invite.owner_id == user.id:
+        messages.error(request, "That's an invitation you sent — open it from the invitee's account.")
+        return redirect('competitors')
+    if TeamInvite.objects.filter(linked_user=user).exists():
+        messages.error(request, "This account is already part of another team. Use a different account to accept.")
+        return redirect('dashboard')
+
+    owned = BusinessProfile.objects.filter(user=user).first()
+    if owned is not None:
+        if not _is_unused_profile(owned):
+            messages.error(request, "This account already runs its own business on Mehrly. "
+                                    "Sign in with another account to join this team.")
+            return redirect('dashboard')
+        owned.delete()  # empty placeholder created on first visit — nothing is lost
+
+    invite.linked_user = user
+    invite.accepted_at = timezone.now()
+    invite.save(update_fields=['linked_user', 'accepted_at'])
+    ActivityLog.objects.create(user=invite.owner, action='team_invite_accepted', detail=invite.email)
+    messages.success(request, f"Welcome! You've joined the team as {invite.get_role_display()}.")
+    return redirect('dashboard')
 
 
 
@@ -482,12 +538,12 @@ def competitors_page_view(request):
                 skipped += 1
                 continue
 
-            TeamInvite.objects.create(owner=profile.user, email=email, role=role)
+            invite = TeamInvite.objects.create(owner=profile.user, email=email, role=role)
             ActivityLog.objects.create(user=request.user, action='team_invite_sent', detail=email)
             existing_emails.add(email)
 
             try:
-                _send_invite_email(request, email, role)
+                _send_invite_email(request, invite)
                 invited += 1
             except Exception:
                 failed += 1

@@ -1,6 +1,4 @@
-from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
 from .models import TeamInvite
 from django.contrib.auth.signals import user_logged_in
 from .models import UserSession
@@ -8,23 +6,29 @@ from .models import UserSession
 
 def _link_pending_invites(user):
     """
-    Shared logic: link any pending TeamInvite matching this user's email
-    that hasn't been claimed yet. Called both on brand-new signup and on
-    every login, so an invite sent to an *already-existing* account still
-    gets linked the next time they sign in — not just at signup time.
+    Links a pending invite on login ONLY when this user has PROVEN they own
+    the invited address (a verified email, e.g. signed in with Google).
+
+    Before: any invite was linked to whoever signed up with that email, and
+    email verification is off, so a stranger could type the invited address
+    at signup and walk into the team. Everyone else joins through the secret
+    link in the invite email (accept_invite_view).
     """
-    if not user.email:
-        return
-    TeamInvite.objects.filter(
-        email__iexact=user.email, linked_user__isnull=True
-    ).update(linked_user=user)
+    from allauth.account.models import EmailAddress
+    from django.utils import timezone
 
-
-@receiver(post_save, sender=User)
-def link_team_invite_on_signup(sender, instance, created, **kwargs):
-    if not created:
-        return
-    _link_pending_invites(instance)
+    if TeamInvite.objects.filter(linked_user=user).exists():
+        return  # already on a team (one team per account)
+    verified = list(
+        EmailAddress.objects.filter(user=user, verified=True).values_list('email', flat=True)
+    )
+    for email in verified:
+        invite = TeamInvite.objects.filter(email__iexact=email, linked_user__isnull=True).first()
+        if invite and invite.owner_id != user.id:
+            invite.linked_user = user
+            invite.accepted_at = timezone.now()
+            invite.save(update_fields=['linked_user', 'accepted_at'])
+            return
 
 
 def _get_client_ip(request):

@@ -202,6 +202,7 @@
         </div>
 
         <form method="post" action="{% url 'account_signup' %}">
+            {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
             {% csrf_token %}
 
             {% if form.non_field_errors %}
@@ -257,7 +258,7 @@
         {% get_providers as socialaccount_providers %}
         {% for provider in socialaccount_providers %}
         {% if provider.id == 'google' %}
-        <a href="{% provider_login_url provider.id process='login' %}" class="btn-social">
+        <a href="{% if redirect_field_value %}{% provider_login_url provider.id process='login' next=redirect_field_value %}{% else %}{% provider_login_url provider.id process='login' %}{% endif %}" class="btn-social">
             <i class="fa-brands fa-google"></i> Google Account
         </a>
         {% endif %}
@@ -265,7 +266,7 @@
 
         <!-- Sign In Link -->
         <p class="auth-footer">
-            Already have an account? <a href="{% url 'account_login' %}">Sign in</a>
+            Already have an account? <a href="{% url 'account_login' %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value|urlencode }}{% endif %}">Sign in</a>
         </p>
     </div>
 </div>
