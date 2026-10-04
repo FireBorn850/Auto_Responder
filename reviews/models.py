@@ -395,7 +395,11 @@ class QRScanEvent(models.Model):
     qr_code = models.ForeignKey(SmartQRCode, on_delete=models.CASCADE, related_name='scan_events')
     scanned_at = models.DateTimeField(auto_now_add=True)
     device_type = models.CharField(max_length=10, choices=DEVICE_CHOICES, default='other')
-    resulted_in_rating = models.IntegerField(null=True, blank=True, help_text="Star tapped on the Smart Rating Gate, if any.")
+    resulted_in_rating = models.IntegerField(null=True, blank=True, help_text="Star tapped on the Smart Feedback Router, if any.")
+    went_to = models.CharField(
+        max_length=10, blank=True, default='', choices=[('google', 'Google review'), ('private', 'Private feedback')],
+        help_text="Where the guest chose to go after rating (every rating can choose Google)."
+    )
 
     class Meta:
         ordering = ['-scanned_at']

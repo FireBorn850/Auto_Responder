@@ -1974,3 +1974,72 @@ class QuickReplyTests(TestCase):
         self.client.force_login(other)
         resp = self.client.post(reverse('quick_post', args=[self.ready.id]), {'text': 'x'})
         self.assertEqual(resp.status_code, 404)
+
+
+# ---------------------------------------------------------------- Smart Feedback Router (no review gating)
+
+class FeedbackRouterTests(TestCase):
+    GOOGLE = "https://g.page/r/abc/review"
+    PRIVATE = "https://cafeluna.ch/feedback"
+
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.qr = SmartQRCode.objects.create(user=self.owner, title="Table 1", google_review_url=self.GOOGLE,
+                                             fallback_url=self.GOOGLE, private_feedback_url=self.PRIVATE)
+        self.url = reverse('qr_redirect', args=[self.qr.slug])
+
+    def test_unhappy_guests_can_always_reach_google(self):
+        self.client.get(self.url)
+        for stars in (1, 2, 3):
+            html = self.client.get(self.url + f'?rating={stars}').content.decode()
+            self.assertIn('?go=google', html, stars)
+            self.assertIn('?go=private', html, stars)
+            self.assertIn('Post a public review on Google', html)
+        self.assertRedirects(self.client.get(self.url + '?go=google'), self.GOOGLE, fetch_redirect_response=False)
+
+    def test_happy_guests_see_google_first_and_private_as_option(self):
+        self.client.get(self.url)
+        html = self.client.get(self.url + '?rating=5').content.decode()
+        self.assertLess(html.index('?go=google'), html.index('?go=private'))
+        self.assertIn('Write a Google review', html)
+
+    def test_unhappy_guests_see_private_first(self):
+        self.client.get(self.url)
+        html = self.client.get(self.url + '?rating=2').content.decode()
+        self.assertLess(html.index('?go=private'), html.index('?go=google'))
+
+    def test_a_star_tap_never_redirects_by_itself(self):
+        self.client.get(self.url)
+        for stars in range(1, 6):
+            self.assertEqual(self.client.get(self.url + f'?rating={stars}').status_code, 200, stars)
+
+    def test_choices_are_recorded_on_the_visitors_own_scan(self):
+        self.client.get(self.url)
+        self.client.get(self.url + '?rating=2')
+        self.client.get(self.url + '?go=google')
+        event = QRScanEvent.objects.get()
+        self.assertEqual((event.resulted_in_rating, event.went_to), (2, 'google'))
+
+    def test_another_visitor_cannot_overwrite_someone_elses_scan(self):
+        self.client.get(self.url)
+        other = self.client_class()
+        other.get(self.url + '?rating=1')          # no scan cookie
+        self.assertIsNone(QRScanEvent.objects.get().resulted_in_rating)
+
+    def test_funnel_counts_real_choices(self):
+        self.client.get(self.url)
+        self.client.get(self.url + '?rating=1')
+        self.client.get(self.url + '?go=google')
+        self.client.force_login(self.owner)
+        funnel = self.client.get(reverse('qr_booster')).context['funnel']
+        self.assertEqual((funnel['to_google'], funnel['to_private']), (1, 0))
+
+    def test_without_private_url_scans_go_straight_to_google(self):
+        self.qr.private_feedback_url = ''
+        self.qr.save()
+        self.assertRedirects(self.client.get(self.url), self.GOOGLE, fetch_redirect_response=False)
+
+    def test_no_gating_language_left_on_the_page(self):
+        html = self.client.get(self.url).content.decode()
+        self.assertNotIn('1–3★</strong> →', html)
+        self.assertIn('Every guest can leave a public Google review', html)

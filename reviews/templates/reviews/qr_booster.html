@@ -804,7 +804,7 @@
         <i class="bi bi-info-circle-fill text-gold mt-0.5"></i>
         <div class="text-xs text-slate leading-relaxed">
             <span class="font-semibold text-white">{% trans "How it works:" %}</span> {% trans "generate a QR code below, print it, and place it somewhere customers see it after a good experience." %}
-            Add a <span class="font-semibold text-gold">{% trans "Private Feedback URL" %}</span> {% trans "too, and scanning first asks 'How was your visit?' — 4-5★ sends them to Google, 1-3★ routes privately to you instead, so upset customers reach you before they reach the public." %}
+            Add a <span class="font-semibold text-gold">{% trans "Private Feedback URL" %}</span> {% trans "too, and scanning first asks 'How was your visit?'. Happy guests are invited to Google first; unhappy guests are offered a private message to you first — with Google always one tap away, so it stays within Google's review policy." %}
         </div>
     </div>
 
@@ -868,7 +868,7 @@
             <div class="border-t border-white-5 mt-6 pt-6">
                 <div class="flex items-center justify-between mb-4 flex-wrap gap-1">
                     <p class="text-[11px] font-bold text-slate uppercase tracking-wider font-mono">
-                        {% trans "Conversion Funnel" %} <span class="text-slate-2 font-normal normal-case">— {% trans "Smart Rating Gate codes" %}</span>
+                        {% trans "Conversion Funnel" %} <span class="text-slate-2 font-normal normal-case">— {% trans "Smart Feedback Router codes" %}</span>
                     </p>
                     {% if funnel.non_gated_scans %}
                     <span class="text-[10px] text-slate-2 font-mono">+{{ funnel.non_gated_scans }} {% trans "scan" %}{{ funnel.non_gated_scans|pluralize }} {% trans "on non-gated codes went straight to Google" %}</span>
@@ -951,7 +951,7 @@
 
                 <div class="pt-1">
                     <div class="step-label">
-                        <span class="step-num">2</span> {% trans "Smart Rating Gate" %}
+                        <span class="step-num">2</span> {% trans "Smart Feedback Router" %}
                         <span
                             class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-white/5 border border-white-10 text-slate-2 font-normal normal-case"
                             style="font-size: 9px; letter-spacing: 0;">{% trans "optional" %}</span>
@@ -963,7 +963,7 @@
                     <details class="help-details mt-1.5">
                         <summary>{% trans "Don't have one yet?" %}</summary>
                         <p>{% trans "Create a free 2-question form at " %}<a href="https://forms.google.com" target="_blank"
-                                rel="noopener noreferrer">{% trans "forms.google.com" %}</a>{% trans " — ask \"What went wrong?\" and \"How can we make it right?\" — then paste the shareable link here. Or just leave this blank; the gate simply won't be used." %}</p>
+                                rel="noopener noreferrer">{% trans "forms.google.com" %}</a>{% trans " — ask \"What went wrong?\" and \"How can we make it right?\" — then paste the shareable link here. Or just leave this blank; scans then go straight to Google." %}</p>
                     </details>
                 </div>
 
@@ -1083,7 +1083,7 @@
                                 <p class="text-xs text-slate truncate max-w-md mt-0.5">{{ qr.google_review_url }}</p>
                                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                                     {% if qr.private_feedback_url %}
-                                        <span class="gate-badge"><i class="bi bi-shield-check"></i> {% trans "Smart Rating Gate active" %}</span>
+                                        <span class="gate-badge"><i class="bi bi-shield-check"></i> {% trans "Feedback Router active" %}</span>
                                     {% endif %}
                                     {% if qr.private_feedback_url and qr.funnel_scanned %}
                                     <span class="text-[10px] text-slate-2 font-mono">{{ qr.funnel_rated_pct }}% rated · {{ qr.funnel_to_google }} → Google</span>
@@ -1475,7 +1475,7 @@
 
     // ===== EXPORT ANALYTICS CSV =====
     function exportAnalyticsCSV() {
-        var rows = [['Campaign', 'Slug', 'Total Scans', 'Smart Gate']];
+        var rows = [['Campaign', 'Slug', 'Total Scans', 'Feedback Router']];
         document.querySelectorAll('.qr-card').forEach(function (c) {
             var title = c.getAttribute('data-title');
             var scans = c.getAttribute('data-scans');

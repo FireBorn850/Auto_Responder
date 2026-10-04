@@ -456,8 +456,9 @@ def qr_booster_page_view(request):
 
     funnel_scanned = gated_events.count()
     funnel_rated = gated_events.filter(resulted_in_rating__isnull=False).count()
-    funnel_to_google = gated_events.filter(resulted_in_rating__gte=4).count()
-    funnel_to_private = gated_events.filter(resulted_in_rating__gte=1, resulted_in_rating__lt=4).count()
+    # Where guests actually CHOSE to go (every rating can pick Google).
+    funnel_to_google = gated_events.filter(went_to='google').count()
+    funnel_to_private = gated_events.filter(went_to='private').count()
 
     funnel = {
         'scanned': funnel_scanned,
@@ -474,7 +475,7 @@ def qr_booster_page_view(request):
             qr_events = events.filter(qr_code=qr)
             qr.funnel_scanned = qr_events.count()
             qr.funnel_rated = qr_events.filter(resulted_in_rating__isnull=False).count()
-            qr.funnel_to_google = qr_events.filter(resulted_in_rating__gte=4).count()
+            qr.funnel_to_google = qr_events.filter(went_to='google').count()
             qr.funnel_rated_pct = round((qr.funnel_rated / qr.funnel_scanned) * 100) if qr.funnel_scanned else 0
 
     team_members = [profile.user]
@@ -1830,15 +1831,34 @@ def _detect_device_type(user_agent):
     return 'other'
 
 
+QR_EVENT_COOKIE = 'mehrly_qr_scan'
+QR_EVENT_SALT = 'qr-scan-event'
+
+
+def _qr_event_from_cookie(request, qr):
+    """The scan event of THIS visitor (signed cookie), so ratings land on their own scan."""
+    from django.core import signing
+    raw = request.COOKIES.get(QR_EVENT_COOKIE)
+    if not raw:
+        return None
+    try:
+        event_id = signing.loads(raw, salt=QR_EVENT_SALT, max_age=24 * 3600)
+    except signing.BadSignature:
+        return None
+    return QRScanEvent.objects.filter(id=event_id, qr_code=qr).first()
+
+
 def qr_redirect_view(request, slug):
     """
-    Public entry point for scanning QR codes.
+    Public entry point for scanning QR codes — the Smart Feedback Router.
 
-    If the business has set a private feedback URL, this shows a small
-    "How was your visit?" star picker first (the Smart Rating Gate) — 4-5★
-    routes to the public Google review, 1-3★ routes privately instead.
-    If no private feedback URL is set, it skips straight to the review link
-    like before.
+    Without a private feedback URL: straight to the Google review page.
+    With one: "How was your visit?" first, then EVERY guest chooses where to go:
+      4-5★ -> "Share it on Google" first, private message as the second option
+      1-3★ -> "Tell the manager privately" first, Google as a clearly visible
+              second option.
+    Unhappy guests are never kept away from Google (no review gating, which
+    Google's policy forbids); they're just offered the faster fix first.
     """
     qr = get_object_or_404(SmartQRCode, slug=slug)
 
@@ -1849,37 +1869,47 @@ def qr_redirect_view(request, slug):
             "<p>Please check back later.</p></div>"
         )
 
-    rating_param = request.GET.get('rating')
+    google_url = qr.google_review_url or qr.fallback_url
 
-    if rating_param:
-        try:
-            rating = int(rating_param)
-            if not 1 <= rating <= 5:
-                raise ValueError
-            recent_event = qr.scan_events.filter(resulted_in_rating__isnull=True).first()
-            if recent_event:
-                recent_event.resulted_in_rating = rating
-                recent_event.save(update_fields=['resulted_in_rating'])
-
-            if rating >= 4 and qr.google_review_url:
-                return redirect(qr.google_review_url)
-            elif rating < 4 and qr.private_feedback_url:
-                return redirect(qr.private_feedback_url)
-        except ValueError:
-            pass
+    if not qr.private_feedback_url:
+        if not request.GET:
+            SmartQRCode.objects.filter(pk=qr.pk).update(total_scans=F('total_scans') + 1)
+            QRScanEvent.objects.create(qr_code=qr, device_type=_detect_device_type(request.META.get('HTTP_USER_AGENT')))
         return redirect(qr.fallback_url or qr.google_review_url)
 
-    SmartQRCode.objects.filter(pk=qr.pk).update(total_scans=F('total_scans') + 1)
-    QRScanEvent.objects.create(
-        qr_code=qr,
-        device_type=_detect_device_type(request.META.get('HTTP_USER_AGENT')),
-    )
+    event = _qr_event_from_cookie(request, qr)
 
-    if qr.private_feedback_url:
+    # Step 3: the guest picked a destination.
+    go = request.GET.get('go')
+    if go in ('google', 'private'):
+        if event and not event.went_to:
+            event.went_to = go
+            event.save(update_fields=['went_to'])
+        return redirect(google_url if go == 'google' else qr.private_feedback_url)
+
+    # Step 2: the guest tapped a star -> show both options.
+    try:
+        rating = int(request.GET.get('rating', ''))
+    except ValueError:
+        rating = None
+    if rating is not None and 1 <= rating <= 5:
+        if event and event.resulted_in_rating is None:
+            event.resulted_in_rating = rating
+            event.save(update_fields=['resulted_in_rating'])
+        return render(request, 'reviews/qr_gate.html', {'qr': qr, 'rating': rating, 'happy': rating >= 4})
+
+    # Junk parameters (e.g. ?rating=99): show the stars again, no new scan.
+    if request.GET:
         return render(request, 'reviews/qr_gate.html', {'qr': qr})
 
-    return redirect(qr.fallback_url or qr.google_review_url)
-
+    # Step 1: a fresh scan.
+    from django.core import signing
+    SmartQRCode.objects.filter(pk=qr.pk).update(total_scans=F('total_scans') + 1)
+    event = QRScanEvent.objects.create(qr_code=qr, device_type=_detect_device_type(request.META.get('HTTP_USER_AGENT')))
+    response = render(request, 'reviews/qr_gate.html', {'qr': qr})
+    response.set_cookie(QR_EVENT_COOKIE, signing.dumps(event.id, salt=QR_EVENT_SALT), max_age=24 * 3600,
+                        httponly=True, samesite='Lax', secure=request.is_secure())
+    return response
 
 
 def qr_image_view(request, slug):

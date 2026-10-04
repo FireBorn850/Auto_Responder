@@ -28,7 +28,7 @@ FOUNDING_DAYS = 30
 PREMIUM_FEATURES = {
     'hands_free',    # Hands-Free mode: 1–3★ drafts also come pre-approved (still never auto-posted)
     'tripadvisor',
-    'qr',            # QR Code Booster + Smart Rating Gate
+    'qr',            # QR Code Booster + Smart Feedback Router
     'competitors',
     'insights',      # AI complaint trend analysis
     'team',          # team seats & staff access
