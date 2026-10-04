@@ -1466,3 +1466,26 @@ class NoUnsafeHtmlInTemplatesTests(TestCase):
         for name in ('competitors.html', 'settings.html', 'qr_booster.html'):
             self.assertNotIn("'<span>' + msg + '</span>'", (base / name).read_text(encoding='utf-8'), name)
         self.assertNotIn("+ data.error +", (base / 'settings.html').read_text(encoding='utf-8'))
+
+
+# ---------------------------------------------------------------- security #4: open redirect
+
+class OpenRedirectTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.client.force_login(self.owner)
+
+    def save_settings(self, next_value):
+        return self.client.post(reverse('update_settings'), {'next': next_value})
+
+    def test_outside_sites_are_refused(self):
+        for evil in ('https://evil.example/login', '//evil.example', '/\\evil.example',
+                     'javascript:alert(1)', 'http:evil.example', ' https://evil.example'):
+            resp = self.save_settings(evil)
+            self.assertEqual(resp['Location'], reverse('ai_settings'), evil)
+
+    def test_known_pages_still_work(self):
+        self.assertEqual(self.save_settings('qr_booster')['Location'], reverse('qr_booster'))
+
+    def test_own_paths_still_work(self):
+        self.assertEqual(self.save_settings('/dashboard/?tab=x')['Location'], '/dashboard/?tab=x')

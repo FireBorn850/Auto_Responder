@@ -1092,8 +1092,28 @@ def update_settings_view(request):
         profile.save()
         messages.success(request, "AI configuration saved.")
 
-    next_url = request.POST.get('next') or 'ai_settings'
-    return redirect(next_url)
+    return redirect(safe_next(request, 'ai_settings'))
+
+
+# Pages a form may send the user back to after saving.
+SAFE_NEXT_PAGES = {'ai_settings', 'qr_booster', 'dashboard', 'integrations', 'competitors', 'billing'}
+
+
+def safe_next(request, default):
+    """
+    Where to go after a form. Only our own page names or a path on this site.
+    Before: any value was followed, so a crafted link could bounce a
+    logged-in owner to a look-alike phishing site right after saving.
+    """
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    target = (request.POST.get('next') or request.GET.get('next') or '').strip()
+    if target in SAFE_NEXT_PAGES:
+        return reverse(target)
+    if target.startswith('/') and not target.startswith(('//', '/\\')) and url_has_allowed_host_and_scheme(
+            target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return target
+    return reverse(default)
 
 
 @login_required
