@@ -115,6 +115,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'reviews.context_processors.billing_status',
+                'reviews.context_processors.site_contact',
             ],
         },
     },
@@ -200,7 +201,13 @@ EMAIL_BACKEND = 'anymail.backends.resend.EmailBackend'
 ANYMAIL = {
     'RESEND_API_KEY': os.environ.get('RESEND_API_KEY'),
 }
-DEFAULT_FROM_EMAIL = 'noreply@mehrly.com'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Mehrly <noreply@mehrly.com>')
+
+# Public contact shown on the site (support@ forwards to the owner's inbox via
+# Cloudflare Email Routing) and where internal notifications (founder-code
+# requests, integration requests) are sent. No personal address in the code.
+SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'support@mehrly.com')
+ADMIN_NOTIFY_EMAIL = os.environ.get('ADMIN_NOTIFY_EMAIL', SUPPORT_EMAIL)
 
 # ==========================================
 # Demo Mode — OFF unless explicitly switched on (DEMO_MODE=true).

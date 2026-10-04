@@ -1842,3 +1842,33 @@ class WebhookInputTests(PipelineTestBase):
         detect.assert_not_called()
         sent.assert_not_called()
         gen.assert_not_called()
+
+
+# ---------------------------------------------------------------- security #11: no personal email in code
+
+class ContactEmailTests(TestCase):
+    def test_public_pages_show_the_support_address(self):
+        for name in ('home', 'privacy_policy', 'terms_of_service', 'getting_started'):
+            html = self.client.get(reverse(name)).content.decode()
+            self.assertIn('support@mehrly.com', html, name)
+            self.assertNotIn('@gmail.com"', html, name)
+
+    @override_settings(ADMIN_NOTIFY_EMAIL='alerts@mehrly.com')
+    def test_founder_requests_go_to_the_configured_address(self):
+        self.client.post(reverse('request_access_code'), {'business_name': 'Bistro', 'email': 'chef@bistro.ch'})
+        self.assertEqual(mail.outbox[-1].to, ['alerts@mehrly.com'])
+
+    @override_settings(ADMIN_NOTIFY_EMAIL='alerts@mehrly.com')
+    def test_integration_requests_reach_a_real_inbox(self):
+        owner, _ = make_owner()
+        self.client.force_login(owner)
+        self.client.post(reverse('request_integration'), {'tool_name': 'Yelp'})
+        self.assertEqual(mail.outbox[-1].to, ['alerts@mehrly.com'])
+
+    def test_no_personal_address_left_in_the_code(self):
+        root = _Path(__file__).resolve().parent.parent
+        for path in list((root / 'reviews').rglob('*.py')) + list((root / 'reviews').rglob('*.html')) + \
+                list((root / 'templates').rglob('*.html')) + [root / 'config' / 'settings.py']:
+            if path.name == 'tests.py':
+                continue
+            self.assertNotIn('azizovjasur2007', path.read_text(encoding='utf-8', errors='ignore'), str(path))

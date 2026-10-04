@@ -10,3 +10,10 @@ def billing_status(request):
     if profile is None:
         return {}
     return {'billing_access': billing.get_access(profile)}
+
+
+
+def site_contact(request):
+    """SUPPORT_EMAIL for every page (also logged-out ones like the landing page)."""
+    from django.conf import settings
+    return {'SUPPORT_EMAIL': settings.SUPPORT_EMAIL}

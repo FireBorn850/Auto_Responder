@@ -1225,7 +1225,7 @@ def request_integration_view(request):
                     f"Requested tool: {tool_name}\n"
                 ),
                 from_email=None,
-                recipient_list=['hello@mehrly.com'],
+                recipient_list=[settings.ADMIN_NOTIFY_EMAIL],   # hello@ didn't exist: requests were lost
                 fail_silently=True,
             )
         except Exception:
@@ -1429,7 +1429,7 @@ def request_access_code_view(request):
                     f"{request.build_absolute_uri('/admin/reviews/accesscode/')}"
                 ),
                 from_email=None,
-                recipient_list=['azizovjasur2007@gmail.com'],
+                recipient_list=[settings.ADMIN_NOTIFY_EMAIL],
                 fail_silently=True,
             )
         except Exception:

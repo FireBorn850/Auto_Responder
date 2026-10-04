@@ -800,7 +800,7 @@
             <div class="flex items-center gap-4">
                 <a href="{% url 'privacy_policy' %}" class="hover:text-white transition">{% trans "Privacy" %}</a>
                 <a href="{% url 'terms_of_service' %}" class="hover:text-white transition">{% trans "Terms" %}</a>
-                <a href="mailto:azizovjasur2007@gmail.com?subject=Mehrly%20Support%20Request"
+                <a href="mailto:{{ SUPPORT_EMAIL }}?subject=Mehrly%20Support%20Request"
                     class="hover:text-slate-300 transition" title="Get help">{% trans "Support" %}</a>
             </div>
         </div>
