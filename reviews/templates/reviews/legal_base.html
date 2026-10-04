@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Legal{% endblock %} | Mehrly</title>
+    <meta name="description" content="{% block description %}Mehrly legal information.{% endblock %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0B1220; color: #F7F5F0; }
+        .font-display { font-family: 'Fraunces', serif; }
+        h2 { font-family: 'Fraunces', serif; color: #F7F5F0; scroll-margin-top: 1.5rem; }
+        h3 { color: #F7F5F0; font-weight: 600; margin: 1rem 0 0.4rem; }
+        .legal a { color: #E8A83C; }
+        .legal a:hover { color: #F2C46D; }
+        .section { border-bottom: 1px solid rgba(255,255,255,0.06); padding: 2rem 0; }
+        .section:last-child { border-bottom: none; }
+        .legal ul { list-style: disc; padding-left: 1.5rem; }
+        .legal ul li + li { margin-top: 0.5rem; }
+        .legal p + p, .legal p + ul, .legal ul + p { margin-top: 0.75rem; }
+        table.providers { width: 100%; font-size: 0.875rem; border-collapse: collapse; margin-top: 0.75rem; }
+        table.providers th { text-align: left; color: #F7F5F0; font-weight: 600; padding: 0.6rem 0.75rem 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+        table.providers td { padding: 0.6rem 0.75rem 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: top; }
+        .callout { background: rgba(232,168,60,0.08); border: 1px solid rgba(232,168,60,0.25); border-radius: 0.75rem; padding: 1rem 1.25rem; }
+        .legal-nav a { color: #94A3B8; }
+        .legal-nav a:hover, .legal-nav a.active { color: #E8A83C; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <a href="{% url 'home' %}" class="text-sm text-amber-400 hover:text-amber-300">&larr; Back to Mehrly</a>
+
+        <nav class="legal-nav flex flex-wrap gap-x-5 gap-y-2 text-sm mt-6" aria-label="Legal pages">
+            {% url 'terms_of_service' as terms_url %}{% url 'privacy_policy' as privacy_url %}{% url 'refund_policy' as refund_url %}{% url 'security' as security_url %}
+            <a href="{{ terms_url }}" {% if request.path == terms_url %}class="active" aria-current="page"{% endif %}>Terms</a>
+            <a href="{{ privacy_url }}" {% if request.path == privacy_url %}class="active" aria-current="page"{% endif %}>Privacy</a>
+            <a href="{{ refund_url }}" {% if request.path == refund_url %}class="active" aria-current="page"{% endif %}>Refunds &amp; cancellation</a>
+            <a href="{{ security_url }}" {% if request.path == security_url %}class="active" aria-current="page"{% endif %}>Security</a>
+        </nav>
+
+        <h1 class="font-display text-3xl sm:text-4xl font-semibold mt-8 mb-2">{% block heading %}{% endblock %}</h1>
+        <p class="text-slate-400 text-sm mb-8">Last updated: {% block updated %}October 4, 2026{% endblock %}</p>
+
+        <div class="legal text-slate-300 leading-relaxed">
+            {% block content %}{% endblock %}
+        </div>
+
+        <footer class="mt-12 pt-6 border-t border-white/5 text-xs text-slate-500">
+            Questions? Email <a class="text-amber-400" href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>. We usually reply within 2 business days.
+        </footer>
+    </div>
+</body>
+</html>

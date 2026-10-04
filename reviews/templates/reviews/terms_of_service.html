@@ -1,106 +1,121 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service | Mehrly</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background: #0B1220; color: #F7F5F0; }
-        .font-display { font-family: 'Fraunces', serif; }
-        h2 { font-family: 'Fraunces', serif; color: #F7F5F0; }
-        a { color: #E8A83C; }
-        .section { border-bottom: 1px solid rgba(255,255,255,0.06); padding: 2rem 0; }
-    </style>
-</head>
-<body class="antialiased">
-    <div class="max-w-3xl mx-auto px-6 py-16">
-        <a href="{% url 'home' %}" class="text-sm text-amber-400 hover:text-amber-300">&larr; Back to Mehrly</a>
+{% extends "reviews/legal_base.html" %}
 
-        <h1 class="font-display text-4xl font-semibold mt-6 mb-2">Terms of Service</h1>
-        <p class="text-slate-400 text-sm mb-10">Last updated: September 1, 2026</p>
+{% block title %}Terms of Service{% endblock %}
+{% block description %}The terms that apply when you use Mehrly.{% endblock %}
+{% block heading %}Terms of Service{% endblock %}
 
-        <div class="space-y-1 text-slate-300 leading-relaxed">
+{% block content %}
+<div class="callout text-sm">
+    <strong class="text-white">In short:</strong> Mehrly drafts replies to your reviews with AI. You stay in control of what is published. You can cancel any time and keep access until the end of the period you paid for. Payments are handled by Polar, our Merchant of Record.
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">1. Agreement to terms</h2>
-                <p>By creating an account or using Mehrly ("the Service"), you agree to these Terms of Service. If you do not agree, do not use the Service. Mehrly is currently operated as an individual project by its founder, not a registered company. Contact: <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">1. About these terms</h2>
+    <p>These Terms of Service ("Terms") apply when you create an account on, or use, Mehrly (the "Service"). By using the Service you agree to these Terms. If you use Mehrly on behalf of a business, you confirm that you are authorised to accept these Terms for that business, and "you" means that business.</p>
+    <p>Mehrly is operated by its founder as an individual and is not yet a registered company ("Mehrly", "we", "us"). Contact: <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
+    <p>Mehrly is a business tool. It is intended for restaurants, hotels, shops and other businesses, not for personal or household use.</p>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">2. What the Service does</h2>
-                <p>Mehrly connects to your Google Business Profile (and optionally TripAdvisor and custom webhook sources) to import customer reviews, uses Google's Gemini AI to draft suggested replies, and — based on your configured settings — either posts approved replies automatically or holds them for your manual review before posting.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">2. What the Service does</h2>
+    <ul>
+        <li>Imports public reviews of your business from Google and, if you choose, Tripadvisor or your own webhook source.</li>
+        <li>Uses AI to draft suggested replies in your tone and language, and learns from the edits you make.</li>
+        <li>Lets you review, edit and approve replies, and helps you post them (for example with Quick Reply, which copies the text and opens the review on Google).</li>
+        <li>Provides insights, alerts, weekly summaries, competitor tracking and QR codes that invite guests to leave feedback.</li>
+    </ul>
+    <p>Some features, such as fully automatic posting to Google, depend on approval from third parties and are marked "coming soon" until available. We describe each plan's features on our pricing page.</p>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">3. Your account</h2>
-                <ul class="list-disc pl-6 space-y-2">
-                    <li>You must sign in using a valid Google account. You are responsible for maintaining the security of that account.</li>
-                    <li>You are responsible for all activity that occurs through your Mehrly account, including actions taken by team members you invite.</li>
-                    <li>You must provide accurate information about your business when configuring your profile.</li>
-                </ul>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">3. Your account and team</h2>
+    <ul>
+        <li>You must provide accurate information and keep your login credentials secure.</li>
+        <li>You are responsible for all activity in your account, including actions by team members you invite. Assign roles (owner, admin, reviewer, viewer) with care.</li>
+        <li>Each account manages one business at a time. To keep costs fair, switching the account to a different business is limited (once during the free trial, then once every 30 days). Contact us if you have a genuine reason to switch more often.</li>
+        <li>Tell us promptly at <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a> if you suspect unauthorised access to your account.</li>
+    </ul>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">4. AI-generated content</h2>
-                <p class="mb-3">Mehrly uses AI (Google's Gemini) to generate suggested reply text. You acknowledge and agree that:</p>
-                <ul class="list-disc pl-6 space-y-2">
-                    <li>AI-generated drafts may occasionally be inaccurate, off-tone, or inappropriate for a given review.</li>
-                    <li>You are solely responsible for reviewing, editing, and approving any reply before it is posted publicly — whether posted manually or through automated "auto-post" settings you have configured.</li>
-                    <li>We are not liable for the content of any AI-generated reply that you approve or that is posted automatically under settings you configured, including replies enabled through our "Smart Guardrail" automation.</li>
-                    <li>You can disable automatic posting at any time and switch to manual approval for all replies.</li>
-                </ul>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">4. AI-generated replies</h2>
+    <ul>
+        <li>Drafts are suggestions. They may occasionally be inaccurate, off-tone or unsuitable for a particular review.</li>
+        <li>You are responsible for every reply published under your business name, whether you post it yourself or it was pre-approved under automation settings you chose.</li>
+        <li>You can switch any automation off at any time and approve every reply manually.</li>
+        <li>Mehrly runs safety checks before it pre-approves a reply, but these checks do not replace your own judgement.</li>
+    </ul>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">5. Acceptable use</h2>
-                <p class="mb-3">You agree not to use Mehrly to:</p>
-                <ul class="list-disc pl-6 space-y-2">
-                    <li>Post fake, misleading, or fraudulent reviews or replies</li>
-                    <li>Violate Google's Business Profile policies, TripAdvisor's terms, or any third-party platform's terms of service</li>
-                    <li>Attempt to reverse-engineer, abuse, or overload the Service's infrastructure, including our AI generation endpoints</li>
-                    <li>Use the Service for any unlawful purpose</li>
-                </ul>
-                <p class="mt-3">We reserve the right to suspend or terminate accounts that violate these terms.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">5. Acceptable use</h2>
+    <p>You agree not to use Mehrly to:</p>
+    <ul>
+        <li>Write or solicit fake, paid or misleading reviews, or post replies that are deceptive, abusive or that reveal a guest's private information.</li>
+        <li>Filter or suppress negative reviews ("review gating"). Mehrly's QR feature always lets every guest choose to leave a public Google review, and you must not try to change that.</li>
+        <li>Break Google's, Tripadvisor's or any other platform's terms or policies.</li>
+        <li>Manage businesses you are not authorised to represent.</li>
+        <li>Probe, overload, scrape, reverse-engineer or bypass the limits or security of the Service.</li>
+        <li>Break any applicable law.</li>
+    </ul>
+    <p>We may suspend or close accounts that break these rules. Where reasonable, we will warn you first.</p>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">6. Pricing and billing</h2>
-                <p>Plans (Starter, billed monthly or yearly, and Premium, billed monthly) and their prices are shown on our pricing page and may change with at least 30 days' notice to existing subscribers. New accounts receive a 14-day free trial of Premium without a payment card. Founding Partner access codes grant 30 days of Premium free of charge.</p>
-                <p class="mt-3">Payments are processed by our reseller and Merchant of Record, Polar (polar.sh), which handles checkout, invoices and applicable sales taxes/VAT. Subscriptions renew automatically until cancelled; you can cancel at any time from the Billing page and keep access until the end of the period already paid.</p>
-                <p class="mt-3">If a trial or plan ends, or a payment remains unpaid for 7 days, your account switches to read-only: your data stays available, but syncing, AI drafting and automatic posting stop until a plan is active again.</p>
-                <p class="mt-3"><strong>Refunds:</strong> if you are not satisfied, contact us within 14 days of your first payment for a full refund. Later renewals are not refunded, but you can cancel to stop the next renewal.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">6. Plans, trials and payment</h2>
+    <ul>
+        <li><strong>Free trial:</strong> new accounts get a 14-day trial of Premium. No payment card is needed. When the trial ends, the account becomes read-only until you choose a plan.</li>
+        <li><strong>Founding Partner codes</strong> give 30 days of Premium free of charge.</li>
+        <li><strong>Paid plans</strong> (Starter, monthly or yearly; Premium, monthly) are billed in advance and renew automatically until cancelled. Prices are in Swiss francs (CHF) and shown on our pricing page.</li>
+        <li><strong>Merchant of Record:</strong> payments are processed by Polar (polar.sh), which acts as our reseller and Merchant of Record. Polar handles checkout, invoices and applicable VAT or sales tax, and Polar's buyer terms also apply to your purchase. We never see or store your full card details.</li>
+        <li><strong>Price changes</strong> apply to existing subscribers only after at least 30 days' notice by email. You can cancel before the new price applies.</li>
+        <li><strong>Failed payments:</strong> if a payment stays unpaid for 7 days, the account becomes read-only. Your data stays available, but syncing, AI drafting and posting stop until payment succeeds.</li>
+    </ul>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">7. Cancellation</h2>
-                <p>You may cancel your account at any time from your account settings or by contacting us. Upon cancellation, we immediately stop accessing your connected Google Business Profile and other integrations. You retain full ownership and control of your Google Business Profile at all times — Mehrly only assists with drafting and posting replies while connected.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">7. Cancellation and refunds</h2>
+    <p>You can cancel at any time from the Billing page. Your plan stays active until the end of the period you already paid for, and is not renewed after that. Our <a href="{% url 'refund_policy' %}">Refund &amp; Cancellation Policy</a> explains when you can get money back, and forms part of these Terms.</p>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">8. Service availability</h2>
-                <p>Mehrly is provided on an "as is" and "as available" basis. We do not guarantee uninterrupted access, and features depending on third-party services (Google, Gemini AI, SerpAPI/TripAdvisor) may be affected by those providers' availability, rate limits, or policy changes outside our control.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">8. Your content and data</h2>
+    <ul>
+        <li>You keep all rights to your content: your settings, instructions, logo, edits and approved replies. You give us the permission we need to store and process it to run the Service for you.</li>
+        <li>Reviews are written by third parties. Mehrly imports them only so you can read and reply to them.</li>
+        <li>You can export your reviews and reports as CSV at any time, and you can ask us to delete your account and data. See our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.</li>
+        <li>We may use anonymous, aggregated statistics (for example, how many drafts are approved without edits) to improve the Service. These never identify you, your business or your guests.</li>
+    </ul>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">9. Limitation of liability</h2>
-                <p>To the fullest extent permitted by law, Mehrly and its operator shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service, including damages related to AI-generated content, reputational impact from posted replies, or third-party service interruptions.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">9. Third-party services</h2>
+    <p>Mehrly relies on third parties such as Google (sign-in, reviews, Gemini AI), DataForSEO (public review data), Polar (payments) and our hosting providers. Their availability, rate limits and policy changes are outside our control and can affect features. If you connected your Google account, you can revoke Mehrly's access from your Google account settings at any time.</p>
+</div>
 
-            <div class="section">
-                <h2 class="text-xl font-semibold mb-3">10. Changes to these terms</h2>
-                <p>We may update these Terms of Service from time to time. Continued use of the Service after changes are posted constitutes acceptance of the revised terms.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">10. Availability and changes</h2>
+    <p>We work to keep Mehrly fast and available, but we do not guarantee uninterrupted service, and we may need short maintenance windows. We may improve, change or remove features over time. If we remove a core feature of your paid plan during your billing period, you may ask for a pro-rata refund of the unused part.</p>
+</div>
 
-            <div class="section" style="border-bottom: none;">
-                <h2 class="text-xl font-semibold mb-3">11. Contact</h2>
-                <p>Questions about these terms? Email <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
-            </div>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">11. Disclaimer and limitation of liability</h2>
+    <p>The Service is provided "as is" and "as available". To the extent permitted by law, we are not liable for indirect or consequential losses, such as lost profit, lost business or reputational harm, including harm caused by replies you approved or automated under your settings.</p>
+    <p>To the extent permitted by law, our total liability for any claim relating to the Service is limited to the amount you paid us in the 12 months before the claim. Nothing in these Terms limits liability that cannot be limited by law, such as liability for intent or gross negligence.</p>
+</div>
 
-        </div>
-    </div>
-</body>
-</html>
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">12. Ending the agreement</h2>
+    <p>You can stop using Mehrly and cancel at any time. We may end or suspend your access if you seriously or repeatedly break these Terms, or if we stop offering the Service. If we discontinue the Service, we will give at least 30 days' notice, give you time to export your data, and refund any prepaid period that has not been used.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">13. Changes to these Terms</h2>
+    <p>We may update these Terms. We will email you about important changes at least 14 days before they take effect, and the date at the top of this page shows the latest version. If you keep using Mehrly after a change takes effect, the new Terms apply. If you do not agree, you can cancel before then.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">14. Contact</h2>
+    <p>Questions about these Terms? Email <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
+</div>
+{% endblock %}

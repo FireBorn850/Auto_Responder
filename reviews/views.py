@@ -41,6 +41,8 @@ from datetime import datetime
 from .services import gbp_client, billing, polar_billing, ratelimit
 from .services.client_ip import get_client_ip
 from .services.safe_csv import safe_csv_writer
+import logging
+logger = logging.getLogger(__name__)
 from .models import generate_founder_code
 from django.urls import reverse
 
@@ -90,6 +92,14 @@ def getting_started_view(request):
 
 def terms_of_service_view(request):
     return render(request, 'reviews/terms_of_service.html')
+
+
+def refund_policy_view(request):
+    return render(request, 'reviews/refund_policy.html')
+
+
+def security_view(request):
+    return render(request, 'reviews/security.html')
 
 
 
@@ -793,8 +803,10 @@ def _start_over_with_new_business(profile, new_name):
     profile.tripadvisor_url = None
     profile.last_auto_sync = None
     profile.business_name = (new_name or '').strip()[:255] or profile.business_name
+    profile.business_switch_count = (profile.business_switch_count or 0) + 1
+    profile.last_business_switch_at = timezone.now()
     profile.save(update_fields=['google_review_url', 'google_maps_url', 'tripadvisor_url',
-                                'last_auto_sync', 'business_name'])
+                                'last_auto_sync', 'business_name', 'business_switch_count', 'last_business_switch_at'])
     Review.objects.filter(user=profile.user).update(business_name=profile.business_name)
     return deleted
 
@@ -821,6 +833,10 @@ def sync_google_reviews_view(request):
     place_id = request.POST.get('place_id', '').strip()
 
     if request.POST.get('switch_business') == '1':
+        switch_blocked = _switch_blocked_reason(profile)
+        if switch_blocked:
+            messages.warning(request, switch_blocked)
+            return redirect('dashboard')
         deleted = _start_over_with_new_business(profile, business_name)
         ActivityLog.objects.create(user=request.user, action='settings_updated',
                                    detail=f"Switched business to {profile.business_name} ({deleted} old reviews removed)"[:255])
@@ -839,13 +855,50 @@ def sync_google_reviews_view(request):
     return redirect('dashboard')
 
 
+TRIAL_SWITCH_LIMIT = 1                  # business switches allowed during the free trial
+PAID_SWITCH_EVERY = timedelta(days=30)  # paid plans: one switch per 30 days
+
+
 def _sync_blocked_reason(profile, platform):
-    """Cost guard: one sync at a time, and at most one per platform per hour."""
+    """
+    Money guards for manual syncs (each one is a paid DataForSEO task):
+      - one sync at a time, at most one per platform per hour;
+      - at most MANUAL_SYNCS_PER_DAY per account per 24h;
+      - a site-wide daily budget, so a wave of free-trial sign-ups typing
+        random business names can never run up the bill.
+    """
     if sync_jobs.active_job(profile.user):
         return "A sync is already running — it will finish on its own."
+    now = timezone.now()
     last = SyncJob.objects.filter(user=profile.user, platform=platform).exclude(state='failed').first()
-    if last and (timezone.now() - last.created_at) < timedelta(hours=1):
+    if last and (now - last.created_at) < timedelta(hours=1):
         return "You synced recently. New reviews are also checked automatically every day. You can sync again in about an hour."
+    day_ago = now - timedelta(hours=24)
+    if SyncJob.objects.filter(user=profile.user, created_at__gte=day_ago).count() >= settings.MANUAL_SYNCS_PER_DAY:
+        return "You've reached today's manual sync limit. New reviews are still checked automatically every night."
+    site_tasks = SyncJob.objects.filter(created_at__gte=day_ago).exclude(task_id='').exclude(task_id__isnull=True).count()
+    if site_tasks >= settings.DATAFORSEO_DAILY_TASK_CAP:
+        logger.warning("DataForSEO daily task cap reached (%s)", site_tasks)
+        return "Syncing is very busy right now — please try again tomorrow. Your existing reviews are safe."
+    return None
+
+
+def _switch_blocked_reason(profile):
+    """
+    Switching to a different business wipes the old reviews and pays for a
+    fresh import. Limited so one account can't hop between businesses
+    (e.g. competitors) on our DataForSEO bill.
+    """
+    level = billing.get_access(profile).level
+    if level in ('trial', 'founding'):
+        if profile.business_switch_count >= TRIAL_SWITCH_LIMIT:
+            return ("During the free trial you can switch to a different business once. "
+                    f"Need another change? Email {settings.SUPPORT_EMAIL}.")
+        return None
+    if profile.last_business_switch_at and timezone.now() - profile.last_business_switch_at < PAID_SWITCH_EVERY:
+        days = (profile.last_business_switch_at + PAID_SWITCH_EVERY - timezone.now()).days + 1
+        return (f"You can switch to a different business again in {days} day{'s' if days != 1 else ''}. "
+                f"Need it sooner? Email {settings.SUPPORT_EMAIL}.")
     return None
 
 

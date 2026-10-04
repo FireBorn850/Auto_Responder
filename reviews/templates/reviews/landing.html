@@ -1249,9 +1249,11 @@
         <div
             class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <p>© 2026 Mehrly. Built for high-conversion hospitality and retail management.</p>
-            <div class="flex items-center gap-6">
+            <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
                 <a href="{% url 'privacy_policy' %}" class="hover:text-slate-300 transition">Privacy</a>
                 <a href="{% url 'terms_of_service' %}" class="hover:text-slate-300 transition">Terms</a>
+                <a href="{% url 'refund_policy' %}" class="hover:text-slate-300 transition">Refunds</a>
+                <a href="{% url 'security' %}" class="hover:text-slate-300 transition">Security</a>
                 <a href="mailto:{{ SUPPORT_EMAIL }}?subject=Mehrly%20Inquiry"
                     class="hover:text-slate-300 transition">Contact</a>
             </div>

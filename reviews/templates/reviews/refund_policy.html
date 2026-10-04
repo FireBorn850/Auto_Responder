@@ -1,0 +1,72 @@
+{% extends "reviews/legal_base.html" %}
+
+{% block title %}Refund &amp; Cancellation Policy{% endblock %}
+{% block description %}How cancelling and refunds work for Mehrly subscriptions.{% endblock %}
+{% block heading %}Refund &amp; Cancellation Policy{% endblock %}
+
+{% block content %}
+<div class="callout text-sm">
+    <strong class="text-white">In short:</strong> Try Mehrly free for 14 days with no card. Cancel any time and keep access until the end of the period you paid for. Not happy with your first payment? Ask within 14 days and we refund it in full.
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">1. Free trial first</h2>
+    <p>Every new account gets 14 days of Premium for free, with no payment card required. Nothing is charged automatically when the trial ends: your account simply becomes read-only until you choose a plan.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">2. How to cancel</h2>
+    <ul>
+        <li>Go to <strong>Billing &amp; Plan</strong> in your dashboard and choose <strong>Manage subscription</strong>, or email <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</li>
+        <li>Only the account owner can cancel.</li>
+        <li>Cancellation stops the next renewal. Your plan stays fully active until the end of the period you already paid for. After that, the account becomes read-only, and your data stays available to view and export.</li>
+        <li>Changed your mind? You can resume the subscription any time before the period ends.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">3. When you can get a refund</h2>
+    <div class="overflow-x-auto">
+    <table class="providers">
+        <thead><tr><th>Situation</th><th>Refund</th></tr></thead>
+        <tbody>
+            <tr><td>First payment of a monthly plan, requested within 14 days</td><td>Full refund</td></tr>
+            <tr><td>Yearly plan, requested within 14 days of purchase or renewal</td><td>Full refund</td></tr>
+            <tr><td>You were charged twice, or charged after you had cancelled</td><td>Full refund of the wrong charge</td></tr>
+            <tr><td>Mehrly was unavailable for a long period, or we removed a core feature of your plan</td><td>Pro-rata refund of the affected time</td></tr>
+            <tr><td>We discontinue the Service</td><td>Refund of any unused prepaid time</td></tr>
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">4. When refunds are not given</h2>
+    <ul>
+        <li>Monthly renewals after the first payment. Cancelling stops the next renewal but does not refund the current month.</li>
+        <li>Partly used months. We do not refund unused days when you cancel mid-period. You keep access until the period ends instead.</li>
+        <li>Yearly plans after the first 14 days. You keep access until the end of the year you paid for.</li>
+        <li>Accounts closed for breaking our <a href="{% url 'terms_of_service' %}">Terms of Service</a>, or refund requests we reasonably believe are abusive.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">5. Upgrades and downgrades</h2>
+    <p>When you change plans, our payment provider adjusts the price for the rest of your billing period, and the new price applies from the next renewal. If you are unsure how a change will be billed, ask us before switching.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">6. How to request a refund</h2>
+    <ul>
+        <li>Email <a href="mailto:{{ SUPPORT_EMAIL }}?subject=Refund%20request">{{ SUPPORT_EMAIL }}</a> from your account email. Include your business name and, if you have it, the order or invoice number.</li>
+        <li>We reply within 2 business days.</li>
+        <li>Approved refunds are issued through Polar, our Merchant of Record, to your original payment method, including any VAT charged. Depending on your bank, the money usually arrives within 5–10 business days.</li>
+    </ul>
+    <p>Please contact us before opening a dispute or chargeback with your bank. It is almost always faster, and we are happy to help.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">7. Your legal rights</h2>
+    <p>This policy does not limit any rights you have under mandatory law. If the law where you live gives you stronger rights, those rights apply.</p>
+</div>
+{% endblock %}

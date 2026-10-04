@@ -1,0 +1,78 @@
+{% extends "reviews/legal_base.html" %}
+
+{% block title %}Security{% endblock %}
+{% block description %}How Mehrly protects your account, your reviews and your guests' data.{% endblock %}
+{% block heading %}Security at Mehrly{% endblock %}
+
+{% block content %}
+<div class="callout text-sm">
+    <strong class="text-white">In short:</strong> Every connection is encrypted. We never see your card or your Google password. Each team member gets only the access their role needs. Found a problem? Email <a href="mailto:{{ SUPPORT_EMAIL }}?subject=Security">{{ SUPPORT_EMAIL }}</a>.
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">1. Encryption and infrastructure</h2>
+    <ul>
+        <li>All traffic to Mehrly uses HTTPS (TLS). Browsers are told to always use HTTPS (HSTS), and cookies are only sent over secure connections.</li>
+        <li>The application runs on Render, and data is stored in a managed PostgreSQL database on Neon. Both encrypt data at rest.</li>
+        <li>API keys and other secrets are kept in protected environment settings, never in our source code.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">2. Accounts and sign-in</h2>
+    <ul>
+        <li><strong>Sign in with Google:</strong> Google handles your login, and we never see your Google password.</li>
+        <li><strong>Email sign-up:</strong> passwords are stored only as strong one-way hashes, never as readable text.</li>
+        <li>You can see your active sessions in Account Settings.</li>
+        <li>Forms are protected against cross-site request forgery (CSRF), and pages cannot be embedded in other sites (clickjacking protection).</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">3. Team access</h2>
+    <ul>
+        <li>Four roles (Owner, Admin, Reviewer and Viewer) limit who can change settings, approve replies or only read. Checks run on the server, not just in the interface.</li>
+        <li>Team invitations use single-use, unguessable links sent only to the invited email address.</li>
+        <li>Only the account owner can change the plan or billing.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">4. Payments</h2>
+    <p>Checkout is handled by Polar, our Merchant of Record, and its payment processors. Mehrly never receives or stores your full card number. Billing updates reach us through signed webhooks, which are verified before we trust them.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">5. AI safety</h2>
+    <ul>
+        <li>Review text is treated as untrusted input. Instructions hidden inside a review cannot change how Mehrly behaves.</li>
+        <li>Drafts are checked before they can be pre-approved, and you can require manual approval for every reply.</li>
+        <li>What Mehrly learns from your edits stays inside your account and is never shared with other customers.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">6. Abuse protection</h2>
+    <ul>
+        <li>Rate limits on sign-in, access codes, public pages, webhooks and AI features block brute-force attempts and runaway costs.</li>
+        <li>Incoming webhook data is strictly validated and size-limited.</li>
+        <li>Exported CSV files are protected against spreadsheet formula injection.</li>
+        <li>Public QR pages reveal no account information.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">7. Your data, your control</h2>
+    <p>You can export your reviews and reports at any time, and ask us to delete your account. If you connected Google, you can revoke Mehrly's access from your Google account at any time. See the <a href="{% url 'privacy_policy' %}">Privacy Policy</a> for details.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">8. Reporting a vulnerability</h2>
+    <p>If you believe you have found a security issue, please email <a href="mailto:{{ SUPPORT_EMAIL }}?subject=Security%20report">{{ SUPPORT_EMAIL }}</a> with the subject "Security report" and the steps to reproduce it. Please give us reasonable time to fix it before sharing it publicly, and do not access other customers' data or disrupt the Service while testing. We will acknowledge your report within 3 business days, and we are grateful for responsible reports.</p>
+</div>
+
+<div class="section">
+    <h2 class="text-xl font-semibold mb-3">9. If something goes wrong</h2>
+    <p>If a security incident affects your personal data, we will tell you without undue delay, explain what happened and what we are doing about it, and notify authorities where the law requires.</p>
+</div>
+{% endblock %}

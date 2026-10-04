@@ -10,7 +10,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
         <div>
             <h1 class="font-display text-2xl font-semibold text-white tracking-tight">{% trans "Billing & Plan" %}</h1>
-            <p class="text-xs sm:text-sm text-slate mt-1">{% trans "Prices in CHF. Cancel anytime. Payments are processed securely by Polar, our reseller, which also handles invoices and VAT." %}</p>
+            <p class="text-xs sm:text-sm text-slate mt-1">{% trans "Prices in CHF. Cancel anytime. Payments are processed securely by Polar, our reseller, which also handles invoices and VAT." %} <a href="{% url 'refund_policy' %}" target="_blank" rel="noopener" class="text-gold font-semibold">{% trans "Refund policy" %}</a></p>
         </div>
     </div>
 

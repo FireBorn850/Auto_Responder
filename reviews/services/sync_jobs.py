@@ -64,7 +64,10 @@ def start_google_sync(profile, place_id=''):
         imported = google_importer._import_demo_real_reviews(profile.user, profile.business_name)
         return _to_drafting(job, imported, 0)
 
-    place_id, depth = google_importer.plan_google_fetch(profile.user, place_id)
+    from reviews.services import billing
+    # Free trial: a smaller first import (cheaper); paid plans get the full 100.
+    backlog = 100 if billing.get_access(profile).level == 'paid' else getattr(settings, 'TRIAL_FIRST_SYNC_REVIEWS', 50)
+    place_id, depth = google_importer.plan_google_fetch(profile.user, place_id, max_reviews=backlog)
     job.task_id = dfs.post_task(dfs.GOOGLE, dfs.google_task(profile.business_name, place_id, depth, _manual_priority()))
     job.save(update_fields=['task_id', 'updated_at'])
     return job

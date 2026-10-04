@@ -1886,7 +1886,7 @@ class WebhookInputTests(PipelineTestBase):
 
 class ContactEmailTests(TestCase):
     def test_public_pages_show_the_support_address(self):
-        for name in ('home', 'privacy_policy', 'terms_of_service', 'getting_started'):
+        for name in ('home', 'privacy_policy', 'terms_of_service', 'refund_policy', 'security', 'getting_started'):
             html = self.client.get(reverse(name)).content.decode()
             self.assertIn('support@mehrly.com', html, name)
             self.assertNotIn('@gmail.com"', html, name)
@@ -2043,3 +2043,97 @@ class FeedbackRouterTests(TestCase):
         html = self.client.get(self.url).content.decode()
         self.assertNotIn('1–3★</strong> →', html)
         self.assertIn('Every guest can leave a public Google review', html)
+
+
+# ---------------------------------------------------------------- sync ownership / money limits
+
+@override_settings(DATAFORSEO_LOGIN='x', DATAFORSEO_PASSWORD='y')
+class SyncLimitTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.profile.google_review_url = 'https://search.google.com/local/writereview?placeid=ABC'
+        self.profile.save()
+        Review.objects.create(user=self.owner, business_name="Cafe Luna", reviewer_name="Ann", rating=5,
+                              comment="Lovely", source='google')
+        self.client.force_login(self.owner)
+
+    def sync(self, **data):
+        with mock.patch.object(dfs, 'post_task', return_value='task-1') as post:
+            self.client.post(reverse('sync_google_reviews'), {'business_name': 'Cafe Luna', **data})
+        return post
+
+    def old_jobs(self, n, user=None, hours_ago=2):
+        for i in range(n):
+            job = SyncJob.objects.create(user=user or self.owner, platform='google', state='done', task_id=f't{i}')
+            SyncJob.objects.filter(id=job.id).update(created_at=dj_tz.now() - _td(hours=hours_ago))
+
+    def test_trial_can_switch_business_once(self):
+        self.sync(switch_business='1', business_name='Other Cafe')
+        self.profile.refresh_from_db()
+        self.assertEqual((self.profile.business_name, self.profile.business_switch_count), ('Other Cafe', 1))
+        SyncJob.objects.all().delete()
+        self.sync(switch_business='1', business_name='Third Cafe')
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.business_name, 'Other Cafe')
+
+    def test_paid_can_switch_again_after_30_days(self):
+        as_paid(self.profile, 'starter', business_switch_count=5,
+                last_business_switch_at=dj_tz.now() - _td(days=10))
+        post = self.sync(switch_business='1', business_name='Other Cafe')
+        post.assert_not_called()
+        self.profile.last_business_switch_at = dj_tz.now() - _td(days=31)
+        self.profile.save()
+        self.assertTrue(self.sync(switch_business='1', business_name='Other Cafe').called)
+
+    def test_daily_manual_sync_cap_per_account(self):
+        self.old_jobs(3)
+        self.sync().assert_not_called()
+
+    def test_site_wide_daily_budget(self):
+        other, _ = make_owner("other")
+        with self.settings(DATAFORSEO_DAILY_TASK_CAP=2):
+            self.old_jobs(2, user=other)
+            self.sync().assert_not_called()
+
+    def test_yesterdays_jobs_dont_count(self):
+        self.old_jobs(3, hours_ago=30)
+        self.assertTrue(self.sync().called)
+
+    def test_trial_first_import_is_smaller(self):
+        Review.objects.all().delete()
+        with mock.patch.object(dfs, 'post_task', return_value='t') as post, \
+                mock.patch.object(dfs, 'google_task', wraps=dfs.google_task) as task:
+            self.client.post(reverse('sync_google_reviews'), {'business_name': 'Cafe Luna'})
+        self.assertEqual(task.call_args.args[2], 50)
+        post.assert_called_once()
+
+
+
+# ---------------------------------------------------------------- Legal pages
+
+class LegalPagesTests(TestCase):
+    PAGES = ('terms_of_service', 'privacy_policy', 'refund_policy', 'security')
+
+    def test_every_legal_page_loads_and_links_to_the_others(self):
+        for name in self.PAGES:
+            html = self.client.get(reverse(name)).content.decode()
+            for other in self.PAGES:
+                self.assertIn(f'href="{reverse(other)}"', html, f'{name} -> {other}')
+
+    def test_refund_policy_states_the_key_rules(self):
+        html = self.client.get(reverse('refund_policy')).content.decode()
+        self.assertIn('within 14 days', html)
+        self.assertIn('until the end of the period you already paid for', html)
+        self.assertIn('Polar', html)
+
+    def test_privacy_policy_lists_every_provider(self):
+        html = self.client.get(reverse('privacy_policy')).content.decode()
+        for provider in ('Google', 'DataForSEO', 'Polar', 'Render', 'Neon', 'Resend'):
+            self.assertIn(provider, html)
+        self.assertNotIn('SerpAPI', html)
+
+    def test_landing_footer_and_billing_link_the_refund_policy(self):
+        self.assertIn(reverse('refund_policy'), self.client.get(reverse('home')).content.decode())
+        owner, _ = make_owner()
+        self.client.force_login(owner)
+        self.assertIn(reverse('refund_policy'), self.client.get(reverse('billing')).content.decode())

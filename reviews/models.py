@@ -76,6 +76,10 @@ class BusinessProfile(models.Model):
         help_text="AI-generated summary of how this owner edits drafts, auto-injected into future prompts."
     )
     last_training_run = models.DateTimeField(blank=True, null=True)
+    business_switch_count = models.PositiveSmallIntegerField(
+        default=0, help_text="How many times the owner switched to a different business (start over)."
+    )
+    last_business_switch_at = models.DateTimeField(blank=True, null=True)
     last_trained_edit_id = models.PositiveIntegerField(
         blank=True, null=True,
         help_text="Newest EditLog id the AI training has learned from; the nightly run skips if nothing is newer."
