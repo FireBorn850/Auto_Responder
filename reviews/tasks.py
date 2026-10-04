@@ -229,7 +229,12 @@ def analyze_edit_patterns(user_id=None):
             .values_list('linked_user_id', flat=True)
         )
 
-        logs = logs_qs.filter(user_id__in=team_user_ids).order_by('-created_at')[:20]
+        team_logs = logs_qs.filter(user_id__in=team_user_ids)
+        if not user_id and profile.last_training_run and \
+                not team_logs.filter(created_at__gt=profile.last_training_run).exists():
+            continue  # nightly run: nothing new to learn from, so no Gemini call
+
+        logs = team_logs.order_by('-created_at')[:20]
         pairs = [{'draft': log.ai_draft, 'final': log.final_text} for log in logs]
         if not pairs:
             continue
@@ -239,7 +244,8 @@ def analyze_edit_patterns(user_id=None):
             continue
 
         profile.learned_patterns = summary
-        profile.save(update_fields=['learned_patterns'])
+        profile.last_training_run = timezone.now()
+        profile.save(update_fields=['learned_patterns', 'last_training_run'])
 
 @shared_task
 def auto_draft_review(review_id):

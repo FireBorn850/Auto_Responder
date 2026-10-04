@@ -981,3 +981,120 @@ class StarterYearlyHiddenTests(TestCase):
         self.assertIn("CHF 19", html)
         self.assertIn("CHF 39", html)
         self.assertNotIn("billed yearly", html)
+
+
+# ---------------------------------------------------------------- bug #7: scheduled jobs
+
+from pathlib import Path
+
+from django.conf import settings as dj_settings
+
+from reviews.services import weekly_summary
+
+
+def make_review_for(owner, rating=5, age_days=1, **kw):
+    review = Review.objects.create(
+        user=owner, business_name="Cafe Luna", reviewer_name="Ann", rating=rating,
+        comment="Nice", status=kw.pop('status', 'pending'), **kw)
+    Review.objects.filter(id=review.id).update(created_at=dj_tz.now() - _td(days=age_days))
+    return review
+
+
+class WeeklySummaryTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        make_review_for(self.owner, rating=5, status='posted')
+        make_review_for(self.owner, rating=1, status='pending', ai_draft_reply="Sorry!")
+
+    def test_sends_one_email_with_the_numbers(self):
+        self.assertEqual(weekly_summary.send_weekly_summaries(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+        body = mail.outbox[0].body
+        self.assertIn("New reviews: 2", body)
+        self.assertIn("Average rating: 3.0", body)
+        self.assertIn("Replied: 1", body)
+        self.assertIn("Drafts waiting for your approval: 1", body)
+        self.assertEqual(mail.outbox[0].to, [self.owner.email])
+
+    def test_running_twice_in_a_week_sends_once(self):
+        weekly_summary.send_weekly_summaries()
+        weekly_summary.send_weekly_summaries()
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_sends_again_next_week(self):
+        weekly_summary.send_weekly_summaries()
+        later = dj_tz.now() + _td(days=7)
+        make_review_for(self.owner, age_days=0)
+        self.assertEqual(weekly_summary.send_weekly_summaries(now=later), 1)
+
+    def test_read_only_accounts_get_nothing(self):
+        expire_trial(self.profile)
+        self.assertEqual(weekly_summary.send_weekly_summaries(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_quiet_week_sends_nothing(self):
+        Review.objects.all().delete()
+        make_review_for(self.owner, age_days=10)
+        self.assertEqual(weekly_summary.send_weekly_summaries(), 0)
+
+    def test_simulated_reviews_are_not_counted(self):
+        Review.objects.all().delete()
+        make_review_for(self.owner, is_simulated=True)
+        self.assertEqual(weekly_summary.send_weekly_summaries(), 0)
+
+    def test_command_runs(self):
+        call_command('send_weekly_summary')
+        self.assertEqual(len(mail.outbox), 1)
+
+
+class NightlyTrainingTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.review = make_review_for(self.owner)
+        EditLog.objects.create(user=self.owner, review=self.review, ai_draft="Hi", final_text="Hello there")
+
+    def run_training(self, **kw):
+        from reviews.tasks import analyze_edit_patterns
+        with mock.patch('reviews.services.ai_responder.summarize_edit_patterns',
+                        return_value="Prefers warm, short replies") as summarize:
+            analyze_edit_patterns(**kw)
+        return summarize
+
+    def test_learns_from_new_edits_and_remembers_when(self):
+        summarize = self.run_training()
+        summarize.assert_called_once()
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.learned_patterns, "Prefers warm, short replies")
+        self.assertIsNotNone(self.profile.last_training_run)
+
+    def test_second_night_without_new_edits_costs_nothing(self):
+        self.run_training()
+        self.assertEqual(self.run_training().call_count, 0)
+
+    def test_a_new_edit_triggers_training_again(self):
+        self.run_training()
+        EditLog.objects.create(user=self.owner, review=self.review, ai_draft="A", final_text="B")
+        self.assertEqual(self.run_training().call_count, 1)
+
+    def test_manual_run_now_always_runs(self):
+        self.run_training()
+        self.assertEqual(self.run_training(user_id=self.owner.id).call_count, 1)
+
+    def test_read_only_accounts_are_skipped(self):
+        expire_trial(self.profile)
+        self.assertEqual(self.run_training().call_count, 0)
+
+    def test_command_runs(self):
+        with mock.patch('reviews.services.ai_responder.summarize_edit_patterns', return_value="x") as s:
+            call_command('run_nightly_training')
+        s.assert_called_once()
+
+
+class WorkflowScheduleTests(TestCase):
+    def test_github_workflow_schedules_every_job(self):
+        text = (Path(dj_settings.BASE_DIR) / '.github' / 'workflows' / 'sync.yml').read_text(encoding='utf-8')
+        for cron in ('0 2 * * *', '5 5-20 * * *', '30 3 * * *', '0 7 * * 1'):
+            self.assertIn(f'cron: "{cron}"', text)
+            self.assertIn(f"github.event.schedule == '{cron}'", text)
+        for command in ('sync_reviews', 'send_due_alerts', 'run_nightly_training', 'send_weekly_summary'):
+            self.assertIn(f'manage.py {command}', text)

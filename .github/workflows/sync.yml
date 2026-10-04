@@ -3,6 +3,8 @@ on:
   schedule:
     - cron: "0 2 * * *"      # 02:00 UTC daily: sync reviews (DataForSEO)
     - cron: "5 5-20 * * *"   # hourly 05:05–20:05 UTC: send alerts held back by quiet hours
+    - cron: "30 3 * * *"     # 03:30 UTC daily: AI training from owner edits (Gemini, only if new edits)
+    - cron: "0 7 * * 1"      # Mondays 07:00 UTC: weekly summary emails
   workflow_dispatch:          # adds a manual "Run workflow" button (runs the sync)
 
 env:
@@ -44,3 +46,36 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python manage.py send_due_alerts
+
+  nightly-training:
+    # Skips read-only accounts and businesses with no new edits, so it usually costs nothing.
+    if: github.event.schedule == '30 3 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py run_nightly_training
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TOKEN_ENCRYPTION_KEY: ${{ secrets.TOKEN_ENCRYPTION_KEY }}
+
+  weekly-summary:
+    # Only sends to active accounts, at most once a week each.
+    if: github.event.schedule == '0 7 * * 1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py send_weekly_summary
+        env:
+          TOKEN_ENCRYPTION_KEY: ${{ secrets.TOKEN_ENCRYPTION_KEY }}
