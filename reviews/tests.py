@@ -1774,3 +1774,71 @@ class CsvInjectionTests(TestCase):
         content = self.client.get(reverse('export_simulated_csv')).content.decode()
         self.assertIn("'@SUM", content)
         self.assertIn("'=1+1", content)
+
+
+# ---------------------------------------------------------------- security #10: webhook input checks
+
+class WebhookInputTests(PipelineTestBase):
+    def send(self, payload, raw=None):
+        url = reverse('google_review_webhook', args=[self.profile.webhook_token])
+        body = raw if raw is not None else json.dumps(payload)
+        return self.client.post(url, body, content_type='application/json')
+
+    def test_ratings_outside_1_to_5_or_fractions_are_refused(self):
+        for bad in (0, 6, -1, 4.5, '4.5', 'five', None, True, [5]):
+            resp = self.send({'rating': bad, 'comment': 'Nice place'})
+            self.assertEqual(resp.status_code, 400, bad)
+        self.assertFalse(Review.objects.exists())
+
+    def test_huge_body_is_refused(self):
+        resp = self.send({'rating': 5, 'comment': 'x' * 50000})
+        self.assertEqual(resp.status_code, 413)
+
+    def test_long_fields_are_cut(self):
+        with fake_sentiment(), fake_draft():
+            self.send({'rating': 5, 'comment': 'Great ' * 900, 'reviewer_name': 'N' * 500,
+                       'detected_language': 'en'})
+        review = Review.objects.get()
+        self.assertLessEqual(len(review.comment), 5000)
+        self.assertLessEqual(len(review.reviewer_name), 120)
+
+    def test_wrong_types_and_shapes_are_refused(self):
+        self.assertEqual(self.send(None, raw='[1, 2]').status_code, 400)
+        self.assertEqual(self.send(None, raw='not json').status_code, 400)
+        self.assertEqual(self.send({'rating': 5, 'comment': {'$gt': ''}}).status_code, 400)
+        self.assertEqual(self.send({'rating': 5, 'comment': '   '}).status_code, 400)
+
+    def test_internal_errors_are_not_leaked(self):
+        with mock.patch('reviews.views_api.draft_reply', side_effect=RuntimeError("DB password=hunter2")):
+            resp = self.send({'rating': 5, 'comment': 'Nice place', 'detected_language': 'en'})
+        self.assertEqual(resp.status_code, 500)
+        self.assertNotIn('hunter2', resp.content.decode())
+
+    def test_retries_with_the_same_review_id_make_no_duplicates(self):
+        with fake_sentiment(), fake_draft():
+            first = self.send({'rating': 5, 'comment': 'Nice place', 'review_id': 'abc', 'detected_language': 'en'})
+            second = self.send({'rating': 5, 'comment': 'Nice place', 'review_id': 'abc', 'detected_language': 'en'})
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(second.json()['status'], 'duplicate')
+        self.assertEqual(Review.objects.count(), 1)
+
+    def test_unknown_token_is_404(self):
+        url = reverse('google_review_webhook', args=['00000000-0000-0000-0000-000000000000'])
+        self.assertEqual(self.client.post(url, '{}', content_type='application/json').status_code, 404)
+
+    def test_hourly_limit(self):
+        from reviews import views_api
+        with mock.patch.object(views_api, 'WEBHOOK_HOURLY_LIMIT', 2), fake_sentiment(), fake_draft():
+            codes = [self.send({'rating': 5, 'comment': f'Nice place {i}', 'detected_language': 'en'}).status_code
+                     for i in range(3)]
+        self.assertEqual(codes, [201, 201, 429])
+
+    def test_read_only_account_stores_review_without_spending_ai(self):
+        expire_trial(self.profile)
+        with fake_sentiment() as sent, fake_draft() as gen, \
+                mock.patch('reviews.views_api.detect_review_language') as detect:
+            resp = self.send({'rating': 5, 'comment': 'Nice place'})
+        self.assertEqual(resp.status_code, 201)
+        detect.assert_not_called()
+        sent.assert_not_called()
+        gen.assert_not_called()
