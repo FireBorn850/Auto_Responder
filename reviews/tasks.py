@@ -230,8 +230,11 @@ def analyze_edit_patterns(user_id=None):
         )
 
         team_logs = logs_qs.filter(user_id__in=team_user_ids)
-        if not user_id and profile.last_training_run and \
-                not team_logs.filter(created_at__gt=profile.last_training_run).exists():
+        # "New edit" = an edit with a higher id than the newest one already
+        # learned from. (Comparing timestamps failed on Windows, where two
+        # saves in the same instant get the same time.)
+        if not user_id and profile.last_trained_edit_id and \
+                not team_logs.filter(id__gt=profile.last_trained_edit_id).exists():
             continue  # nightly run: nothing new to learn from, so no Gemini call
 
         logs = team_logs.order_by('-created_at')[:20]
@@ -245,7 +248,8 @@ def analyze_edit_patterns(user_id=None):
 
         profile.learned_patterns = summary
         profile.last_training_run = timezone.now()
-        profile.save(update_fields=['learned_patterns', 'last_training_run'])
+        profile.last_trained_edit_id = team_logs.order_by('-id').values_list('id', flat=True).first()
+        profile.save(update_fields=['learned_patterns', 'last_training_run', 'last_trained_edit_id'])
 
 @shared_task
 def auto_draft_review(review_id):

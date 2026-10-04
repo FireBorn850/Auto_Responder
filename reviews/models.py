@@ -76,6 +76,10 @@ class BusinessProfile(models.Model):
         help_text="AI-generated summary of how this owner edits drafts, auto-injected into future prompts."
     )
     last_training_run = models.DateTimeField(blank=True, null=True)
+    last_trained_edit_id = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Newest EditLog id the AI training has learned from; the nightly run skips if nothing is newer."
+    )
     weekly_summary_sent_at = models.DateTimeField(
         blank=True, null=True,
         help_text="When the last weekly summary email went out; stops a re-run from sending it twice."
