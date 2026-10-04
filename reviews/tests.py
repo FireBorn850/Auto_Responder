@@ -1874,7 +1874,7 @@ class WebhookInputTests(PipelineTestBase):
     def test_read_only_account_stores_review_without_spending_ai(self):
         expire_trial(self.profile)
         with fake_sentiment() as sent, fake_draft() as gen, \
-                mock.patch('reviews.views_api.detect_review_language') as detect:
+                mock.patch('reviews.views_api.guess_language') as detect:
             resp = self.send({'rating': 5, 'comment': 'Nice place'})
         self.assertEqual(resp.status_code, 201)
         detect.assert_not_called()
@@ -2137,3 +2137,48 @@ class LegalPagesTests(TestCase):
         owner, _ = make_owner()
         self.client.force_login(owner)
         self.assertIn(reverse('refund_policy'), self.client.get(reverse('billing')).content.decode())
+
+
+# ---------------------------------------------------------------- Free-first language detection
+
+class LanguageCostTests(TestCase):
+    """Gemini is only asked about German text; everything else is detected for free."""
+
+    def guess(self, detected, text='Le repas était vraiment excellent ce soir'):
+        from reviews.services import language
+        with mock.patch.object(language, 'detect', return_value=detected), \
+                mock.patch.object(language, 'detect_review_language', return_value='gsw') as gemini:
+            return language.guess_language(text), gemini
+
+    def test_french_english_italian_cost_nothing(self):
+        for code in ('fr', 'en', 'it'):
+            result, gemini = self.guess(code)
+            self.assertEqual(result, code)
+            gemini.assert_not_called()
+
+    def test_only_german_asks_gemini(self):
+        result, gemini = self.guess('de', 'Grüezi, das Essen war sehr fein')
+        self.assertEqual(result, 'gsw')
+        gemini.assert_called_once()
+
+    def test_other_languages_free_when_long_enough(self):
+        result, gemini = self.guess('es', 'La comida estuvo muy buena hoy')
+        self.assertEqual(result, 'es')
+        gemini.assert_not_called()
+        result, gemini = self.guess('es', 'Super !')
+        self.assertIn(result, ('fr', 'en'))
+        gemini.assert_not_called()
+
+
+class DeadCodeGoneTests(TestCase):
+    def test_unused_modules_removed(self):
+        import importlib.util
+        self.assertIsNone(importlib.util.find_spec('reviews.services.google_api'))
+        self.assertIsNone(importlib.util.find_spec('reviews.services.serpapi_importer'))
+
+    def test_no_print_calls_in_app_code(self):
+        root = _Path(__file__).resolve().parent
+        for path in root.rglob('*.py'):
+            if path.name == 'tests.py' or 'migrations' in path.parts:
+                continue
+            self.assertNotIn('print(', path.read_text(encoding='utf-8'), str(path))

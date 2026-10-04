@@ -138,7 +138,6 @@ class BusinessProfile(models.Model):
     google_review_url = models.URLField(blank=True, null=True)
     tripadvisor_url = models.URLField(blank=True, null=True)
     webhook_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    google_business_token = models.JSONField(blank=True, null=True)
     google_business_refresh_token = models.TextField(blank=True, null=True)
     google_business_account_id = models.CharField(max_length=255, blank=True, null=True)
     google_business_location_id = models.CharField(max_length=255, blank=True, null=True)

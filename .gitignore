@@ -1,21 +1,21 @@
-# Virtual Environment
+# Virtual environment
 venv/
 
-# Secret Keys & Environment Variables
+# Secrets
 .env
 
-# Local Database
-db.sqlite3
+# Local databases and backups (contain real data, never commit)
+db.sqlite3*
 
-# Compiled Python files
+# Python cache
 __pycache__/
 *.pyc
 
-# Collected Static Files
-staticfiles/.env
-venv/
-db.sqlite3*
+# Collected static files (built on Render)
 staticfiles/
-__pycache__/
 
+# Local uploads
+media/
+
+# Old Celery scheduler files
 celerybeat-schedule*

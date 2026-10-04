@@ -1,3 +1,4 @@
+import logging
 from celery import shared_task
 from allauth.socialaccount.models import SocialToken, SocialAccount
 from django.core.mail import send_mail
@@ -10,6 +11,8 @@ from reviews.models import BusinessProfile
 from reviews.permissions import get_business_context
 from django.contrib.auth.models import User
 from django.db.models import Q
+
+logger = logging.getLogger(__name__)
 
 SYNC_INTERVALS = {
     'hourly': timedelta(hours=1),
@@ -55,11 +58,9 @@ def poll_google_reviews():
             )
             profile.last_auto_sync = now
             profile.save(update_fields=['last_auto_sync'])
-            print(f"[AUTO-SYNC] Synced {profile.business_name} ({profile.sync_frequency})")
+            logger.info(f"Auto-sync: synced {profile.business_name} ({profile.sync_frequency})")
         except Exception as e:
-            print(f"[AUTO-SYNC ERROR] {profile.business_name}: {e}")
-
-
+            logger.exception(f"Auto-sync failed for {profile.business_name}: {e}")
 DEFAULT_TZ = 'Europe/Zurich'
 OVERDUE_SEND_ANYWAY = timedelta(hours=24)  # safety net: never hold an alert longer than a day
 
@@ -116,7 +117,7 @@ def _deliver_alert(review):
     try:
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [review.user.email], fail_silently=False)
     except Exception as e:
-        print(f"[ALERT ERROR] review {review.id}: {e}")
+        logger.exception(f"Negative-review alert failed for review {review.id}: {e}")
         # Leave it due now, so the next send_due_alerts run retries it.
         Review.objects.filter(id=review.id).update(alert_due_at=dj_timezone.now())
         return False
@@ -268,6 +269,6 @@ def auto_draft_review(review_id):
         return
     try:
         result = draft_reply(review, profile)
-        print(f"[AUTO-DRAFT] review {review_id}: {result.code}{' + posted' if result.posted else ''}")
+        logger.info(f"Auto-draft review {review_id}: {result.code}{' + posted' if result.posted else ''}")
     except Exception as e:
-        print(f"[AUTO-DRAFT ERROR] review {review_id}: {e}")
+        logger.exception(f"Auto-draft failed for review {review_id}: {e}")

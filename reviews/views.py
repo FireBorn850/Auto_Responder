@@ -14,8 +14,8 @@ from .services.qr_generator import generate_qr_with_logo
 from .services.pdf_templates import generate_table_tent_pdf, generate_sticker_sheet_pdf, generate_door_sign_pdf
 from .models import Review, BusinessProfile, SmartQRCode, Competitor, TeamInvite, EditLog, ActivityLog, QRScanEvent, SyncLog, AccessCode, SyncJob
 from .services import sync_jobs
-from .services.ai_responder import generate_review_draft, analyze_complaints, is_authentic_review, analyze_review_sentiment, detect_review_language, detect_seo_keyword_used, append_action_link
-from .services.google_api import post_reply_to_google
+from .services.language import guess_language
+from .services.ai_responder import generate_review_draft, analyze_complaints, is_authentic_review, analyze_review_sentiment, detect_seo_keyword_used, append_action_link
 from .services.google_importer import fetch_live_google_reviews
 from .services.tripadvisor_importer import fetch_live_tripadvisor_reviews
 from .services.review_pipeline import draft_reply
@@ -1781,7 +1781,7 @@ def _add_review_impl(request):
     language = request.POST.get('language', 'fr')
 
     if language == 'auto':
-        language = detect_review_language(comment)
+        language = guess_language(comment)
 
     profile, role = get_or_create_owned_profile(request.user)
 

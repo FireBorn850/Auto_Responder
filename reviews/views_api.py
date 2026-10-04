@@ -6,7 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import Review, BusinessProfile
 from .services import billing, ratelimit
-from .services.ai_responder import detect_review_language, SUPPORTED_LANGUAGES
+from .services.ai_responder import SUPPORTED_LANGUAGES
+from .services.language import guess_language
 from .services.google_importer import create_review_once, parse_rating
 from .services.review_pipeline import draft_reply
 
@@ -91,7 +92,7 @@ def google_review_webhook(request, token):
     if provided_language in SUPPORTED_LANGUAGES:
         detected_language = provided_language
     elif can_draft:
-        detected_language = detect_review_language(comment)
+        detected_language = guess_language(comment)
     else:
         detected_language = 'fr'
 

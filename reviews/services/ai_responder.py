@@ -1,9 +1,12 @@
+import logging
 import os
 import json
 import re
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -140,10 +143,9 @@ def detect_review_language(comment: str, fallback_language: str = 'fr') -> str:
     except Exception as e:
         error_str = str(e)
         if '429' in error_str or 'RESOURCE_EXHAUSTED' in error_str:
-            print(f"[ai_responder] Language detection quota exceeded: {error_str}")
+            logger.warning(f"Language detection quota exceeded: {error_str}")
         else:
-            print(f"[ai_responder] Language detection failed: {error_str}")
-
+            logger.error(f"Language detection failed: {error_str}")
     return fallback_language
 
 
@@ -236,7 +238,7 @@ def analyze_review_sentiment(comment, rating):
                     'is_likely_spam': data.get('is_likely_spam') is True,
                 }
         except Exception as e:
-            print(f"[ai_responder] Sentiment analysis failed: {e}")
+            logger.error(f"Sentiment analysis failed: {e}")
             continue
 
     return {'sentiment': 'neutral', 'is_likely_spam': False}
@@ -253,7 +255,7 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
     it retries once with a stricter instruction before giving up.
     """
     if _client is None:
-        print("[ai_responder] GEMINI_API_KEY is missing from environment variables.")
+        logger.warning("GEMINI_API_KEY is missing from environment variables.")
         return None
 
     tone_instructions = {
@@ -401,12 +403,12 @@ def generate_review_draft(reviewer_name, star_rating, comment, language='fr', bu
             except Exception as e:
                 last_error = str(e)
                 if '429' in last_error or 'RESOURCE_EXHAUSTED' in last_error:
-                    print(f"[ai_responder] Gemini quota exceeded: {last_error}")
+                    logger.warning(f"Gemini quota exceeded: {last_error}")
                     raise QuotaExceededError(last_error)
-                print(f"[ai_responder] Draft generation error: {last_error}")
+                logger.error(f"Draft generation error: {last_error}")
                 continue
 
-    print(f"[ai_responder] Gemini generation failed for all models/attempts. Last error: {last_error}")
+    logger.error(f"Gemini generation failed for all models/attempts. Last error: {last_error}")
     return None
 
 
@@ -471,7 +473,7 @@ def summarize_edit_patterns(pairs):
             if response and response.text:
                 return response.text.strip()
         except Exception as e:
-            print(f"[ai_responder] summarize_edit_patterns failed: {e}")
+            logger.error(f"summarize_edit_patterns failed: {e}")
             continue
 
     return None
@@ -574,17 +576,17 @@ def analyze_complaints(comments_list):
 
         except json.JSONDecodeError as e:
             last_error = f"Malformed JSON from model: {e}. Raw response: {raw_text[:300] or 'N/A'}"
-            print(f"[ai_responder] analyze_complaints JSON parse failed: {last_error}")
+            logger.error(f"analyze_complaints JSON parse failed: {last_error}")
             continue
         except Exception as e:
             last_error = str(e)
             if '429' in last_error or 'RESOURCE_EXHAUSTED' in last_error:
-                print(f"[ai_responder] analyze_complaints quota exceeded: {last_error}")
+                logger.warning(f"analyze_complaints quota exceeded: {last_error}")
                 raise QuotaExceededError(last_error)
-            print(f"[ai_responder] analyze_complaints failed for model '{model_name}': {last_error}")
+            logger.error(f"analyze_complaints failed for model '{model_name}': {last_error}")
             continue
 
-    print(f"[ai_responder] analyze_complaints exhausted all models/attempts. Last error: {last_error}")
+    logger.error(f"analyze_complaints exhausted all models/attempts. Last error: {last_error}")
     return {
         "summary": "Feedback recorded, but automated analysis encountered an issue.",
         "top_issues": [

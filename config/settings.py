@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
@@ -258,19 +259,13 @@ SOCIALACCOUNT_STORE_TOKENS = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 # Account settings (new allauth API)
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-ACCOUNT_LOGIN_METHODS = ['email', 'username']  # New: replaces ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_LOGIN_METHODS = ['email', 'username']
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Skip email verification for now
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_LOGOUT_ON_GET = False  # Show logout confirmation page
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_SESSION_REMEMBER = True
-
-SOCIALACCOUNT_STORE_TOKEN = True
-SOCIALACCOUNT_LOGIN_ON_GET = True
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
@@ -300,14 +295,16 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 
-SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')
-
 DATAFORSEO_LOGIN = os.environ.get('DATAFORSEO_LOGIN', '')
 DATAFORSEO_PASSWORD = os.environ.get('DATAFORSEO_PASSWORD', '')
 DATAFORSEO_BASE_URL = os.environ.get('DATAFORSEO_BASE_URL') or 'https://api.dataforseo.com/v3'
 # Manual syncs no longer wait inside the web request, so they can use the
 # cheaper normal queue (1). Set to 2 for faster but pricier high priority.
 DATAFORSEO_MANUAL_PRIORITY = int(os.environ.get('DATAFORSEO_MANUAL_PRIORITY', '1'))
+# Money guards for manual syncs (see reviews/views.py _sync_blocked_reason):
+DATAFORSEO_DAILY_TASK_CAP = int(os.environ.get('DATAFORSEO_DAILY_TASK_CAP', '150'))   # whole site, per 24h
+MANUAL_SYNCS_PER_DAY = int(os.environ.get('MANUAL_SYNCS_PER_DAY', '3'))               # per account, per 24h
+TRIAL_FIRST_SYNC_REVIEWS = int(os.environ.get('TRIAL_FIRST_SYNC_REVIEWS', '50'))      # backlog size during the free trial
 AUTO_DRAFT_MAX_PER_SYNC = int(os.environ.get('AUTO_DRAFT_MAX_PER_SYNC', '5'))
 
 
@@ -318,3 +315,24 @@ GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
 TOKEN_ENCRYPTION_KEY = os.environ.get('TOKEN_ENCRYPTION_KEY', '')
+
+# Logs go to the console, which Render shows under "Logs".
+# Mehrly's own messages at INFO and up; third-party libraries only WARNING and up.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '%(levelname)s %(name)s: %(message)s'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+    },
+    'root': {'handlers': ['console'], 'level': 'WARNING'},
+    'loggers': {
+        'reviews': {
+            'handlers': ['console'], 'propagate': False,
+            # Quieter while running tests, so only real problems show up.
+            'level': 'ERROR' if 'test' in sys.argv else os.environ.get('LOG_LEVEL', 'INFO'),
+        },
+    },
+}
