@@ -1489,3 +1489,88 @@ class OpenRedirectTests(TestCase):
 
     def test_own_paths_still_work(self):
         self.assertEqual(self.save_settings('/dashboard/?tab=x')['Location'], '/dashboard/?tab=x')
+
+
+# ---------------------------------------------------------------- security #5: team roles
+
+class TeamRoleTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.sim = Review.objects.create(user=self.owner, business_name="Cafe Luna", reviewer_name="Sim",
+                                         rating=5, comment="Test", is_simulated=True)
+        self.real = Review.objects.create(user=self.owner, business_name="Cafe Luna", reviewer_name="Ann",
+                                          rating=5, comment="Lovely coffee and friendly staff",
+                                          ai_draft_reply="Thanks Ann!")
+
+    def member(self, role):
+        user = User.objects.create_user(role, f"{role}@example.com", "pw-12345-x")
+        TeamInvite.objects.create(owner=self.owner, email=user.email, role=role, linked_user=user)
+        self.client.force_login(user)
+        return user
+
+    def test_viewer_cannot_change_or_spend_anything(self):
+        self.member('viewer')
+        old_token = self.profile.webhook_token
+        with fake_sentiment() as sent, fake_draft() as gen, mock.patch.object(dfs, 'post_task') as post:
+            self.client.post(reverse('regenerate_webhook_token'))
+            self.client.post(reverse('update_sync_frequency'), {'sync_frequency': 'daily'})
+            self.client.post(reverse('join_trustpilot_waitlist'))
+            self.client.post(reverse('clear_simulation_history'))
+            self.client.post(reverse('delete_simulated_review', args=[self.sim.id]))
+            self.client.post(reverse('regenerate_simulated_review', args=[self.sim.id]))
+            self.client.post(reverse('add_review'), {'reviewer_name': 'X', 'rating': 5, 'comment': 'Great place'})
+            self.client.post(reverse('preview_ai_response'), {})
+            self.client.post(reverse('sync_google_reviews'), {'business_name': 'Evil Rename'})
+            self.client.post(reverse('generate_draft', args=[self.real.id]))
+            self.client.post(reverse('update_settings'), {'automation_mode': 'manual', 'signature': 'hacked'})
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.webhook_token, old_token)
+        self.assertEqual(self.profile.sync_frequency, BusinessProfile._meta.get_field('sync_frequency').default)
+        self.assertIsNone(self.profile.trustpilot_waitlist_joined_at)
+        self.assertEqual(self.profile.business_name, "Cafe Luna")
+        self.assertNotEqual(self.profile.signature, 'hacked')
+        self.assertTrue(Review.objects.filter(id=self.sim.id).exists())
+        self.assertEqual(Review.objects.count(), 2)
+        sent.assert_not_called()
+        gen.assert_not_called()
+        post.assert_not_called()
+
+    def test_viewer_can_still_read(self):
+        self.member('viewer')
+        self.assertEqual(self.client.get(reverse('dashboard')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('export_csv')).status_code, 200)
+
+    def test_viewer_gets_a_clear_403_on_json_actions(self):
+        self.member('viewer')
+        resp = self.client.post(reverse('regenerate_simulated_review', args=[self.sim.id]))
+        self.assertEqual(resp.status_code, 403)
+        self.assertIn("role", resp.json()['error'])
+
+    def test_reviewer_can_approve_but_not_manage(self):
+        self.member('reviewer')
+        old_token = self.profile.webhook_token
+        self.client.post(reverse('approve_review', args=[self.real.id]), {'ai_draft_reply': 'Thanks Ann!'})
+        self.client.post(reverse('regenerate_webhook_token'))
+        self.real.refresh_from_db()
+        self.profile.refresh_from_db()
+        self.assertEqual(self.real.status, 'approved')
+        self.assertEqual(self.profile.webhook_token, old_token)
+
+    def test_only_the_owner_redeems_founder_codes(self):
+        self.member('admin')
+        expire_trial(self.profile)
+        AccessCode.objects.create(code='FOUNDER-ADMN-ADMN-ADMN', status='approved')
+        self.client.post(reverse('redeem_access_code'), {'code': 'FOUNDER-ADMN-ADMN-ADMN'})
+        self.assertIsNone(AccessCode.objects.get().redeemed_by)
+
+    def test_admin_can_manage(self):
+        self.member('admin')
+        old_token = self.profile.webhook_token
+        self.client.post(reverse('regenerate_webhook_token'))
+        self.profile.refresh_from_db()
+        self.assertNotEqual(self.profile.webhook_token, old_token)
+
+    def test_owner_keeps_full_access(self):
+        self.client.force_login(self.owner)
+        self.client.post(reverse('clear_simulation_history'))
+        self.assertFalse(Review.objects.filter(is_simulated=True).exists())

@@ -47,6 +47,30 @@ from django.urls import reverse
 # 1. PUBLIC VIEWS
 # ==========================================
 
+# ---------------------------------------------------------------- team roles
+# owner / admin : everything (settings, syncs, keys, simulator, team)
+# reviewer      : read + generate and approve replies
+# viewer        : read-only (dashboard, exports, insights)
+MANAGE = ('owner', 'admin')
+APPROVE = ('owner', 'admin', 'reviewer')
+ROLE_DENIED = "Your team role doesn't allow this — ask the owner or an admin."
+
+
+def role_denied(request, allowed, as_json=False):
+    """
+    None if the current user's team role is in `allowed`; otherwise a ready
+    response (JSON 403 or a redirect with a message). A user with no team
+    link is a (new) owner.
+    """
+    _, role = get_business_context(request.user)
+    if role is None or role in allowed:
+        return None
+    if as_json:
+        return JsonResponse({'error': ROLE_DENIED}, status=403)
+    messages.error(request, ROLE_DENIED)
+    return redirect('dashboard')
+
+
 def landing_page(request):
     """Public SaaS homepage introducing bilingual AI review management."""
     if request.user.is_authenticated:
@@ -621,6 +645,8 @@ def simulator_page_view(request):
 @login_required
 def delete_simulated_review_view(request, review_id):
     if request.method == 'POST':
+        if (denied := role_denied(request, MANAGE, as_json=True)):
+            return denied
         profile, role = get_or_create_owned_profile(request.user)
         review = get_object_or_404(Review, id=review_id, user=profile.user, is_simulated=True)
         review.delete()
@@ -632,6 +658,8 @@ def delete_simulated_review_view(request, review_id):
 def regenerate_simulated_review_view(request, review_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
+    if (denied := role_denied(request, MANAGE, as_json=True)):
+        return denied
 
     profile, role = get_or_create_owned_profile(request.user)
     review = get_object_or_404(Review, id=review_id, user=profile.user, is_simulated=True)
@@ -888,7 +916,16 @@ def export_insights_report_view(request):
     negative_comments = list(
         business_reviews.filter(rating__lte=3, is_likely_spam=False).exclude(comment='').values_list('comment', flat=True)[:50]
     )
-    complaint_analysis = analyze_complaints(negative_comments)
+    from .services.ai_responder import QuotaExceededError
+    complaint_analysis = {'summary': 'AI analysis skipped: daily AI limit reached. Try again tomorrow.',
+                          'top_issues': [], 'actionable_tip': ''}
+    if not negative_comments:
+        complaint_analysis = analyze_complaints([])          # free: no AI call
+    elif check_ai_quota(profile):
+        try:
+            complaint_analysis = analyze_complaints(negative_comments)
+        except QuotaExceededError:
+            pass
 
     response = HttpResponse(content_type='text/csv')
     safe_name = profile.business_name.replace(' ', '_')
@@ -940,6 +977,8 @@ REQUEST_HOURLY_CAP = 20         # founder requests accepted per hour, site-wide
 
 @login_required
 def redeem_access_code_view(request):
+    if (denied := role_denied(request, ('owner',))):
+        return denied
     profile, role = get_or_create_owned_profile(request.user)
 
     if request.method == 'POST':
@@ -1014,6 +1053,8 @@ def export_simulated_reviews_csv_view(request):
 @login_required
 def clear_simulation_history_view(request):
     if request.method == 'POST':
+        if (denied := role_denied(request, MANAGE)):
+            return denied
         profile, role = get_or_create_owned_profile(request.user)
         deleted_count, _ = Review.objects.filter(user=profile.user, is_simulated=True).delete()
         messages.info(request, f"Cleared {deleted_count} simulated review{'s' if deleted_count != 1 else ''}.")
@@ -1119,6 +1160,8 @@ def safe_next(request, default):
 @login_required
 def update_sync_frequency_view(request):
     if request.method == 'POST':
+        if (denied := role_denied(request, MANAGE)):
+            return denied
         profile, role = get_or_create_owned_profile(request.user)
         frequency = request.POST.get('sync_frequency', 'manual')
         if frequency in dict(BusinessProfile.SYNC_FREQUENCY_CHOICES):
@@ -1131,6 +1174,8 @@ def update_sync_frequency_view(request):
 @login_required
 def join_trustpilot_waitlist_view(request):
     if request.method == 'POST':
+        if (denied := role_denied(request, MANAGE)):
+            return denied
         profile, role = get_or_create_owned_profile(request.user)
         if not profile.trustpilot_waitlist_joined_at:
             profile.trustpilot_waitlist_joined_at = timezone.now()
@@ -1145,6 +1190,8 @@ def join_trustpilot_waitlist_view(request):
 @login_required
 def regenerate_webhook_token_view(request):
     if request.method == 'POST':
+        if (denied := role_denied(request, MANAGE)):
+            return denied
         profile, role = get_or_create_owned_profile(request.user)
         import uuid
         profile.webhook_token = uuid.uuid4()
@@ -1157,6 +1204,8 @@ def regenerate_webhook_token_view(request):
 @login_required
 def request_integration_view(request):
     if request.method == 'POST':
+        if (denied := role_denied(request, MANAGE)):
+            return denied
         tool_name = request.POST.get('tool_name', '').strip()
         if not tool_name:
             messages.warning(request, "Enter a tool name to request.")
@@ -1189,6 +1238,8 @@ def request_integration_view(request):
 def preview_ai_response_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
+    if (denied := role_denied(request, MANAGE, as_json=True)):
+        return denied
 
     brand_tone = request.POST.get('brand_tone', 'friendly')
     custom_prompt = request.POST.get('custom_prompt', '').strip()
@@ -1561,6 +1612,8 @@ def add_review_view(request):
     pipeline result as JSON so the Review Simulator page can display it
     without navigating away."""
     if request.method == 'POST':
+        if (denied := role_denied(request, MANAGE, as_json=True)):
+            return denied
         from django.core.cache import cache
         lock_key = f'add_review_lock:{request.user.id}'
         if not cache.add(lock_key, True, timeout=5):
