@@ -24,7 +24,39 @@ if not SECRET_KEY:
         raise Exception("SECRET_KEY environment variable is not set. Refusing to start in production without it.")
 
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
+
+# Forms posted from these https origins pass the CSRF check (needed behind
+# Render's proxy). Built from ALLOWED_HOSTS; override with CSRF_TRUSTED_ORIGINS.
+_LOCAL_HOSTS = {'localhost', '127.0.0.1', '[::1]'}
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()] or [
+    f"https://*{h}" if h.startswith('.') else f"https://{h}"
+    for h in ALLOWED_HOSTS if h not in _LOCAL_HOSTS and h != '*'
+]
+
+# ------------------------------------------------------------------
+# Production hardening (everything below is skipped when DEBUG=True,
+# so local development on http://localhost keeps working).
+# ------------------------------------------------------------------
+if not DEBUG:
+    # Render terminates HTTPS and tells us via this header. Without it
+    # Django thinks every request is plain http.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Render already redirects http -> https at its edge; turn this on too
+    # with SECURE_SSL_REDIRECT=true if you ever move hosts.
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'false').lower() == 'true'
+    # Cookies (login session, CSRF) only ever travel over https.
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Browsers remember "this site is https-only" (HSTS). Starts at 1 year,
+    # main domain only (subdomains like send.mehrly.com are email records).
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS') or 60 * 60 * 24 * 365)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'false').lower() == 'true'
+    SECURE_HSTS_PRELOAD = False
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'same-origin'
+    X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_HTTPONLY = True
 
 # Application definition
 INSTALLED_APPS = [
@@ -139,10 +171,19 @@ LOCALE_PATHS = [
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-if DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-else:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# A reference to a static file that doesn't exist must not crash a page
+# (it falls back to the plain file name instead of a 500 error).
+WHITENOISE_MANIFEST_STRICT = False
+
+# Django 5+ ignores the old STATICFILES_STORAGE setting, so WhiteNoise's
+# compression + cache-busting file names were silently off in production.
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
+        else 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -162,10 +203,10 @@ ANYMAIL = {
 DEFAULT_FROM_EMAIL = 'noreply@mehrly.com'
 
 # ==========================================
-# Demo Mode — toggle this OFF once a real business
-# connects their Google account and you're ready to go live.
+# Demo Mode — OFF unless explicitly switched on (DEMO_MODE=true).
+# A demo switch must never be on by default in production.
 # ==========================================
-DEMO_MODE = os.environ.get('DEMO_MODE', 'True').lower() == 'true'
+DEMO_MODE = os.environ.get('DEMO_MODE', 'False').lower() == 'true'
 
 # ==========================================
 # Google API Keys & Integrations

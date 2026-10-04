@@ -1690,3 +1690,46 @@ class FounderRequestIpLimitTests(TestCase):
             self.client.post(reverse('request_access_code'), {'business_name': 'B', 'email': f'{i}@bistro.ch'},
                              HTTP_X_FORWARDED_FOR=f'9.9.9.{i}, 203.0.113.7')
         self.assertEqual(AccessCode.objects.count(), 3)
+
+
+# ---------------------------------------------------------------- security #8: production settings
+
+import os as _os
+import subprocess as _subprocess
+import sys as _sys
+
+
+class ProductionSettingsTests(TestCase):
+    """Loads config.settings exactly as Render does (DEBUG off) in a fresh Python process."""
+
+    def production_settings(self, **env):
+        code = (
+            "import json, django; django.setup(); from django.conf import settings as s; "
+            "print(json.dumps({k: getattr(s, k, None) for k in ("
+            "'SESSION_COOKIE_SECURE','CSRF_COOKIE_SECURE','SECURE_HSTS_SECONDS','SECURE_PROXY_SSL_HEADER',"
+            "'CSRF_TRUSTED_ORIGINS','DEMO_MODE','X_FRAME_OPTIONS')} | "
+            "{'static': s.STORAGES['staticfiles']['BACKEND']}))"
+        )
+        full_env = {**_os.environ, 'DEBUG': 'False', 'SECRET_KEY': 'test-only', 'DJANGO_SETTINGS_MODULE': 'config.settings',
+                    'ALLOWED_HOSTS': 'mehrly.com,www.mehrly.com,.onrender.com',
+                    # Set explicitly so a local .env file can't change the result.
+                    'DEMO_MODE': '', 'CSRF_TRUSTED_ORIGINS': '', 'SECURE_HSTS_SECONDS': '', **env}
+        out = _subprocess.run([_sys.executable, '-c', code], env=full_env, capture_output=True, text=True,
+                              cwd=str(dj_settings.BASE_DIR), timeout=60)
+        self.assertEqual(out.returncode, 0, out.stderr[-2000:])
+        return json.loads(out.stdout.strip().splitlines()[-1])
+
+    def test_production_is_locked_down(self):
+        s = self.production_settings()
+        self.assertTrue(s['SESSION_COOKIE_SECURE'])
+        self.assertTrue(s['CSRF_COOKIE_SECURE'])
+        self.assertGreaterEqual(s['SECURE_HSTS_SECONDS'], 31536000)
+        self.assertEqual(s['SECURE_PROXY_SSL_HEADER'], ['HTTP_X_FORWARDED_PROTO', 'https'])
+        self.assertEqual(s['X_FRAME_OPTIONS'], 'DENY')
+        self.assertFalse(s['DEMO_MODE'])
+        self.assertIn('Manifest', s['static'])
+
+    def test_csrf_origins_follow_allowed_hosts(self):
+        s = self.production_settings()
+        self.assertEqual(s['CSRF_TRUSTED_ORIGINS'],
+                         ['https://mehrly.com', 'https://www.mehrly.com', 'https://*.onrender.com'])
