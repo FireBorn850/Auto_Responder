@@ -1733,3 +1733,44 @@ class ProductionSettingsTests(TestCase):
         s = self.production_settings()
         self.assertEqual(s['CSRF_TRUSTED_ORIGINS'],
                          ['https://mehrly.com', 'https://www.mehrly.com', 'https://*.onrender.com'])
+
+
+# ---------------------------------------------------------------- security #9: CSV formula injection
+
+import csv as _csv
+import io as _io
+
+from reviews.services.safe_csv import clean_cell
+
+
+class CsvInjectionTests(TestCase):
+    def test_formula_cells_become_text(self):
+        for evil in ('=HYPERLINK("http://evil.example","x")', '+1+1', '-2+3', '@SUM(A1)', '\t=1', '  =1', '＝1'):
+            self.assertTrue(clean_cell(evil).startswith("'"), evil)
+
+    def test_normal_values_are_untouched(self):
+        for ok in ('Lovely coffee', 'Great - would come back', 4, 4.5, None, ''):
+            self.assertEqual(clean_cell(ok), ok)
+
+    def test_reviews_export_neutralises_formulas(self):
+        owner, profile = make_owner()
+        profile.business_name = 'Cafe "Luna"; =evil'
+        profile.save()
+        Review.objects.create(user=owner, business_name="Cafe", reviewer_name='=cmd|"/c calc"!A1',
+                              rating=1, comment='=HYPERLINK("http://evil.example","Refund here")')
+        self.client.force_login(owner)
+        resp = self.client.get(reverse('export_csv'))
+        rows = list(_csv.reader(_io.StringIO(resp.content.decode('utf-8-sig'))))
+        flat = [cell for row in rows[1:] for cell in row]
+        self.assertFalse(any(cell.startswith(('=', '+', '-', '@')) for cell in flat))
+        self.assertIn("'=HYPERLINK", resp.content.decode())
+        self.assertNotIn('"Luna"', resp['Content-Disposition'])
+
+    def test_simulator_export_neutralises_formulas(self):
+        owner, profile = make_owner()
+        Review.objects.create(user=owner, business_name="Cafe", reviewer_name="Ann", rating=5,
+                              comment="@SUM(1+1)*cmd", is_simulated=True, ai_draft_reply="=1+1")
+        self.client.force_login(owner)
+        content = self.client.get(reverse('export_simulated_csv')).content.decode()
+        self.assertIn("'@SUM", content)
+        self.assertIn("'=1+1", content)

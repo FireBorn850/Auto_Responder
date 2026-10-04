@@ -40,6 +40,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .services import gbp_client, billing, polar_billing, ratelimit
 from .services.client_ip import get_client_ip
+from .services.safe_csv import safe_csv_writer
 from .models import generate_founder_code
 from django.urls import reverse
 
@@ -853,10 +854,10 @@ def export_reviews_csv_view(request):
     business_reviews = Review.objects.filter(user=profile.user).order_by('-created_at')
 
     response = HttpResponse(content_type='text/csv')
-    safe_name = profile.business_name.replace(' ', '_')
+    safe_name = slugify(profile.business_name) or 'mehrly'
     response['Content-Disposition'] = f'attachment; filename="{safe_name}_reviews.csv"'
 
-    writer = csv.writer(response)
+    writer = safe_csv_writer(response)   # no spreadsheet formulas from review text
     writer.writerow(['Reviewer Name', 'Rating', 'Comment', 'Status', 'Source', 'Date'])
 
     for review in business_reviews:
@@ -930,10 +931,10 @@ def export_insights_report_view(request):
             pass
 
     response = HttpResponse(content_type='text/csv')
-    safe_name = profile.business_name.replace(' ', '_')
+    safe_name = slugify(profile.business_name) or 'mehrly'
     response['Content-Disposition'] = f'attachment; filename="{safe_name}_insights_report.csv"'
 
-    writer = csv.writer(response)
+    writer = safe_csv_writer(response)   # no spreadsheet formulas from review text
 
     writer.writerow(['Mehrly — Insights Report'])
     writer.writerow([f'Business: {profile.business_name}'])
@@ -1035,7 +1036,7 @@ def export_simulated_reviews_csv_view(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="simulation_history.csv"'
 
-    writer = csv.writer(response)
+    writer = safe_csv_writer(response)   # no spreadsheet formulas from review text
     writer.writerow(['Reviewer Name', 'Rating', 'Comment', 'Status', 'Sentiment', 'AI Draft', 'Date'])
 
     for review in sim_reviews:
