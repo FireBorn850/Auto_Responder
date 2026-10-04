@@ -189,6 +189,15 @@ class BusinessProfile(models.Model):
         return bool(self.google_business_refresh_token and self.google_business_location_id)
 
 
+FOUNDER_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"   # no 0/O, 1/I lookalikes
+
+
+def generate_founder_code():
+    """FOUNDER-XXXX-XXXX-XXXX: 32^12 ≈ 10^18 possibilities (the old codes had 16.7 million)."""
+    groups = [''.join(secrets.choice(FOUNDER_CODE_ALPHABET) for _ in range(4)) for _ in range(3)]
+    return 'FOUNDER-' + '-'.join(groups)
+
+
 class AccessCode(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending Review'),

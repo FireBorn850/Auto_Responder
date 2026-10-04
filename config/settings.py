@@ -96,6 +96,17 @@ DATABASES = {
 # Required because Neon's pooled endpoint uses PgBouncer
 DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 
+# Shared cache in the database (free — a table in Neon). Rate limits and
+# locks need ONE place every server process sees; the default in-memory
+# cache is separate per process, so limits could be bypassed.
+# The table is created by `python manage.py createcachetable` (build.sh).
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

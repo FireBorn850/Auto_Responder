@@ -7,7 +7,7 @@
         <i class="bi bi-gift"></i>
     </div>
     <h1 class="font-display text-2xl font-semibold text-white">Request Founding Partner Access</h1>
-    <p class="text-sm text-slate-400">Enter your business name and email — we'll send you a code instantly.</p>
+    <p class="text-sm text-slate-400">Enter your business name and email — we'll email you a code once your request is approved.</p>
 
     {% if messages %}
     <div class="space-y-2 text-left">
@@ -23,6 +23,9 @@
 
     <form method="POST" class="space-y-3 text-left">
         {% csrf_token %}
+        <div style="position:absolute;left:-10000px" aria-hidden="true">
+            <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        </div>
         <div>
             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Business Name</label>
             <input type="text" name="business_name" required placeholder="e.g. Geneva Bistro"

@@ -37,7 +37,8 @@ import secrets
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from .services import gbp_client, billing, polar_billing
+from .services import gbp_client, billing, polar_billing, ratelimit
+from .models import generate_founder_code
 from django.urls import reverse
 
 
@@ -932,15 +933,26 @@ def export_insights_report_view(request):
     return response
 
 
+REDEEM_MAX_FAILS = 5            # wrong codes allowed per account...
+REDEEM_WINDOW = 60 * 60         # ...per hour
+REQUEST_HOURLY_CAP = 20         # founder requests accepted per hour, site-wide
+
+
 @login_required
 def redeem_access_code_view(request):
     profile, role = get_or_create_owned_profile(request.user)
 
     if request.method == 'POST':
+        limit_key = f"redeem:{request.user.id}"
+        if ratelimit.too_many(limit_key, REDEEM_MAX_FAILS, REDEEM_WINDOW):
+            messages.error(request, "Too many wrong codes — please wait an hour and try again.")
+            return redirect('redeem_access_code')
+
         code_input = request.POST.get('code', '').strip().upper()
         try:
             access_code = AccessCode.objects.get(code=code_input)
         except AccessCode.DoesNotExist:
+            ratelimit.hit(limit_key, REDEEM_WINDOW)
             messages.error(request, "That code wasn't recognized — double check it and try again.")
             return redirect('redeem_access_code')
 
@@ -1285,8 +1297,14 @@ import secrets
 
 def request_access_code_view(request):
     if request.method == 'POST':
-        business_name = request.POST.get('business_name', '').strip()
-        email = request.POST.get('email', '').strip()
+        thanks = "Thanks! We've received your request — you'll get an email once it's approved."
+        business_name = request.POST.get('business_name', '').strip()[:255]
+        email = request.POST.get('email', '').strip().lower()
+
+        if request.POST.get('website'):
+            # Hidden field only bots fill in: pretend it worked, store nothing.
+            messages.success(request, thanks)
+            return redirect('request_access_code')
 
         if not business_name or not email:
             messages.error(request, "Please fill in both fields.")
@@ -1298,9 +1316,19 @@ def request_access_code_view(request):
             messages.error(request, "That doesn't look like a valid email.")
             return redirect('request_access_code')
 
-        code = 'FOUNDER-' + secrets.token_hex(3).upper()
+        if AccessCode.objects.filter(requested_email__iexact=email, redeemed_by__isnull=True,
+                                     status__in=('pending', 'approved')).exists():
+            # Already asked: no second row and no second email to the inbox.
+            messages.success(request, thanks)
+            return redirect('request_access_code')
+
+        if AccessCode.objects.filter(created_at__gte=timezone.now() - timedelta(hours=1)).count() >= REQUEST_HOURLY_CAP:
+            # A flood (bots or abuse): don't store or email anything more this hour.
+            messages.success(request, thanks)
+            return redirect('request_access_code')
+
         AccessCode.objects.create(
-            code=code,
+            code=generate_founder_code(),
             business_name=business_name,
             requested_email=email,
             status='pending',
@@ -1323,7 +1351,7 @@ def request_access_code_view(request):
         except Exception:
             pass
 
-        messages.success(request, "Thanks! We've received your request — you'll get an email once it's approved.")
+        messages.success(request, thanks)
         return redirect('request_access_code')
 
     return render(request, 'reviews/request_access_code.html')

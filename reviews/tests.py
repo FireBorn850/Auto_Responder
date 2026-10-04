@@ -1300,3 +1300,74 @@ class TeamInviteSecurityTests(TestCase):
         self.client.login(username="gstaff", password="pw-12345-x")
         self.invite.refresh_from_db()
         self.assertEqual(self.invite.linked_user, staff)
+
+
+# ---------------------------------------------------------------- security #2: founder codes
+
+from reviews.models import FOUNDER_CODE_ALPHABET, generate_founder_code
+
+
+class FounderCodeSecurityTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        expire_trial(self.profile)
+        self.client.force_login(self.owner)
+
+    def redeem(self, code):
+        self.client.post(reverse('redeem_access_code'), {'code': code})
+        self.profile.refresh_from_db()
+        return self.profile.plan == 'founding_partner'
+
+    def test_new_codes_are_long_and_random(self):
+        code = generate_founder_code()
+        self.assertRegex(code, r'^FOUNDER-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$')
+        self.assertTrue(set(code[8:].replace('-', '')) <= set(FOUNDER_CODE_ALPHABET))
+        self.assertEqual(len({generate_founder_code() for _ in range(200)}), 200)
+
+    def test_pending_code_never_works(self):
+        AccessCode.objects.create(code='FOUNDER-PEND-PEND-PEND', status='pending')
+        self.assertFalse(self.redeem('FOUNDER-PEND-PEND-PEND'))
+
+    def test_guessing_is_locked_after_5_wrong_codes(self):
+        AccessCode.objects.create(code='FOUNDER-GOOD-GOOD-GOOD', status='approved')
+        for i in range(5):
+            self.assertFalse(self.redeem(f'FOUNDER-WRONG-{i}'))
+        # Even the right code is refused during the lockout.
+        self.assertFalse(self.redeem('FOUNDER-GOOD-GOOD-GOOD'))
+
+    def test_a_few_typos_still_allow_the_right_code(self):
+        AccessCode.objects.create(code='FOUNDER-GOOD-GOOD-GOOD', status='approved')
+        self.redeem('FOUNDER-TYPO')
+        self.assertTrue(self.redeem('FOUNDER-GOOD-GOOD-GOOD'))
+
+
+class FounderRequestFormTests(TestCase):
+    def ask(self, email="chef@bistro.ch", **extra):
+        return self.client.post(reverse('request_access_code'),
+                                {'business_name': 'Bistro', 'email': email, **extra})
+
+    def test_request_creates_a_strong_pending_code_and_one_email(self):
+        self.ask()
+        code = AccessCode.objects.get()
+        self.assertEqual(code.status, 'pending')
+        self.assertRegex(code.code, r'^FOUNDER-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$')
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_same_email_asking_again_adds_nothing(self):
+        self.ask()
+        self.ask(email="CHEF@bistro.ch")
+        self.assertEqual(AccessCode.objects.count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_bots_filling_the_hidden_field_are_ignored(self):
+        resp = self.ask(website="http://spam.example")
+        self.assertEqual(AccessCode.objects.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(resp.status_code, 302)
+
+    def test_flood_is_capped_per_hour(self):
+        for i in range(20):
+            AccessCode.objects.create(code=f'FOUNDER-FLOOD-{i}', requested_email=f'{i}@x.ch', status='pending')
+        self.ask(email="late@bistro.ch")
+        self.assertFalse(AccessCode.objects.filter(requested_email="late@bistro.ch").exists())
+        self.assertEqual(len(mail.outbox), 0)
