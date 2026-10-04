@@ -39,6 +39,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .services import gbp_client, billing, polar_billing, ratelimit
+from .services.client_ip import get_client_ip
 from .models import generate_founder_code
 from django.urls import reverse
 
@@ -1304,6 +1305,9 @@ def preview_ai_response_view(request):
     })
 
 
+DEMO_DAILY_CAP = 200   # public demo drafts per day, whole site
+
+
 def public_demo_preview_view(request):
     """
     Public, unauthenticated preview for the landing page's live demo.
@@ -1313,12 +1317,13 @@ def public_demo_preview_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
 
-    ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get('REMOTE_ADDR', 'unknown')
-    rate_key = f'public_demo_rate:{ip}'
-    attempts = cache.get(rate_key, 0)
-    if attempts >= 5:
+    # Real visitor IP (can't be faked with a header) + a site-wide daily cap,
+    # so the free public demo can never burn the whole Gemini quota.
+    ip = get_client_ip(request)
+    if ratelimit.too_many(f'demo:{ip}', 5, 300) or ratelimit.too_many('demo:all', DEMO_DAILY_CAP, 86400):
         return JsonResponse({'error': "You've hit the demo limit for now — try again in a few minutes, or sign up to use this on real reviews."}, status=429)
-    cache.set(rate_key, attempts + 1, timeout=300)
+    ratelimit.hit(f'demo:{ip}', 300)
+    ratelimit.hit('demo:all', 86400)
 
     reviewer_name = (request.POST.get('reviewer_name') or 'Alex').strip()[:60]
     comment = (request.POST.get('comment') or '').strip()[:600]
@@ -1377,6 +1382,12 @@ def request_access_code_view(request):
             # Hidden field only bots fill in: pretend it worked, store nothing.
             messages.success(request, thanks)
             return redirect('request_access_code')
+
+        ip_key = f"founder-request:{get_client_ip(request)}"
+        if ratelimit.too_many(ip_key, 3, 3600):
+            messages.success(request, thanks)   # same answer, nothing stored
+            return redirect('request_access_code')
+        ratelimit.hit(ip_key, 3600)
 
         if not business_name or not email:
             messages.error(request, "Please fill in both fields.")

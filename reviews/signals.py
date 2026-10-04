@@ -32,10 +32,9 @@ def _link_pending_invites(user):
 
 
 def _get_client_ip(request):
-    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
-    if forwarded:
-        return forwarded.split(',')[0].strip()
-    return request.META.get('REMOTE_ADDR')
+    from reviews.services.client_ip import get_client_ip
+    ip = get_client_ip(request)
+    return None if ip == 'unknown' else ip
 
 
 @receiver(user_logged_in)

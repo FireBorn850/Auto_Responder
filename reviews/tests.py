@@ -1625,3 +1625,68 @@ class PublicQrSafetyTests(TestCase):
         self.client.get(reverse('qr_redirect', args=[self.qr.slug]))   # one scan
         self.client.get(reverse('qr_redirect', args=[self.qr.slug]) + '?rating=99')
         self.assertIsNone(QRScanEvent.objects.get().resulted_in_rating)
+
+
+# ---------------------------------------------------------------- security #7: real client IP for limits
+
+from django.test import RequestFactory
+
+from reviews.services.client_ip import get_client_ip
+
+
+class ClientIpTests(TestCase):
+    def req(self, xff=None, remote='10.0.0.1'):
+        meta = {'REMOTE_ADDR': remote}
+        if xff is not None:
+            meta['HTTP_X_FORWARDED_FOR'] = xff
+        return RequestFactory().get('/', **meta)
+
+    @override_settings(TRUSTED_PROXY_COUNT=1)
+    def test_uses_the_ip_added_by_render_not_the_one_sent_by_the_browser(self):
+        self.assertEqual(get_client_ip(self.req('6.6.6.6, 203.0.113.7')), '203.0.113.7')
+        self.assertEqual(get_client_ip(self.req('203.0.113.7')), '203.0.113.7')
+
+    @override_settings(TRUSTED_PROXY_COUNT=0)
+    def test_without_a_proxy_the_header_is_ignored(self):
+        self.assertEqual(get_client_ip(self.req('6.6.6.6')), '10.0.0.1')
+
+    @override_settings(TRUSTED_PROXY_COUNT=1)
+    def test_garbage_header_falls_back(self):
+        self.assertEqual(get_client_ip(self.req('not-an-ip')), '10.0.0.1')
+
+
+@override_settings(TRUSTED_PROXY_COUNT=1)
+class DemoRateLimitTests(TestCase):
+    def demo(self, fake_ip, real_ip='203.0.113.7'):
+        return self.client.post(reverse('public_demo_preview'), {'comment': 'Lovely coffee and friendly staff'},
+                                HTTP_X_FORWARDED_FOR=f'{fake_ip}, {real_ip}')
+
+    def test_faking_the_header_no_longer_resets_the_limit(self):
+        with mock.patch('reviews.views.generate_review_draft', return_value="Thanks!") as gen:
+            codes = [self.demo(f'1.2.3.{i}').status_code for i in range(7)]
+        self.assertEqual(codes[:5], [200] * 5)
+        self.assertEqual(codes[5:], [429, 429])
+        self.assertEqual(gen.call_count, 5)
+
+    def test_other_visitors_are_not_blocked(self):
+        with mock.patch('reviews.views.generate_review_draft', return_value="Thanks!"):
+            for i in range(5):
+                self.demo('x', real_ip='203.0.113.7')
+            self.assertEqual(self.demo('x', real_ip='198.51.100.9').status_code, 200)
+
+    def test_site_wide_daily_cap(self):
+        from reviews import views as v
+        with mock.patch.object(v, 'DEMO_DAILY_CAP', 2), \
+                mock.patch('reviews.views.generate_review_draft', return_value="Thanks!"):
+            self.demo('x', real_ip='198.51.100.1')
+            self.demo('x', real_ip='198.51.100.2')
+            self.assertEqual(self.demo('x', real_ip='198.51.100.3').status_code, 429)
+
+
+@override_settings(TRUSTED_PROXY_COUNT=1)
+class FounderRequestIpLimitTests(TestCase):
+    def test_one_visitor_cannot_send_endless_requests(self):
+        for i in range(6):
+            self.client.post(reverse('request_access_code'), {'business_name': 'B', 'email': f'{i}@bistro.ch'},
+                             HTTP_X_FORWARDED_FOR=f'9.9.9.{i}, 203.0.113.7')
+        self.assertEqual(AccessCode.objects.count(), 3)

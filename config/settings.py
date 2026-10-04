@@ -12,6 +12,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security Settings
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+
+# How many proxies in front of the app add themselves to X-Forwarded-For.
+# Render = 1. Used to read the visitor's real IP for rate limits
+# (reviews/services/client_ip.py). Local development = 0.
+TRUSTED_PROXY_COUNT = int(os.environ.get('TRUSTED_PROXY_COUNT', '0' if DEBUG else '1'))
 if not SECRET_KEY:
     if DEBUG:
         SECRET_KEY = 'django-insecure-local-dev-only-key'
