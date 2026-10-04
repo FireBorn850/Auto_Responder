@@ -1105,3 +1105,96 @@ class WorkflowScheduleTests(TestCase):
         for job in ('sync', 'due-alerts', 'nightly-training', 'weekly-summary'):
             self.assertIn(f'- {job}', text)
             self.assertIn(f"inputs.job == '{job}'", text)
+
+
+# ---------------------------------------------------------------- bug #8: ratings and duplicates
+
+from django.db import IntegrityError, transaction
+
+from reviews.services import gbp_importer
+from reviews.services.google_importer import create_review_once, import_google_items, parse_rating
+from reviews.services.tripadvisor_importer import import_tripadvisor_result
+
+
+def dfs_item(review_id='r1', rating=4, text="Great falafel", name="Ann"):
+    item = {'review_id': review_id, 'review_text': text, 'profile_name': name, 'original_language': 'en'}
+    if rating is not None:
+        item['rating'] = {'value': rating}
+    return item
+
+
+class RatingParsingTests(TestCase):
+    def test_reads_every_provider_format(self):
+        for raw, stars in [(4, 4), (4.0, 4), ("3", 3), ({'value': 2}, 2), (4.6, 5), ({'value': '1'}, 1)]:
+            self.assertEqual(parse_rating(raw), stars, raw)
+
+    def test_missing_or_broken_rating_is_none_not_5_stars(self):
+        for raw in [None, '', 'abc', {}, {'value': None}, 0, 7, -1]:
+            self.assertIsNone(parse_rating(raw), raw)
+
+
+class ImportRatingTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+
+    def test_google_review_without_rating_is_skipped_not_saved_as_5_stars(self):
+        imported, _ = import_google_items(self.owner, "Cafe Luna", [dfs_item(rating=None)], {}, draft_now=False)
+        self.assertEqual(imported, 0)
+        self.assertFalse(Review.objects.filter(rating=5).exists())
+
+    def test_bad_google_review_keeps_its_real_rating(self):
+        import_google_items(self.owner, "Cafe Luna", [dfs_item(rating=1)], {}, draft_now=False)
+        self.assertEqual(Review.objects.get().rating, 1)
+
+    def test_gbp_review_without_rating_is_skipped(self):
+        items = [{'external_id': 'g1', 'comment': 'Nice', 'rating': 0, 'reviewer_name': 'Bo'},
+                 {'external_id': 'g2', 'comment': 'Bad', 'rating': 2, 'reviewer_name': 'Cy'}]
+        with mock.patch.object(gbp_importer.gbp_client, 'fetch_reviews', return_value=items):
+            imported, _ = gbp_importer.import_reviews(self.profile, self.owner, "Cafe Luna", draft_now=False)
+        self.assertEqual(imported, 1)
+        self.assertEqual(Review.objects.get().rating, 2)
+
+    def test_tripadvisor_review_without_rating_is_skipped(self):
+        result = {'items': [{'review_id': 't1', 'review_text': 'Ok', 'rating': None},
+                            {'review_id': 't2', 'review_text': 'Super', 'rating': {'value': 5}}]}
+        imported, _ = import_tripadvisor_result(self.owner, "Cafe Luna", result, draft_now=False)
+        self.assertEqual(imported, 1)
+
+
+class DuplicateReviewTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+
+    def test_importing_the_same_reviews_twice_creates_no_copies(self):
+        items = [dfs_item('r1'), dfs_item('r2', text="Lovely tea", name="Bo")]
+        import_google_items(self.owner, "Cafe Luna", items, {}, draft_now=False)
+        imported, _ = import_google_items(self.owner, "Cafe Luna", items, {}, draft_now=False)
+        self.assertEqual(imported, 0)
+        self.assertEqual(Review.objects.count(), 2)
+
+    def test_database_refuses_a_second_copy(self):
+        create_review_once(user=self.owner, reviewer_name="A", rating=5, comment="c",
+                           business_name="Cafe Luna", external_id="r1")
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Review.objects.create(user=self.owner, reviewer_name="A", rating=5, comment="c",
+                                  business_name="Cafe Luna", external_id="r1")
+
+    def test_overlapping_sync_skips_quietly_instead_of_crashing(self):
+        fields = dict(user=self.owner, reviewer_name="A", rating=5, comment="c",
+                      business_name="Cafe Luna", external_id="r1")
+        self.assertIsNotNone(create_review_once(**fields))
+        self.assertIsNone(create_review_once(**fields))
+        self.assertEqual(Review.objects.count(), 1)
+
+    def test_same_review_id_is_fine_for_different_businesses(self):
+        other, _ = make_owner("other")
+        for user in (self.owner, other):
+            Review.objects.create(user=user, reviewer_name="A", rating=5, comment="c",
+                                  business_name="X", external_id="r1")
+        self.assertEqual(Review.objects.count(), 2)
+
+    def test_reviews_without_an_id_are_not_limited(self):
+        for ext in (None, None, '', ''):
+            Review.objects.create(user=self.owner, reviewer_name="A", rating=5, comment="c",
+                                  business_name="X", external_id=ext)
+        self.assertEqual(Review.objects.count(), 4)

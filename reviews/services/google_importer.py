@@ -2,6 +2,7 @@ import re
 import requests
 import logging
 from django.conf import settings
+from django.db import IntegrityError, transaction
 from langdetect import detect, LangDetectException, DetectorFactory
 from reviews.models import Review, BusinessProfile
 from reviews.tasks import send_negative_review_alert
@@ -26,6 +27,35 @@ _FRENCH_HINTS = re.compile(
     r"\b(le|la|les|un|une|des|est|très|nous|avons|été|pour|avec|c'est|qui|pas)\b",
     re.IGNORECASE,
 )
+
+
+def parse_rating(value):
+    """
+    Star rating as a whole number 1-5, or None when it's missing or unreadable.
+    Providers send it as 4, 4.0, "4", or {"value": 4}. A review without a real
+    rating is skipped by every importer: guessing (the old code saved 5★)
+    would hide unhappy customers and skip their alerts.
+    """
+    if isinstance(value, dict):
+        value = value.get('value')
+    try:
+        stars = int(round(float(value)))
+    except (TypeError, ValueError):
+        return None
+    return stars if 1 <= stars <= 5 else None
+
+
+def create_review_once(**fields):
+    """
+    Creates the review, or returns None if the same provider review already
+    exists (two syncs overlapping). The database constraint guarantees it;
+    this just turns the clash into a quiet skip instead of a crashed sync.
+    """
+    try:
+        with transaction.atomic():
+            return Review.objects.create(**fields)
+    except IntegrityError:
+        return None
 
 
 def _guess_language(text: str) -> str:
@@ -151,7 +181,9 @@ def import_google_items(user, business_name, items, info, draft_now=True):
         external_id = item.get('review_id')
         review_url = item.get('review_url')
         reviewer_name = item.get('profile_name') or 'Anonymous Customer'
-        rating = (item.get('rating') or {}).get('value') or 5
+        rating = parse_rating(item.get('rating'))
+        if rating is None:
+            continue  # no readable rating: skip instead of pretending it's 5★
         has_owner_response = bool((item.get('owner_answer') or '').strip())
 
         existing = None
@@ -183,7 +215,7 @@ def import_google_items(user, business_name, items, info, draft_now=True):
         orig_lang = (item.get('original_language') or '').lower()
         language = orig_lang if (orig_lang and orig_lang != 'de') else _guess_language(comment_text)
 
-        new_review = Review.objects.create(
+        new_review = create_review_once(
             user=user,
             reviewer_name=reviewer_name,
             rating=rating,
@@ -192,9 +224,11 @@ def import_google_items(user, business_name, items, info, draft_now=True):
             business_name=business_name,
             source='google',
             status='posted' if has_owner_response else 'pending',
-            external_id=external_id,
+            external_id=external_id or None,
             review_url=review_url,
         )
+        if new_review is None:
+            continue
         imported_count += 1
         if not has_owner_response:
             new_review_ids.append(new_review.id)

@@ -5,6 +5,7 @@ from reviews.models import Review, BusinessProfile
 from .dataforseo_importer import TRIPADVISOR, post_task, wait_for_result
 from .exceptions import RateLimitError
 from .review_pipeline import auto_draft_new_reviews
+from .google_importer import create_review_once, parse_rating
 
 logger = logging.getLogger(__name__)
 
@@ -95,11 +96,8 @@ def import_tripadvisor_result(user, business_name, result, saved_url=None, max_r
         if not comment_text:
             continue
 
-        rating_raw = item.get('rating')
-        rating_raw = rating_raw.get('value') if isinstance(rating_raw, dict) else rating_raw
-        try:
-            rating = min(5, max(1, int(round(float(rating_raw)))))
-        except (TypeError, ValueError):
+        rating = parse_rating(item.get('rating'))
+        if rating is None:
             continue
 
         reviewer_name = ((item.get('user_profile') or {}).get('name') or 'Anonymous Traveler')[:255]
@@ -114,7 +112,7 @@ def import_tripadvisor_result(user, business_name, result, saved_url=None, max_r
         ).exists():
             continue
 
-        new_review = Review.objects.create(
+        new_review = create_review_once(
             user=user,
             reviewer_name=reviewer_name,
             rating=rating,
@@ -126,6 +124,8 @@ def import_tripadvisor_result(user, business_name, result, saved_url=None, max_r
             external_id=external_id,
             review_url=(item.get('url') or None),
         )
+        if new_review is None:
+            continue
         imported_count += 1
         new_review_ids.append(new_review.id)
 

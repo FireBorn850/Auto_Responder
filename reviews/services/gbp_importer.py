@@ -8,7 +8,7 @@ import logging
 
 from reviews.models import Review
 from reviews.services import gbp_client
-from reviews.services.google_importer import _guess_language
+from reviews.services.google_importer import _guess_language, create_review_once, parse_rating
 from reviews.tasks import send_negative_review_alert
 from reviews.services.review_pipeline import auto_draft_new_reviews
 
@@ -28,7 +28,7 @@ def import_reviews(profile, user, business_name, draft_now=True):
     for item in reversed(items):
         google_id = item.get('external_id')
         comment_text = (item.get('comment') or '').strip()
-        rating = item.get('rating') or 0
+        rating = parse_rating(item.get('rating'))
         # Rating-only reviews (no text) and unreadable ratings are skipped, like the DataForSEO import.
         if not google_id or not comment_text or not rating:
             continue
@@ -60,7 +60,7 @@ def import_reviews(profile, user, business_name, draft_now=True):
                 existing.save()
             continue
 
-        new_review = Review.objects.create(
+        new_review = create_review_once(
             user=user,
             reviewer_name=reviewer_name,
             rating=rating,
@@ -71,6 +71,8 @@ def import_reviews(profile, user, business_name, draft_now=True):
             status='posted' if has_reply else 'pending',
             external_id=external_id,
         )
+        if new_review is None:
+            continue
         imported_count += 1
         if not has_reply:
             new_review_ids.append(new_review.id)

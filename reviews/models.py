@@ -296,6 +296,17 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        constraints = [
+            # The database itself refuses a second copy of the same provider
+            # review for the same account, even if two syncs overlap.
+            models.UniqueConstraint(
+                fields=['user', 'external_id'],
+                condition=models.Q(external_id__isnull=False) & ~models.Q(external_id=''),
+                name='unique_review_per_user_external_id',
+            ),
+        ]
+
     def __str__(self):
         return f"{self.reviewer_name} ({self.rating}★) - {self.status}"
 
