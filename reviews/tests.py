@@ -1574,3 +1574,54 @@ class TeamRoleTests(TestCase):
         self.client.force_login(self.owner)
         self.client.post(reverse('clear_simulation_history'))
         self.assertFalse(Review.objects.filter(is_simulated=True).exists())
+
+
+# ---------------------------------------------------------------- security #6: public QR endpoints
+
+from io import BytesIO as _BytesIO
+
+from PIL import Image as _Image
+
+from reviews.models import QRScanEvent, SmartQRCode
+
+
+class PublicQrSafetyTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.qr = SmartQRCode.objects.create(
+            user=self.owner, title="Table 1", google_review_url="https://g.page/r/abc/review",
+            fallback_url="https://g.page/r/abc/review", private_feedback_url="https://cafeluna.ch/feedback")
+
+    def image(self, query=''):
+        return self.client.get(reverse('qr_image', args=[self.qr.slug]) + query)
+
+    def test_giant_size_is_capped(self):
+        resp = self.image('?size=50000')
+        self.assertEqual(resp.status_code, 200)
+        width, height = _Image.open(_BytesIO(resp.content)).size
+        self.assertLessEqual(max(width, height), 1200 * 1.1)
+
+    def test_junk_colour_does_not_crash(self):
+        for colour in ('zzzzzz', '%23gg0000', '#12', 'red;'):
+            self.assertEqual(self.image(f'?color={colour}').status_code, 200, colour)
+
+    def test_same_image_is_drawn_once_then_cached(self):
+        from reviews import views as v
+        with mock.patch.object(v, 'generate_qr_with_logo', wraps=v.generate_qr_with_logo) as draw:
+            self.image('?size=500')
+            self.image('?size=499')   # snaps to the same size
+        self.assertEqual(draw.call_count, 1)
+
+    def test_bad_saved_timezone_does_not_break_the_public_page(self):
+        BusinessProfile.objects.filter(id=self.profile.id).update(timezone_name='Mars/Olympus_Mons')
+        resp = self.client.get(reverse('qr_redirect', args=[self.qr.slug]))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_owner_without_profile_does_not_break_the_page(self):
+        BusinessProfile.objects.filter(id=self.profile.id).delete()
+        self.assertIn(self.client.get(reverse('qr_redirect', args=[self.qr.slug])).status_code, (200, 302))
+
+    def test_fake_ratings_are_ignored(self):
+        self.client.get(reverse('qr_redirect', args=[self.qr.slug]))   # one scan
+        self.client.get(reverse('qr_redirect', args=[self.qr.slug]) + '?rating=99')
+        self.assertIsNone(QRScanEvent.objects.get().resulted_in_rating)

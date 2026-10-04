@@ -358,8 +358,13 @@ class SmartQRCode(models.Model):
     def is_currently_active(self):
         from django.utils import timezone
         from zoneinfo import ZoneInfo
-        tz_name = getattr(self.user.profile, 'timezone_name', None) or 'Europe/Zurich'
-        now = timezone.now().astimezone(ZoneInfo(tz_name))
+        profile = BusinessProfile.objects.filter(user_id=self.user_id).first()
+        try:
+            tz = ZoneInfo((profile.timezone_name if profile else None) or 'Europe/Zurich')
+        except Exception:
+            # An old or mistyped timezone must never take the public QR page down.
+            tz = ZoneInfo('Europe/Zurich')
+        now = timezone.now().astimezone(tz)
         if self.expires_at and now.date() > self.expires_at:
             return False
         if self.active_hours_enabled and self.active_hours_start and self.active_hours_end:

@@ -25,6 +25,7 @@ from .models import UserSession
 from django.core.mail import send_mail
 import csv
 import io
+import re
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
@@ -1764,6 +1765,8 @@ def qr_redirect_view(request, slug):
     if rating_param:
         try:
             rating = int(rating_param)
+            if not 1 <= rating <= 5:
+                raise ValueError
             recent_event = qr.scan_events.filter(resulted_in_rating__isnull=True).first()
             if recent_event:
                 recent_event.resulted_in_rating = rating
@@ -1810,10 +1813,32 @@ def qr_image_view(request, slug):
     except BusinessProfile.DoesNotExist:
         pass
 
-    buffer = generate_qr_with_logo(target_url, logo_path=logo_path, fill_color=color, size=size, theme=theme)
-    response = HttpResponse(buffer, content_type='image/png')
+    # Public endpoint: drawing a QR costs CPU, so each variant is drawn once
+    # and then served from the shared cache (a table in the database).
+    from django.core.cache import cache
+    logo_stamp = profile_logo_stamp(logo_path)
+    cache_key = f"qrimg:{qr.slug}:{size}:{color.lower()}:{theme}:{logo_stamp}:{request.get_host()}"
+    png = cache.get(cache_key)
+    if png is None:
+        buffer = generate_qr_with_logo(target_url, logo_path=logo_path, fill_color=color, size=size, theme=theme)
+        png = buffer.getvalue() if hasattr(buffer, 'getvalue') else bytes(buffer.read())
+        cache.set(cache_key, png, QR_CACHE_SECONDS)
+    response = HttpResponse(png, content_type='image/png')
     response['Cache-Control'] = 'public, max-age=3600'
     return response
+
+
+def profile_logo_stamp(logo_path):
+    """Changes when the logo file changes, so a new logo shows up right away."""
+    import os
+    try:
+        return int(os.path.getmtime(logo_path)) if logo_path else 0
+    except OSError:
+        return 0
+
+
+QR_SIZES = (128, 200, 240, 300, 400, 500, 900, 1200)   # the sizes the app itself asks for
+QR_CACHE_SECONDS = 24 * 60 * 60
 
 
 def _qr_render_params(request):
@@ -1827,11 +1852,15 @@ def _qr_render_params(request):
         size = int(request.GET.get('size', 500))
     except (TypeError, ValueError):
         size = 500
-    size = max(64, min(size, 1200))
+    # Snap to a few fixed sizes: still clamped, and the public image can be
+    # cached instead of re-drawn for every random ?size= value.
+    size = min(QR_SIZES, key=lambda s: abs(s - size))
 
     color = request.GET.get('color', '#000000').strip()
     if not color.startswith('#'):
         color = '#' + color
+    if not re.fullmatch(r'#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}', color):
+        color = '#000000'   # junk colours used to crash the image renderer (500)
 
     theme = request.GET.get('theme', 'print')
     if theme not in ('print', 'dark', 'light'):
