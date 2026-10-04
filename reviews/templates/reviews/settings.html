@@ -889,6 +889,7 @@
                         </svg></div>
                     <div class="card-title">{% trans "Smart Guardrail" %}</div>
                     <div class="card-subtitle">{% trans "Auto-publish 4-5★ reviews" %}</div>
+                    {% if not profile.gbp_connected %}<span class="text-[10px] font-semibold text-amber-300">{% trans "Needs Google Business connection" %}</span>{% endif %}
                     <ul>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
@@ -911,6 +912,7 @@
                         </svg></div>
                     <div class="card-title">{% trans "Hands-Free" %}</div>
                     <div class="card-subtitle">{% trans "Auto-post 4-5★, pre-approve 1-3★" %}</div>
+                    {% if not profile.gbp_connected %}<span class="text-[10px] font-semibold text-amber-300">{% trans "Needs Google Business connection" %}</span>{% endif %}
                     <ul>
                         <li><svg class="icon icon-sm">
                                 <use href="#i-check-circle" />
@@ -950,17 +952,21 @@
                     </ul>
                 </label>
             </div>
-            {% if billing_access and not billing_access.is_premium %}
+            {% if billing_access and not billing_access.active %}
             <p class="text-[11.5px] text-amber-300 mt-3 leading-relaxed">
-                {% trans "Smart Guardrail and Hands-Free are Premium features — on your current plan every reply waits for your approval." %}
+                {% trans "Your plan has ended — every reply waits for your approval until you choose a plan." %}
+                <a href="{% url 'billing' %}" class="text-gold font-semibold">{% trans "Choose a plan" %}</a>
+            </p>
+            {% elif billing_access and not billing_access.is_premium %}
+            <p class="text-[11.5px] text-amber-300 mt-3 leading-relaxed">
+                {% trans "Hands-Free is a Premium feature. On Starter, Smart Guardrail pre-approves 4–5★ replies (auto-posted once Google Business is connected) and everything else waits for you." %}
                 <a href="{% url 'billing' %}" class="text-gold font-semibold">{% trans "Upgrade" %}</a>
             </p>
             {% endif %}
             {% if not profile.gbp_connected %}
             <p class="text-[11.5px] text-slate-2 mt-3 leading-relaxed">
-                {% trans "Automatic posting needs your Google Business Profile connected." %}
-                <a href="{% url 'gbp_connect' %}" class="text-gold font-semibold">{% trans "Connect it" %}</a>.
-                {% trans "Until then, approved replies wait on your dashboard for one-click copy & paste." %}
+                {% trans "Automatic posting needs your Google Business Profile connected (coming soon)." %}
+                {% trans "Until then, your chosen mode decides which replies are pre-approved, and the Quick reply button on the dashboard posts them in a few clicks: copy, paste on Google, next." %}
             </p>
             {% endif %}
         </div>

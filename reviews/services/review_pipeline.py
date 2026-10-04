@@ -47,8 +47,18 @@ class DraftResult:
 
 
 def effective_automation_mode(profile):
-    """Starter (and read-only) accounts get manual approval, whatever was saved."""
-    return profile.automation_mode if billing.can(profile, 'auto_post') else 'manual'
+    """
+    The mode that really applies on the account's plan:
+      read-only        -> manual (nothing is automatic)
+      Starter          -> Smart Guardrail at most (Hands-Free is Premium)
+      Premium / trial  -> whatever the owner chose
+    """
+    mode = profile.automation_mode
+    if not billing.can(profile, 'auto_post'):
+        return 'manual'
+    if mode == 'all' and not billing.can(profile, 'hands_free'):
+        return 'positive_only'
+    return mode
 
 
 def route_status(review, profile):

@@ -316,8 +316,82 @@ def dashboard(request):
         'sentiment_negative': sentiment_negative,
         'has_sentiment_data': has_sentiment_data,
         'active_sync': sync_jobs.active_job(profile.user),
+        'quick_queue': _quick_reply_queue(profile) if can_approve_reviews(role) else [],
     }
     return render(request, 'reviews/dashboard.html', context)
+
+
+QUICK_QUEUE_MAX = 50
+
+
+def _quick_reply_queue(profile):
+    """
+    Replies that are drafted but not on Google yet, for the Quick Reply flow:
+    pre-approved (4-5★) first, then the ones waiting for a check, newest first.
+    """
+    rows = (
+        Review.objects.filter(user=profile.user, is_simulated=False, status__in=('approved', 'pending'))
+        .exclude(ai_draft_reply__isnull=True).exclude(ai_draft_reply='')
+        .order_by('status', '-created_at')[:QUICK_QUEUE_MAX]
+    )
+    fallback_url = profile.google_maps_url or 'https://business.google.com/reviews'
+    return [{
+        'id': r.id,
+        'name': r.reviewer_name,
+        'rating': r.rating,
+        'comment': r.comment,
+        'draft': r.ai_draft_reply,
+        'url': r.review_url or fallback_url,
+        'auto': bool(profile.gbp_connected and (r.external_id or '').startswith('gbp:')),
+        'post_url': reverse('quick_post', args=[r.id]),
+    } for r in rows]
+
+
+@login_required
+@require_POST
+def quick_post_view(request, review_id):
+    """
+    Quick Reply flow, one review at a time. Saves the (possibly edited) reply
+    and marks it as answered:
+      - Google Business connected + review from it -> posted through the API;
+      - otherwise the owner just pasted it on Google -> marked posted.
+    Returns JSON so the dashboard can move to the next review instantly.
+    """
+    profile, role = get_business_context(request.user)
+    if profile is None:
+        profile, role = get_or_create_owned_profile(request.user)
+    if not can_approve_reviews(role):
+        return JsonResponse({'ok': False, 'error': ROLE_DENIED}, status=403)
+
+    review = get_object_or_404(Review, id=review_id, user=profile.user, is_simulated=False)
+    if review.status == 'posted':
+        return JsonResponse({'ok': True, 'posted_via': 'already'})
+
+    text = (request.POST.get('text') or '').strip()[:4000]
+    if not text:
+        return JsonResponse({'ok': False, 'error': "The reply is empty."}, status=400)
+
+    original = (review.ai_draft_reply or '').strip()
+    if original and original != text:
+        EditLog.objects.create(user=request.user, review=review, ai_draft=original, final_text=text)
+    review.ai_draft_reply = text
+
+    via = 'manual'
+    if profile.gbp_connected and (review.external_id or '').startswith('gbp:'):
+        try:
+            gbp_client.post_reply(profile, review.external_id[4:], text)
+            via = 'google'
+        except gbp_client.GBPError as e:
+            review.status = 'approved'
+            review.save(update_fields=['ai_draft_reply', 'status', 'updated_at'])
+            return JsonResponse({'ok': False, 'error': f"Couldn't post to Google: {e}. Your reply is saved."}, status=502)
+
+    review.status = 'posted'
+    if review.first_response_at is None:
+        review.first_response_at = timezone.now()
+    review.save(update_fields=['ai_draft_reply', 'status', 'first_response_at', 'updated_at'])
+    ActivityLog.objects.create(user=request.user, action='review_approved', detail=f"Quick reply: {review.reviewer_name}"[:255])
+    return JsonResponse({'ok': True, 'posted_via': via})
 
 
 @login_required
@@ -1086,8 +1160,11 @@ def update_settings_view(request):
         business_hours_end = request.POST.get('business_hours_end', '20:00')
         timezone_name = request.POST.get('timezone_name', 'Europe/Zurich')
         if automation_mode in ('positive_only', 'all') and not billing.can(profile, 'auto_post'):
-            messages.warning(request, "Auto-posting is a Premium feature — saved as manual approval for now.")
+            messages.warning(request, "Auto-posting needs an active plan — saved as manual approval for now.")
             automation_mode = 'manual'
+        elif automation_mode == 'all' and not billing.can(profile, 'hands_free'):
+            messages.warning(request, "Hands-Free is a Premium feature — saved as Smart Guardrail (4–5★ auto-post) on your Starter plan.")
+            automation_mode = 'positive_only'
         if automation_mode in ['positive_only', 'all', 'manual']:
             profile.automation_mode = automation_mode
 

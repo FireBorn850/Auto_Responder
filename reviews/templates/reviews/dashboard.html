@@ -1116,6 +1116,14 @@
             <span class="font-mono">{% blocktrans with used=ai_used_today limit=profile.ai_daily_limit %}{{ used }}/{{ limit }} AI today{% endblocktrans %}</span>
         </span>
 
+        {% if quick_queue %}
+        <button type="button" onclick="openQuickReply()" class="btn-success" id="quickReplyBtn"
+            title="{% trans "Post your drafted replies one after another" %}">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span>{% blocktrans count n=quick_queue|length %}Quick reply ({{ n }}){% plural %}Quick reply ({{ n }}){% endblocktrans %}</span>
+        </button>
+        {% endif %}
+
         <button onclick="toggleSyncModal()" class="btn-primary">
             <i class="bi bi-arrow-repeat"></i>
             <span class="hidden sm:inline">{% trans "Sync Reviews" %}</span>
@@ -1607,6 +1615,50 @@
 <!-- </div> -->
 
 <!-- ===== SYNC GOOGLE REVIEWS MODAL ===== -->
+{% if quick_queue %}
+{{ quick_queue|json_script:"quickQueueData" }}
+<!-- ===== QUICK REPLY: post drafted replies one after another ===== -->
+<div id="quickReplyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay" onclick="closeQuickReply()"></div>
+    <div class="relative w-full max-w-lg bg-ink-2 rounded-2xl border border-white/10 p-5 sm:p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 text-white font-semibold">
+                <i class="bi bi-lightning-charge-fill text-gold"></i>
+                <span>{% trans "Quick reply" %}</span>
+                <span id="qrProgress" class="text-[11px] font-mono text-slate-500"></span>
+            </div>
+            <button type="button" onclick="closeQuickReply()" class="text-slate-500 hover:text-white" aria-label="{% trans "Close" %}">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="h-1 rounded-full bg-white/5 overflow-hidden"><div id="qrBar" class="h-full bg-emerald-400" style="width:0%"></div></div>
+
+        <div id="qrCard" class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+                <span id="qrName" class="text-sm font-bold text-white"></span>
+                <span id="qrStars" class="text-gold text-sm"></span>
+            </div>
+            <p id="qrComment" class="text-[12px] text-slate-400 italic leading-relaxed max-h-28 overflow-y-auto"></p>
+            <textarea id="qrText" rows="5" class="draft-textarea w-full"></textarea>
+            <p id="qrHint" class="text-[11px] text-slate-500"></p>
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" id="qrPrimary" class="btn-success" onclick="qrPrimary()"></button>
+                <button type="button" id="qrCopyAgain" class="btn-ghost hidden" onclick="qrCopyAndOpen(false)">{% trans "Copy again" %}</button>
+                <button type="button" class="btn-ghost" onclick="qrSkip()">{% trans "Skip" %}</button>
+                <span class="kbd-hint ml-auto"><kbd>Enter</kbd> {% trans "next step" %} · <kbd>Esc</kbd> {% trans "close" %}</span>
+            </div>
+        </div>
+
+        <div id="qrDone" class="hidden text-center space-y-3 py-6">
+            <i class="bi bi-check2-circle text-emerald-400" style="font-size:2.5rem"></i>
+            <p class="text-white font-semibold">{% trans "All caught up!" %}</p>
+            <p id="qrDoneText" class="text-xs text-slate-400"></p>
+            <button type="button" class="btn-primary mx-auto" onclick="closeQuickReply()">{% trans "Back to dashboard" %}</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div id="syncModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 modal-overlay" onclick="toggleSyncModal()"></div>
     <div
@@ -1846,6 +1898,115 @@
         window.open(url, '_blank');
         return true;
     }
+
+    // ===== QUICK REPLY =====
+    // One review at a time: copy + open the exact review on Google (manual
+    // paste), then "Done" marks it posted and jumps to the next one. Reviews
+    // from a connected Google Business Profile are posted directly instead.
+    const QR = { items: [], i: 0, opened: false, posted: 0, busy: false };
+    const QR_TEXT = {
+        copyOpen: "{% trans 'Copy & open on Google' as t %}{{ t|escapejs }}",
+        doneNext: "{% trans 'I pasted it — next' as t %}{{ t|escapejs }}",
+        postNext: "{% trans 'Post to Google & next' as t %}{{ t|escapejs }}",
+        hintManual: "{% trans 'Opens the review on Google with your reply copied. Paste it there (Ctrl+V), submit, then come back.' as t %}{{ t|escapejs }}",
+        hintOpened: "{% trans 'Pasted and submitted on Google? Click below to mark it done and see the next one.' as t %}{{ t|escapejs }}",
+        hintAuto: "{% trans 'Google Business is connected: this reply is posted directly, no copy-paste needed.' as t %}{{ t|escapejs }}",
+        doneText: "{% trans 'Replies handled in this round:' as t %}{{ t|escapejs }}",
+        failed: "{% trans 'Something went wrong — your reply is still saved as a draft.' as t %}{{ t|escapejs }}",
+    };
+
+    function openQuickReply() {
+        const data = document.getElementById('quickQueueData');
+        QR.items = data ? JSON.parse(data.textContent) : [];
+        QR.i = 0; QR.posted = 0;
+        document.getElementById('quickReplyModal').classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        qrRender();
+    }
+
+    function closeQuickReply() {
+        document.getElementById('quickReplyModal').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        if (QR.posted) window.location.reload();   // refresh counts and cards
+    }
+
+    function qrRender() {
+        const total = QR.items.length;
+        const done = QR.i >= total;
+        document.getElementById('qrCard').classList.toggle('hidden', done);
+        document.getElementById('qrDone').classList.toggle('hidden', !done);
+        document.getElementById('qrBar').style.width = (total ? Math.round(Math.min(QR.i, total) / total * 100) : 100) + '%';
+        document.getElementById('qrProgress').textContent = done ? '' : (QR.i + 1) + ' / ' + total;
+        if (done) {
+            document.getElementById('qrDoneText').textContent = QR_TEXT.doneText + ' ' + QR.posted;
+            return;
+        }
+        const item = QR.items[QR.i];
+        QR.opened = false;
+        document.getElementById('qrName').textContent = item.name || '';
+        document.getElementById('qrStars').textContent = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
+        document.getElementById('qrComment').textContent = item.comment ? '"' + item.comment + '"' : '';
+        document.getElementById('qrText').value = item.draft || '';
+        qrButtons(item);
+    }
+
+    function qrButtons(item) {
+        const primary = document.getElementById('qrPrimary');
+        const again = document.getElementById('qrCopyAgain');
+        const hint = document.getElementById('qrHint');
+        if (item.auto) {
+            primary.textContent = QR_TEXT.postNext; hint.textContent = QR_TEXT.hintAuto; again.classList.add('hidden');
+        } else if (QR.opened) {
+            primary.textContent = QR_TEXT.doneNext; hint.textContent = QR_TEXT.hintOpened; again.classList.remove('hidden');
+        } else {
+            primary.textContent = QR_TEXT.copyOpen; hint.textContent = QR_TEXT.hintManual; again.classList.add('hidden');
+        }
+    }
+
+    function qrCopyAndOpen(advanceState) {
+        const item = QR.items[QR.i];
+        const text = document.getElementById('qrText').value;
+        // Must run inside the click itself, or the browser blocks the new tab.
+        if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+        const box = document.getElementById('qrText'); box.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        window.open(item.url, '_blank', 'noopener');
+        if (advanceState) { QR.opened = true; qrButtons(item); }
+    }
+
+    function qrPrimary() {
+        const item = QR.items[QR.i];
+        if (!item || QR.busy) return;
+        if (!item.auto && !QR.opened) { qrCopyAndOpen(true); return; }
+        QR.busy = true;
+        const body = new URLSearchParams();
+        body.append('text', document.getElementById('qrText').value);
+        fetch(item.post_url, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+            body: body,
+        })
+        .then(r => r.json().then(data => ({ ok: r.ok && data.ok, data })))
+        .then(({ ok, data }) => {
+            QR.busy = false;
+            if (!ok) { showToast(data.error || QR_TEXT.failed, false); return; }
+            QR.posted++; QR.i++; qrRender();
+        })
+        .catch(() => { QR.busy = false; showToast(QR_TEXT.failed, false); });
+    }
+
+    function qrSkip() { QR.i++; qrRender(); }
+
+    document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('quickReplyModal');
+        if (!modal || modal.classList.contains('hidden')) return;
+        if (e.key === 'Escape') { e.preventDefault(); closeQuickReply(); return; }
+        const inText = document.activeElement && document.activeElement.id === 'qrText';
+        if (e.key === 'Enter' && (!inText || e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            if (QR.i >= QR.items.length) closeQuickReply(); else qrPrimary();
+        }
+    });
 
     // ===== COPY TO CLIPBOARD (for manual posting) =====
     function copyToClipboard(text) {

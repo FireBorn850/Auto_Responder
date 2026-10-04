@@ -36,6 +36,7 @@ urlpatterns = [
     path('billing/portal/', views.billing_portal_view, name='billing_portal'),
     path('api/webhook/polar/', views.polar_webhook_view, name='polar_webhook'),
     path('mark-posted/<int:review_id>/', views.mark_posted_view, name='mark_posted'),
+    path('quick-post/<int:review_id>/', views.quick_post_view, name='quick_post'),
 
     # ==========================================
     # 2. REVIEW & SETTINGS ACTIONS

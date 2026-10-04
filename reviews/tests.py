@@ -831,24 +831,62 @@ class StarterLimitsTests(TestCase):
             self.client.post(reverse('sync_tripadvisor_reviews'), {'business_name': 'Cafe Luna'})
         post.assert_not_called()
 
-    def test_starter_replies_wait_for_approval_even_in_auto_mode(self):
-        self.profile.automation_mode = 'positive_only'
+    def connect(self, mode):
+        self.profile.automation_mode = mode
         self.profile.google_business_refresh_token = 'x'
         self.profile.google_business_location_id = 'locations/1'
         self.profile.save()
+
+    def run_review(self, rating, ext):
         review = Review.objects.create(user=self.owner, business_name="Cafe Luna", reviewer_name="Ann",
-                                       rating=5, comment="Lovely coffee", external_id='gbp:1')
-        with fake_sentiment(), fake_draft(), mock.patch.object(gbp_client, 'post_reply') as post:
+                                       rating=rating, comment="Lovely coffee and friendly staff", external_id=ext)
+        with fake_sentiment('positive' if rating >= 4 else 'negative'), fake_draft(), \
+                mock.patch.object(gbp_client, 'post_reply', return_value=True) as post:
             draft_reply(review, self.profile)
         review.refresh_from_db()
+        return review, post
+
+    def test_starter_auto_posts_happy_reviews(self):
+        self.connect('positive_only')
+        review, post = self.run_review(5, 'gbp:1')
+        self.assertEqual(review.status, 'posted')
+        post.assert_called_once()
+
+    def test_starter_never_auto_posts_bad_reviews(self):
+        self.connect('positive_only')
+        review, post = self.run_review(2, 'gbp:2')
         self.assertEqual(review.status, 'pending')
         post.assert_not_called()
 
-    def test_settings_cannot_enable_auto_mode(self):
+    def test_hands_free_on_starter_acts_like_smart_guardrail(self):
+        self.connect('all')
+        review, post = self.run_review(2, 'gbp:3')
+        self.assertEqual(review.status, 'pending')      # Premium would pre-approve it
+        post.assert_not_called()
+
+    def test_settings_save_hands_free_as_smart_guardrail(self):
         self.client.post(reverse('update_settings'), {'automation_mode': 'all', 'timezone_name': 'Europe/Zurich',
                                                      'business_hours_start': '09:00', 'business_hours_end': '20:00'})
         self.profile.refresh_from_db()
-        self.assertEqual(self.profile.automation_mode, 'manual')
+        self.assertEqual(self.profile.automation_mode, 'positive_only')
+
+    def test_settings_allow_smart_guardrail(self):
+        self.client.post(reverse('update_settings'), {'automation_mode': 'positive_only', 'timezone_name': 'Europe/Zurich',
+                                                     'business_hours_start': '09:00', 'business_hours_end': '20:00'})
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.automation_mode, 'positive_only')
+
+    def test_pricing_pages_show_auto_post_on_starter(self):
+        billing_html = self.client.get(reverse('billing')).content.decode()
+        self.assertIn("Quick reply", billing_html)
+        self.assertIn("coming soon", billing_html)
+        self.client.logout()   # the landing page sends logged-in users to the dashboard
+        landing = self.client.get(reverse('home')).content.decode()
+        self.assertIn("Quick reply", landing)
+        # No promise of automatic posting until Google Business access exists.
+        self.assertNotIn("Posted\n                            automatically", landing)
+        self.assertNotIn("post automatically.", landing)
+        self.assertNotIn("Auto-posted ✓", landing)
 
     def test_no_negative_alerts_on_starter(self):
         review = Review.objects.create(user=self.owner, business_name="Cafe Luna", reviewer_name="Ben",
@@ -1872,3 +1910,67 @@ class ContactEmailTests(TestCase):
             if path.name == 'tests.py':
                 continue
             self.assertNotIn('azizovjasur2007', path.read_text(encoding='utf-8', errors='ignore'), str(path))
+
+
+
+# ---------------------------------------------------------------- Quick reply flow
+
+class QuickReplyTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.client.force_login(self.owner)
+        mk = lambda **kw: Review.objects.create(user=self.owner, business_name="Cafe Luna", reviewer_name="Ann",
+                                                rating=kw.pop('rating', 5), comment="Lovely", **kw)
+        self.ready = mk(status='approved', ai_draft_reply="Thanks Ann!", review_url="https://maps.google.com/r/1")
+        self.check = mk(rating=2, status='pending', ai_draft_reply="Sorry about that")
+        self.posted = mk(status='posted', ai_draft_reply="Done already")
+        self.sim = mk(status='approved', ai_draft_reply="Sim", is_simulated=True)
+        self.nodraft = mk(status='pending')
+
+    def test_dashboard_offers_the_queue_with_ready_replies_first(self):
+        resp = self.client.get(reverse('dashboard'))
+        queue = resp.context['quick_queue']
+        self.assertEqual([q['id'] for q in queue], [self.ready.id, self.check.id])
+        self.assertEqual(queue[0]['url'], "https://maps.google.com/r/1")
+        self.assertIn('quickQueueData', resp.content.decode())
+        self.assertIn('Quick reply (2)', resp.content.decode())
+
+    def test_done_marks_posted_and_keeps_edits(self):
+        resp = self.client.post(reverse('quick_post', args=[self.check.id]), {'text': 'So sorry, please write to us.'})
+        self.assertEqual(resp.json(), {'ok': True, 'posted_via': 'manual'})
+        self.check.refresh_from_db()
+        self.assertEqual(self.check.status, 'posted')
+        self.assertEqual(self.check.ai_draft_reply, 'So sorry, please write to us.')
+        self.assertIsNotNone(self.check.first_response_at)
+        self.assertTrue(EditLog.objects.filter(review=self.check).exists())   # feeds AI training
+
+    def test_connected_google_business_posts_directly(self):
+        self.profile.google_business_refresh_token = 'x'
+        self.profile.google_business_location_id = 'locations/1'
+        self.profile.save()
+        self.ready.external_id = 'gbp:abc'
+        self.ready.save()
+        with mock.patch.object(gbp_client, 'post_reply', return_value=True) as post:
+            resp = self.client.post(reverse('quick_post', args=[self.ready.id]), {'text': 'Thanks Ann!'})
+        self.assertEqual(resp.json()['posted_via'], 'google')
+        post.assert_called_once()
+
+    def test_empty_reply_is_refused(self):
+        resp = self.client.post(reverse('quick_post', args=[self.ready.id]), {'text': '  '})
+        self.assertEqual(resp.status_code, 400)
+        self.ready.refresh_from_db()
+        self.assertEqual(self.ready.status, 'approved')
+
+    def test_viewer_cannot_post_or_see_the_queue(self):
+        viewer = User.objects.create_user("v", "v@example.com", "pw-12345-x")
+        TeamInvite.objects.create(owner=self.owner, email=viewer.email, role="viewer", linked_user=viewer)
+        self.client.force_login(viewer)
+        self.assertEqual(self.client.get(reverse('dashboard')).context['quick_queue'], [])
+        resp = self.client.post(reverse('quick_post', args=[self.ready.id]), {'text': 'x'})
+        self.assertEqual(resp.status_code, 403)
+
+    def test_cannot_touch_another_business(self):
+        other, _ = make_owner("other")
+        self.client.force_login(other)
+        resp = self.client.post(reverse('quick_post', args=[self.ready.id]), {'text': 'x'})
+        self.assertEqual(resp.status_code, 404)

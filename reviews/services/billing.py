@@ -2,7 +2,7 @@
 Who may use what — the single source of truth for plans.
 
 Plans (matches the pricing page):
-  starter          CHF 19/mo, or CHF 149/yr (≈12.42/mo) — sync, AI drafts, manual approval
+  starter          CHF 19/mo, or CHF 149/yr (≈12.42/mo) — sync, AI drafts, 4–5★ auto-post (Smart Guardrail)
   premium          CHF 39/mo                              — everything (see PREMIUM_FEATURES)
   founding_partner free for 1 month via access code — Premium
 
@@ -23,8 +23,10 @@ TRIAL_DAYS = 14
 GRACE_DAYS = 7
 FOUNDING_DAYS = 30
 
+# Not listed here = included in every active plan (Starter too), e.g.
+# 'auto_post': Smart Guardrail, 4–5★ replies post to Google by themselves.
 PREMIUM_FEATURES = {
-    'auto_post',     # Smart Guardrail / Hands-Free
+    'hands_free',    # Hands-Free mode: 1–3★ drafts also come pre-approved (still never auto-posted)
     'tripadvisor',
     'qr',            # QR Code Booster + Smart Rating Gate
     'competitors',
