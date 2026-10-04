@@ -1098,3 +1098,10 @@ class WorkflowScheduleTests(TestCase):
             self.assertIn(f"github.event.schedule == '{cron}'", text)
         for command in ('sync_reviews', 'send_due_alerts', 'run_nightly_training', 'send_weekly_summary'):
             self.assertIn(f'manage.py {command}', text)
+
+    def test_run_workflow_button_can_start_every_job(self):
+        text = (Path(dj_settings.BASE_DIR) / '.github' / 'workflows' / 'sync.yml').read_text(encoding='utf-8')
+        self.assertIn('type: choice', text)
+        for job in ('sync', 'due-alerts', 'nightly-training', 'weekly-summary'):
+            self.assertIn(f'- {job}', text)
+            self.assertIn(f"inputs.job == '{job}'", text)

@@ -5,7 +5,17 @@ on:
     - cron: "5 5-20 * * *"   # hourly 05:05–20:05 UTC: send alerts held back by quiet hours
     - cron: "30 3 * * *"     # 03:30 UTC daily: AI training from owner edits (Gemini, only if new edits)
     - cron: "0 7 * * 1"      # Mondays 07:00 UTC: weekly summary emails
-  workflow_dispatch:          # adds a manual "Run workflow" button (runs the sync)
+  workflow_dispatch:          # manual "Run workflow" button, with a drop-down to pick the job
+    inputs:
+      job:
+        description: "Which job to run now"
+        type: choice
+        default: sync
+        options:
+          - sync
+          - due-alerts
+          - nightly-training
+          - weekly-summary
 
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -14,7 +24,7 @@ env:
 
 jobs:
   sync:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 2 * * *'
+    if: github.event.schedule == '0 2 * * *' || (github.event_name == 'workflow_dispatch' && inputs.job == 'sync')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -35,7 +45,7 @@ jobs:
 
   due-alerts:
     # Cheap: no paid APIs, only reads the database and sends a few emails.
-    if: github.event.schedule == '5 5-20 * * *'
+    if: github.event.schedule == '5 5-20 * * *' || (github.event_name == 'workflow_dispatch' && inputs.job == 'due-alerts')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -49,7 +59,7 @@ jobs:
 
   nightly-training:
     # Skips read-only accounts and businesses with no new edits, so it usually costs nothing.
-    if: github.event.schedule == '30 3 * * *'
+    if: github.event.schedule == '30 3 * * *' || (github.event_name == 'workflow_dispatch' && inputs.job == 'nightly-training')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -66,7 +76,7 @@ jobs:
 
   weekly-summary:
     # Only sends to active accounts, at most once a week each.
-    if: github.event.schedule == '0 7 * * 1'
+    if: github.event.schedule == '0 7 * * 1' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly-summary')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
