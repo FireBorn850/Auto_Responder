@@ -1244,7 +1244,8 @@
         var el = document.createElement('div');
         el.className = 'toast' + (type ? ' ' + type : '');
         var icon = type === 'success' ? 'bi-check-circle-fill' : (type === 'danger' ? 'bi-exclamation-circle-fill' : 'bi-info-circle-fill');
-        el.innerHTML = '<i class="bi ' + icon + '"></i><span>' + msg + '</span>';
+        el.innerHTML = '<i class="bi ' + icon + '"></i><span></span>';
+        el.querySelector('span').textContent = msg;
         host.appendChild(el);
         setTimeout(function () { el.remove(); }, 3200);
     }

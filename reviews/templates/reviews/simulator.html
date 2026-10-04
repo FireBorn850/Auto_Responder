@@ -1163,7 +1163,8 @@
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
       toast.className = 'toast ' + type;
-      toast.innerHTML = `<i class="${type === 'success' ? 'fa-regular fa-circle-check' : type === 'error' ? 'bi bi-x-circle-fill' : 'bi bi-info-circle-fill'}"></i> ${msg}`;
+      toast.innerHTML = `<i class="${type === 'success' ? 'fa-regular fa-circle-check' : type === 'error' ? 'bi bi-x-circle-fill' : 'bi bi-info-circle-fill'}"></i> `;
+      toast.appendChild(document.createTextNode(msg));
       container.appendChild(toast);
       setTimeout(() => { toast.remove(); }, 3000);
     }

@@ -14,6 +14,7 @@ Steps:
   6. auto-post to Google      -> posted (only when it is safe, see can_auto_post)
 """
 import logging
+import re
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -61,6 +62,28 @@ def route_status(review, profile):
     return 'pending'
 
 
+_LINK = re.compile(r'(https?://|www\.|\b[\w-]+\.(com|ch|net|org|io|ly|me|info|biz|xyz|link|ru|cn)\b)', re.I)
+_EMAIL = re.compile(r'[\w.+-]+@[\w-]+\.[\w.-]+')
+_PHONE = re.compile(r'(?:\+?\d[\s.\-/()]*){7,}')
+MAX_AUTO_POST_CHARS = 1500
+
+
+def draft_is_safe_to_publish(review, profile):
+    """
+    Last check before anything goes live without a human. Even if a review
+    managed to steer the AI, a reply with a link, phone number or foreign
+    email address — or a suspiciously long one — waits for the owner instead.
+    The owner's own action link, contact email, signature and business name are allowed.
+    """
+    text = review.ai_draft_reply or ''
+    if len(text) > MAX_AUTO_POST_CHARS:
+        return False
+    for allowed in (profile.action_link_url, profile.signature, profile.business_name, profile.user.email):
+        if allowed:
+            text = text.replace(allowed, ' ')
+    return not (_LINK.search(text) or _EMAIL.search(text) or _PHONE.search(text))
+
+
 def can_auto_post(review, profile):
     """
     Auto-posting is deliberately strict. A reply is published without a human
@@ -80,6 +103,7 @@ def can_auto_post(review, profile):
         and not review.is_simulated
         and profile.gbp_connected
         and (review.external_id or '').startswith('gbp:')
+        and draft_is_safe_to_publish(review, profile)
     )
 
 

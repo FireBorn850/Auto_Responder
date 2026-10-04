@@ -1470,7 +1470,8 @@
         el.className = 'toast' + (success ? ' success' : '');
         el.innerHTML = (success
             ? '<svg class="icon icon-sm"><use href="#i-check-circle"/></svg>'
-            : '<svg class="icon icon-sm"><use href="#i-info"/></svg>') + '<span>' + msg + '</span>';
+            : '<svg class="icon icon-sm"><use href="#i-info"/></svg>') + '<span></span>';
+        el.querySelector('span').textContent = msg;
         host.appendChild(el);
         setTimeout(function () { el.remove(); }, 3200);
     }
@@ -1659,8 +1660,10 @@
                     outputFr.innerHTML = '<span style="color: #ef4444;">{% trans "Échec de la génération. Réessayez." %}</span>';
                 }
                 if (data.error) {
-                    outputEn.innerHTML = '<span style="color: #ef4444;">' + data.error + '</span>';
-                    outputFr.innerHTML = '<span style="color: #ef4444;">' + data.error + '</span>';
+                    outputEn.innerHTML = '<span style="color: #ef4444;"></span>';
+                    outputFr.innerHTML = '<span style="color: #ef4444;"></span>';
+                    outputEn.firstChild.textContent = data.error;
+                    outputFr.firstChild.textContent = data.error;
                 }
             })
             .catch(function () {

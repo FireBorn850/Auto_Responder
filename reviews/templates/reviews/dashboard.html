@@ -1719,7 +1719,9 @@
         const host = document.getElementById('toastHost');
         const el = document.createElement('div');
         el.className = 'toast' + (success ? ' success' : '');
-        el.innerHTML = `<span>${msg}</span>`;
+        const span = document.createElement('span');
+        span.textContent = msg;   // never parse text as HTML
+        el.appendChild(span);
         host.appendChild(el);
         setTimeout(() => el.remove(), 3500);
     }
@@ -1765,12 +1767,26 @@
                 var row = document.createElement('div');
                 row.className = 'p-3 rounded-xl';
                 row.style.cssText = 'background: rgba(var(--surface-rgb), 0.03); border: 1px solid rgba(var(--surface-rgb), 0.06);';
-                row.innerHTML =
-                    '<div class="flex items-center justify-between gap-2 flex-wrap">' +
-                        '<span class="text-xs font-bold text-white">' + issue.category + '</span>' +
-                        '<span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full" style="background:' + sevColor + '22; color:' + sevColor + ';">' + issue.severity + ' · ' + issue.mentions_count + ' mention' + (issue.mentions_count === 1 ? '' : 's') + '</span>' +
-                    '</div>' +
-                    '<p class="text-[11px] text-slate-400 italic mt-1">"' + issue.sample_quote + '"</p>';
+                // Built with textContent only: AI text can echo a review, and a
+                // review can contain HTML/JS written by anyone.
+                var mentions = parseInt(issue.mentions_count, 10) || 0;
+                var head = document.createElement('div');
+                head.className = 'flex items-center justify-between gap-2 flex-wrap';
+                var cat = document.createElement('span');
+                cat.className = 'text-xs font-bold text-white';
+                cat.textContent = issue.category || '';
+                var badge = document.createElement('span');
+                badge.className = 'text-[10px] font-bold font-mono px-2 py-0.5 rounded-full';
+                badge.style.background = sevColor + '22';
+                badge.style.color = sevColor;
+                badge.textContent = (issue.severity || '') + ' · ' + mentions + ' mention' + (mentions === 1 ? '' : 's');
+                head.appendChild(cat);
+                head.appendChild(badge);
+                var quote = document.createElement('p');
+                quote.className = 'text-[11px] text-slate-400 italic mt-1';
+                quote.textContent = '"' + (issue.sample_quote || '') + '"';
+                row.appendChild(head);
+                row.appendChild(quote);
                 list.appendChild(row);
             });
         })
@@ -1951,12 +1967,13 @@
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,18,32,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;';
         overlay.innerHTML =
             '<div style="background:var(--ink-2);border:1px solid rgba(var(--surface-rgb),0.08);border-radius:16px;padding:1.5rem;max-width:340px;width:90%;box-shadow:0 20px 40px rgba(0,0,0,0.5);">' +
-                '<p style="color:var(--paper);font-size:0.85rem;margin-bottom:1.25rem;">Remove "' + name + '" from benchmarking?</p>' +
+                '<p class="comp-confirm-text" style="color:var(--paper);font-size:0.85rem;margin-bottom:1.25rem;"></p>' +
                 '<div style="display:flex;justify-content:flex-end;gap:0.5rem;">' +
                     '<button id="compCancelBtn" class="btn-ghost">Cancel</button>' +
                     '<button id="compOkBtn" class="btn-primary">Remove</button>' +
                 '</div>' +
             '</div>';
+        overlay.querySelector('.comp-confirm-text').textContent = 'Remove "' + name + '" from benchmarking?';
         document.body.appendChild(overlay);
         overlay.querySelector('#compOkBtn').addEventListener('click', function () { overlay.remove(); form.submit(); });
         overlay.querySelector('#compCancelBtn').addEventListener('click', function () { overlay.remove(); });

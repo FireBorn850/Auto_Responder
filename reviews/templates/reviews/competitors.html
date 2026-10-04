@@ -1105,7 +1105,8 @@
         el.className = 'toast' + (success ? ' success' : '');
         el.innerHTML = (success
             ? '<svg class="icon icon-sm"><use href="#i-check-circle"/></svg>'
-            : '<svg class="icon icon-sm"><use href="#i-info"/></svg>') + '<span>' + msg + '</span>';
+            : '<svg class="icon icon-sm"><use href="#i-info"/></svg>') + '<span></span>';
+        el.querySelector('span').textContent = msg;
         host.appendChild(el);
         setTimeout(function () { el.remove(); }, 3200);
     }
