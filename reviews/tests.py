@@ -2211,3 +2211,15 @@ class SimulatorDemoTests(TestCase):
     def test_owner_login_email_never_goes_into_a_public_reply(self):
         gen = self.simulate()
         self.assertEqual(gen.call_args.kwargs['contact_email'], '')
+
+
+# ---------------------------------------------------------------- Landing page tells the truth
+
+class LandingHonestyTests(TestCase):
+    def test_no_promises_we_cannot_keep(self):
+        html = self.client.get(reverse('home')).content.decode()
+        for claim in ('Published straight to Google', 'posts straight to', 'SMS', 'French or English automatically',
+                      'Synced in real time', 'https://Mehrly/'):
+            self.assertNotIn(claim, html)
+        self.assertIn('German', html)
+        self.assertIn('instagram.com/mehrly.app', html)
