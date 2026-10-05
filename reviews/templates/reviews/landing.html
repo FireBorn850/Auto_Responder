@@ -23,6 +23,108 @@
     <meta name="twitter:description"
         content="{% trans 'Mehrly drafts a personal reply to every Google review — in French, English, German or Italian. Good reviews are ready in one click; bad ones always wait for you. Built for restaurants and cafés.' %}">
     <meta name="twitter:image" content="https://mehrly.com{% static 'images/og-image.png' %}">
+    <link rel="canonical" href="https://mehrly.com/">
+    <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Organization",
+   "@id": "https://mehrly.com/#org",
+   "name": "Mehrly",
+   "url": "https://mehrly.com/",
+   "logo": "https://mehrly.com/static/images/mehrly-logo.png",
+   "email": "support@mehrly.com",
+   "sameAs": [
+    "https://www.instagram.com/mehrly.app/"
+   ],
+   "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Geneva",
+    "addressCountry": "CH"
+   }
+  },
+  {
+   "@type": "SoftwareApplication",
+   "name": "Mehrly",
+   "url": "https://mehrly.com/",
+   "applicationCategory": "BusinessApplication",
+   "operatingSystem": "Web",
+   "publisher": {
+    "@id": "https://mehrly.com/#org"
+   },
+   "description": "AI that drafts personal replies to Google reviews for restaurants, cafés and hotels, in the guest's language. Owners approve every reply; 1-3 star reviews always wait for a human.",
+   "inLanguage": [
+    "fr",
+    "en",
+    "de",
+    "it"
+   ],
+   "offers": [
+    {
+     "@type": "Offer",
+     "name": "Starter",
+     "price": "19",
+     "priceCurrency": "CHF",
+     "description": "Per month. 14-day free trial, no card."
+    },
+    {
+     "@type": "Offer",
+     "name": "Premium",
+     "price": "39",
+     "priceCurrency": "CHF",
+     "description": "Per month. 14-day free trial, no card."
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What if the AI says something wrong or off-brand?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Every reply is a draft. You or a staff member see it before it goes live and can edit or reject it. 1-3 star reviews never post without a human approving."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Which languages does Mehrly understand?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "French, English, German, Italian and Swiss German. It detects the reviewer's language and replies in the same language."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does Mehrly post replies to Google automatically?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Today you post with Quick Reply: Mehrly copies the approved reply and opens the review on Google, so posting takes a few seconds. Fully automatic posting is coming soon."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How much does Mehrly cost?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Starter is CHF 19 per month (or CHF 12.42 per month billed yearly) and Premium is CHF 39 per month. There is a 14-day free trial with no credit card."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can I cancel anytime?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. There is no contract; you cancel from your workspace and keep access until the end of the paid period."
+     }
+    }
+   ]
+  }
+ ]
+}
+    </script>
     <script>
         (function () {
             var saved = localStorage.getItem('theme');

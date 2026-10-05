@@ -18,8 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from reviews import views_seo
 
 urlpatterns = [
+    path('robots.txt', views_seo.robots_txt),
+    path('sitemap.xml', views_seo.sitemap_xml),
+    path('llms.txt', views_seo.llms_txt),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),  # Handles Google OAuth login & callback routes
 

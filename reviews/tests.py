@@ -2257,3 +2257,41 @@ class PartnerOfferBannerTests(TestCase):
     def test_banner_can_be_switched_off(self):
         html = self.client.get(reverse('home')).content.decode()
         self.assertNotIn('1 month free', html)
+
+
+# ---------------------------------------------------------------- GEO / SEO basics
+
+@override_settings(SITE_URL='https://mehrly.com')
+class SeoFilesTests(TestCase):
+    def test_robots_points_to_sitemap_and_hides_private_areas(self):
+        r = self.client.get('/robots.txt')
+        self.assertEqual(r.status_code, 200)
+        text = r.content.decode()
+        self.assertIn('Sitemap: https://mehrly.com/sitemap.xml', text)
+        self.assertIn('Disallow: /dashboard/', text)
+
+    def test_sitemap_lists_public_pages_only(self):
+        xml = self.client.get('/sitemap.xml').content.decode()
+        for path in ('https://mehrly.com/</loc>', '/privacy-policy/', '/refund-policy/', '/security/'):
+            self.assertIn(path, xml)
+        self.assertNotIn('/dashboard/', xml)
+
+    def test_every_sitemap_page_really_loads(self):
+        from reviews.views_seo import PUBLIC_PAGES
+        for name, _ in PUBLIC_PAGES:
+            self.assertEqual(self.client.get(reverse(name)).status_code, 200, name)
+
+    def test_llms_txt_is_honest(self):
+        text = self.client.get('/llms.txt').content.decode()
+        self.assertIn('CHF 19', text)
+        self.assertIn('coming soon', text)
+        self.assertIn('support@mehrly.com', text)
+
+    def test_landing_has_valid_structured_data(self):
+        import json, re as _re
+        html = self.client.get(reverse('home')).content.decode()
+        block = _re.search(r'<script type="application/ld\+json">(.*?)</script>', html, _re.S).group(1)
+        data = json.loads(block)
+        types = {node['@type'] for node in data['@graph']}
+        self.assertEqual(types, {'Organization', 'SoftwareApplication', 'FAQPage'})
+        self.assertIn('<link rel="canonical" href="https://mehrly.com/">', html)
