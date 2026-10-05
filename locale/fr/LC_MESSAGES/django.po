@@ -2792,6 +2792,15 @@ msgstr "Erreur réseau — veuillez réessayer."
 msgid "Waiting on manager"
 msgstr "En attente du responsable"
 
+msgid "Restaurants in Geneva: 1 month free"
+msgstr "Restaurants à Genève : 1 mois offert"
+
+msgid "Founding Partner program · 5 spots · no card"
+msgstr "Programme partenaires fondateurs · 5 places · sans carte"
+
+msgid "See the offer →"
+msgstr "Voir l’offre →"
+
 #~ msgid "Draft copied to clipboard."
 #~ msgstr "Brouillon copié dans le presse-papiers."
 

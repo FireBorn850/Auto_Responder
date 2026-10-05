@@ -2244,3 +2244,16 @@ class FrenchLandingTests(TestCase):
         self.client.post(reverse('set_language'), {'language': 'fr', 'next': '/'})
         html = self.client.get(reverse('home'), HTTP_ACCEPT_LANGUAGE='en').content.decode()
         self.assertIn('Chaque avis Google reçoit une réponse.', html)
+
+
+class PartnerOfferBannerTests(TestCase):
+    def test_banner_matches_instagram_offer(self):
+        html = self.client.get(reverse('home'), HTTP_ACCEPT_LANGUAGE='fr').content.decode()
+        self.assertIn('Restaurants à Genève : 1 mois offert', html)
+        self.assertIn('href="#founding-partner"', html)
+        self.assertIn('id="founding-partner"', html)
+
+    @override_settings(PARTNER_OFFER_BANNER=False)
+    def test_banner_can_be_switched_off(self):
+        html = self.client.get(reverse('home')).content.decode()
+        self.assertNotIn('1 month free', html)

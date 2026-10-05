@@ -305,6 +305,7 @@ DATAFORSEO_MANUAL_PRIORITY = int(os.environ.get('DATAFORSEO_MANUAL_PRIORITY', '1
 DATAFORSEO_DAILY_TASK_CAP = int(os.environ.get('DATAFORSEO_DAILY_TASK_CAP', '150'))   # whole site, per 24h
 MANUAL_SYNCS_PER_DAY = int(os.environ.get('MANUAL_SYNCS_PER_DAY', '3'))               # per account, per 24h
 TRIAL_FIRST_SYNC_REVIEWS = int(os.environ.get('TRIAL_FIRST_SYNC_REVIEWS', '50'))      # backlog size during the free trial
+PARTNER_OFFER_BANNER = os.environ.get('PARTNER_OFFER_BANNER', '1') == '1'
 AUTO_DRAFT_MAX_PER_SYNC = int(os.environ.get('AUTO_DRAFT_MAX_PER_SYNC', '5'))
 
 

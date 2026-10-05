@@ -529,6 +529,17 @@
     </header>
 
     <main class="relative z-10">
+        {% if show_partner_offer %}
+        <!-- PARTNER OFFER (same offer as on Instagram; turn off with PARTNER_OFFER_BANNER=0) -->
+        <div class="max-w-6xl mx-auto px-6 pt-6">
+            <a href="#founding-partner"
+                class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-slate-200 hover:bg-emerald-400/15 transition">
+                <span class="font-bold text-emerald-300">{% trans "Restaurants in Geneva: 1 month free" %}</span>
+                <span class="text-slate-400">{% trans "Founding Partner program · 5 spots · no card" %}</span>
+                <span class="font-semibold text-white">{% trans "See the offer →" %}</span>
+            </a>
+        </div>
+        {% endif %}
 
         <!-- HERO -->
         <section class="max-w-6xl mx-auto px-6 pt-20 pb-24 grid md:grid-cols-2 gap-16 items-center">
@@ -1107,7 +1118,7 @@
                 </div>
 
                 <!-- FOUNDING PARTNER -->
-                <div
+                <div id="founding-partner"
                     class="pricing-card bg-[#111A2C] border border-emerald-400/40 rounded-2xl p-8 space-y-6 relative reveal reveal-delay-3">
                     <span
                         class="absolute -top-3 left-8 bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">{% trans "Limited spots" %}</span>

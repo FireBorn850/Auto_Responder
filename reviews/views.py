@@ -80,7 +80,10 @@ def landing_page(request):
     """Public SaaS homepage introducing bilingual AI review management."""
     if request.user.is_authenticated:
         return redirect('dashboard')
-    return render(request, 'reviews/landing.html')
+    return render(request, 'reviews/landing.html', {
+        # Geneva launch offer banner (matches the Instagram bio). Set PARTNER_OFFER_BANNER=0 on Render to hide it.
+        'show_partner_offer': getattr(settings, 'PARTNER_OFFER_BANNER', True),
+    })
 
 
 def privacy_policy_view(request):
