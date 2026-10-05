@@ -172,7 +172,7 @@ def draft_reply(review, profile, *, force=False, is_regeneration=False, auto_pos
             star_rating=review.rating,
             comment=review.comment,
             language=review.detected_language,
-            business_name=profile.business_name,
+            business_name=review.business_name or profile.business_name,
             tone=profile.brand_tone,
             custom_prompt=profile.custom_prompt or '',
             signature=profile.signature or '',
@@ -183,7 +183,9 @@ def draft_reply(review, profile, *, force=False, is_regeneration=False, auto_pos
             seo_keywords=active_seo_keywords,
             action_offer_label=profile.action_link_label if offer_qualifies else '',
             is_regeneration=is_regeneration,
-            contact_email=profile.user.email,
+            # Never put the owner's login email in a public reply. Owners who want a
+            # contact line add it in their custom instructions instead.
+            contact_email='',
         )
     except QuotaExceededError:
         review.save()
