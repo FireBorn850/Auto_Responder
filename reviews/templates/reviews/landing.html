@@ -1,27 +1,27 @@
-{% load static %}
+{% load static i18n %}
 
 <!DOCTYPE html>
-<html lang="en">
+{% get_current_language as LANG %}<html lang="{{ LANG }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mehrly | AI replies to your Google reviews — for restaurants & cafés</title>
+    <title>{% trans "Mehrly | AI replies to your Google reviews — for restaurants & cafés" %}</title>
     <meta name="description"
-        content="Mehrly drafts a personal reply to every Google review — in French, English, German or Italian. Good reviews are ready in one click; bad ones always wait for you. Built for restaurants and cafés.">
+        content="{% trans 'Mehrly drafts a personal reply to every Google review — in French, English, German or Italian. Good reviews are ready in one click; bad ones always wait for you. Built for restaurants and cafés.' %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://mehrly.com/">
-    <meta property="og:title" content="Mehrly | AI replies to your Google reviews — for restaurants & cafés">
+    <meta property="og:title" content="{% trans 'Mehrly | AI replies to your Google reviews — for restaurants & cafés' %}">
     <meta property="og:description"
-        content="Mehrly drafts a personal reply to every Google review — in French, English, German or Italian. Good reviews are ready in one click; bad ones always wait for you. Built for restaurants and cafés.">
+        content="{% trans 'Mehrly drafts a personal reply to every Google review — in French, English, German or Italian. Good reviews are ready in one click; bad ones always wait for you. Built for restaurants and cafés.' %}">
     <meta property="og:image" content="https://mehrly.com{% static 'images/og-image.png' %}">
     <meta property="og:site_name" content="Mehrly">
 
     <!-- Twitter/X Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Mehrly | AI replies to your Google reviews — for restaurants & cafés">
+    <meta name="twitter:title" content="{% trans 'Mehrly | AI replies to your Google reviews — for restaurants & cafés' %}">
     <meta name="twitter:description"
-        content="Mehrly drafts a personal reply to every Google review — in French, English, German or Italian. Good reviews are ready in one click; bad ones always wait for you. Built for restaurants and cafés.">
+        content="{% trans 'Mehrly drafts a personal reply to every Google review — in French, English, German or Italian. Good reviews are ready in one click; bad ones always wait for you. Built for restaurants and cafés.' %}">
     <meta name="twitter:image" content="https://mehrly.com{% static 'images/og-image.png' %}">
     <script>
         (function () {
@@ -446,11 +446,11 @@
             </div>
 
             <nav class="hidden md:flex items-center gap-8 text-sm text-slate-300">
-                <a href="#demo" class="nav-link hover:text-white transition">Try it</a>
-                <a href="#how" class="nav-link hover:text-white transition">How it works</a>
-                <a href="#features" class="nav-link hover:text-white transition">Features</a>
-                <a href="#faq" class="nav-link hover:text-white transition">FAQ</a>
-                <a href="#pricing" class="nav-link hover:text-white transition">Pricing</a>
+                <a href="#demo" class="nav-link hover:text-white transition">{% trans "Try it" %}</a>
+                <a href="#how" class="nav-link hover:text-white transition">{% trans "How it works" %}</a>
+                <a href="#features" class="nav-link hover:text-white transition">{% trans "Features" %}</a>
+                <a href="#faq" class="nav-link hover:text-white transition">{% trans "FAQ" %}</a>
+                <a href="#pricing" class="nav-link hover:text-white transition">{% trans "Pricing" %}</a>
             </nav>
 
             <button type="button" class="icon-btn md:hidden" onclick="toggleMobileMenu()" title="Menu"
@@ -488,18 +488,23 @@
                             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                         </svg>
                     </button>
+                    <form action="{% url 'set_language' %}" method="post" class="m-0">{% csrf_token %}
+                        <input type="hidden" name="next" value="/">
+                        <button type="submit" name="language" value="{% if LANG == 'fr' %}en{% else %}fr{% endif %}"
+                            class="icon-btn text-xs font-bold" title="{% if LANG == 'fr' %}English{% else %}Français{% endif %}">{% if LANG == 'fr' %}EN{% else %}FR{% endif %}</button>
+                    </form>
                     {% if user.is_authenticated %}
                     <a href="{% url 'dashboard' %}" class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
-                        Open Workspace &rarr;
+                        {% trans "Open Workspace &rarr;" %}
                     </a>
                     {% else %}
                     <a href="{% url 'account_login' %}"
                         class="nav-link text-xs font-semibold text-slate-300 hover:text-white transition px-3 py-2">
-                        Sign In
+                        {% trans "Sign In" %}
                     </a>
                     <a href="{% url 'account_signup' %}"
                         class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
-                        Start Free Trial
+                        {% trans "Start Free Trial" %}
                     </a>
                     {% endif %}
                 </div>
@@ -511,14 +516,14 @@
             class="hidden md:hidden absolute top-full left-0 right-0 bg-[#0B1220] border-b border-white/10 shadow-2xl">
             <nav class="flex flex-col px-6 py-4 gap-1 text-sm text-slate-300">
                 <a href="#demo" onclick="closeMobileMenu()"
-                    class="py-3 border-b border-white/5 hover:text-white transition">Try it</a>
+                    class="py-3 border-b border-white/5 hover:text-white transition">{% trans "Try it" %}</a>
                 <a href="#how" onclick="closeMobileMenu()"
-                    class="py-3 border-b border-white/5 hover:text-white transition">How it works</a>
+                    class="py-3 border-b border-white/5 hover:text-white transition">{% trans "How it works" %}</a>
                 <a href="#features" onclick="closeMobileMenu()"
-                    class="py-3 border-b border-white/5 hover:text-white transition">Features</a>
+                    class="py-3 border-b border-white/5 hover:text-white transition">{% trans "Features" %}</a>
                 <a href="#faq" onclick="closeMobileMenu()"
-                    class="py-3 border-b border-white/5 hover:text-white transition">FAQ</a>
-                <a href="#pricing" onclick="closeMobileMenu()" class="py-3 hover:text-white transition">Pricing</a>
+                    class="py-3 border-b border-white/5 hover:text-white transition">{% trans "FAQ" %}</a>
+                <a href="#pricing" onclick="closeMobileMenu()" class="py-3 hover:text-white transition">{% trans "Pricing" %}</a>
             </nav>
         </div>
     </header>
@@ -531,39 +536,38 @@
                 <div
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 font-mono">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Built for restaurants &amp; cafés · FR · EN · DE · IT
+                    {% trans "Built for restaurants &amp; cafés · FR · EN · DE · IT" %}
                 </div>
 
                 <h1 class="font-display text-4xl sm:text-5xl font-semibold text-white tracking-tight leading-[1.12]">
-                    Every Google review gets a reply.<br>
-                    <span class="text-amber-400">You never write one.</span>
+                    {% trans "Every Google review gets a reply." %}<br>
+                    <span class="text-amber-400">{% trans "You never write one." %}</span>
                 </h1>
 
                 <p class="text-slate-400 text-base sm:text-lg leading-relaxed max-w-lg">
-                    Mehrly drafts a personal, on-brand reply to every new review — in your guest’s language. Good reviews come
-                    pre-approved: copy, paste, next — about 5 seconds each. Bad ones always wait for you.
+                    {% trans "Mehrly drafts a personal, on-brand reply to every new review — in your guest’s language. Good reviews come pre-approved: copy, paste, next — about 5 seconds each. Bad ones always wait for you." %}
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2">
                     {% if user.is_authenticated %}
                     <a href="{% url 'dashboard' %}" class="btn-primary font-bold text-sm px-7 py-3.5 rounded-lg">
-                        Open Workspace
+                        {% trans "Open Workspace" %}
                     </a>
                     {% else %}
                     <a href="{% url 'account_signup' %}" class="btn-primary font-bold text-sm px-7 py-3.5 rounded-lg">
-                        Start Free Trial
+                        {% trans "Start Free Trial" %}
                     </a>
                     <a href="{% url 'account_login' %}"
                         class="btn-ghost text-slate-200 font-semibold text-sm px-7 py-3.5 rounded-lg border border-white/15">
-                        Sign In with Google
+                        {% trans "Sign In with Google" %}
                     </a>
                     {% endif %}
                 </div>
 
                 <div class="flex items-center gap-3 pt-2 text-xs text-slate-500 font-mono">
-                    <span>No credit card required</span>
+                    <span>{% trans "No credit card required" %}</span>
                     <span class="divider-dot"></span>
-                    <span>Cancel anytime</span>
+                    <span>{% trans "Cancel anytime" %}</span>
                 </div>
             </div>
 
@@ -571,8 +575,8 @@
             <div class="reveal reveal-delay-1 in">
                 <div class="bg-[#111A2C] border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl shadow-black/40">
                     <div class="flex items-center justify-between text-xs font-mono text-slate-500">
-                        <span>Geneva Bistro · Google Reviews</span>
-                        <span class="text-emerald-400">● live</span>
+                        <span>{% trans "Geneva Bistro · Google Reviews" %}</span>
+                        <span class="text-emerald-400">{% trans "● live" %}</span>
                     </div>
 
                     <div class="bg-white/5 rounded-xl p-4 space-y-2">
@@ -580,28 +584,26 @@
                             <span class="text-sm font-semibold text-white">Michael Brown</span>
                             <span class="text-xs star">★★★★★</span>
                         </div>
-                        <p class="text-sm text-slate-300 italic">"Amazing atmosphere and great staff! Best espresso in
-                            town."</p>
+                        <p class="text-sm text-slate-300 italic">{% trans '"Amazing atmosphere and great staff! Best espresso in town."' %}</p>
                     </div>
 
                     <div class="flex items-center gap-2 text-xs font-mono text-amber-400 pl-1">
-                        <span>Mehrly is drafting a reply</span>
+                        <span>{% trans "Mehrly is drafting a reply" %}</span>
                         <span class="type-cursor"></span>
                     </div>
 
                     <div class="bg-amber-400/10 border border-amber-400/20 rounded-xl p-4 space-y-3">
                         <p class="text-sm text-slate-200 leading-relaxed">
-                            "Thank you, Michael! We're thrilled the espresso hit the mark — hope to see you again soon
-                            at Geneva Bistro."
+                            {% trans '"Thank you, Michael! We’re thrilled the espresso hit the mark — hope to see you again soon at Geneva Bistro."' %}
                         </p>
                         <div class="flex items-center gap-2">
                             <button type="button"
                                 class="bg-emerald-500 hover:bg-emerald-400 transition text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">
-                                Approve &amp; Post
+                                {% trans "Approve &amp; Post" %}
                             </button>
                             <button type="button"
                                 class="btn-ghost text-slate-300 text-xs font-semibold px-4 py-2 rounded-lg border border-white/15">
-                                Edit
+                                {% trans "Edit" %}
                             </button>
                         </div>
                     </div>
@@ -612,11 +614,10 @@
         <!-- LIVE DEMO -->
         <section id="demo" class="max-w-6xl mx-auto px-6 py-24 reveal">
             <div class="max-w-xl mb-12 mx-auto text-center">
-                <p class="font-mono text-xs text-amber-400 mb-3">TRY IT YOURSELF</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">No signup. Just click a review.
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "TRY IT YOURSELF" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "No signup. Just click a review." %}
                 </h2>
-                <p class="text-slate-400 mt-3">Pick a sample review below and watch Mehrly draft the reply. Real drafts
-                    on your account are typically ready in about 15 seconds.
+                <p class="text-slate-400 mt-3">{% trans "Pick a sample review below and watch Mehrly draft the reply. Real drafts on your account are typically ready in about 15 seconds." %}
                 </p>
             </div>
 
@@ -639,21 +640,21 @@
                 <div
                     class="bg-[#111A2C] border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl shadow-black/40 min-h-[260px]">
                     <div id="demoPlaceholder" class="flex items-center justify-center h-40 text-slate-500 text-sm">
-                        Click a review above to see Mehrly respond →
+                        {% trans "Click a review above to see Mehrly respond →" %}
                     </div>
                     <div id="demoContent" class="hidden space-y-4">
                         <div class="flex items-center justify-between text-xs font-mono text-slate-500">
-                            <span id="demoVenue">Sample Venue · Google Reviews</span>
+                            <span id="demoVenue">{% trans "Sample Venue · Google Reviews" %}</span>
                         </div>
                         <div class="bg-white/5 rounded-xl p-4 space-y-2">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm font-semibold text-white" id="demoReviewer">Reviewer</span>
+                                <span class="text-sm font-semibold text-white" id="demoReviewer">{% trans "Reviewer" %}</span>
                                 <span class="text-xs star" id="demoStars">★★★★★</span>
                             </div>
                             <p class="text-sm text-slate-300 italic" id="demoReviewText"></p>
                         </div>
                         <div id="demoTyping" class="flex items-center gap-2 text-xs font-mono text-amber-400 pl-1">
-                            <span>Mehrly is drafting a reply</span>
+                            <span>{% trans "Mehrly is drafting a reply" %}</span>
                             <span class="type-cursor"></span>
                         </div>
                         <div id="demoReplyBox"
@@ -668,31 +669,31 @@
 
         <!-- WHO WE BUILT THIS FOR -->
         <section class="border-y border-white/5 py-10 reveal">
-            <p class="text-center text-xs font-mono text-slate-600 mb-8 tracking-wide">BUILT FOR VENUES LIKE THESE</p>
+            <p class="text-center text-xs font-mono text-slate-600 mb-8 tracking-wide">{% trans "BUILT FOR VENUES LIKE THESE" %}</p>
             <div class="max-w-4xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <span class="text-2xl">☕</span>
-                    <span class="text-xs font-mono">Cafés</span>
+                    <span class="text-xs font-mono">{% trans "Cafés" %}</span>
                 </div>
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <span class="text-2xl">🍽️</span>
-                    <span class="text-xs font-mono">Restaurants</span>
+                    <span class="text-xs font-mono">{% trans "Restaurants" %}</span>
                 </div>
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <span class="text-2xl">🏨</span>
-                    <span class="text-xs font-mono">Boutique hotels</span>
+                    <span class="text-xs font-mono">{% trans "Boutique hotels" %}</span>
                 </div>
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <span class="text-2xl">💇</span>
-                    <span class="text-xs font-mono">Salons</span>
+                    <span class="text-xs font-mono">{% trans "Salons" %}</span>
                 </div>
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <span class="text-2xl">🍷</span>
-                    <span class="text-xs font-mono">Wine bars</span>
+                    <span class="text-xs font-mono">{% trans "Wine bars" %}</span>
                 </div>
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <span class="text-2xl">🛍️</span>
-                    <span class="text-xs font-mono">Retail shops</span>
+                    <span class="text-xs font-mono">{% trans "Retail shops" %}</span>
                 </div>
             </div>
         </section>
@@ -700,35 +701,30 @@
         <!-- HOW IT WORKS -->
         <section id="how" class="max-w-6xl mx-auto px-6 py-28">
             <div class="max-w-xl mb-16 reveal">
-                <p class="font-mono text-xs text-amber-400 mb-3">HOW IT WORKS</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Four steps, and only one needs
-                    you.</h2>
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "HOW IT WORKS" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Four steps, and only one needs you." %}</h2>
             </div>
 
             <div class="grid md:grid-cols-4 gap-8">
                 <div class="reveal reveal-delay-1 space-y-3">
                     <span class="feature-num text-sm">01</span>
-                    <h3 class="font-semibold text-white">Review arrives</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Synced automatically from Google on the schedule you choose —
-                        no manual checking.</p>
+                    <h3 class="font-semibold text-white">{% trans "Review arrives" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Synced automatically from Google on the schedule you choose — no manual checking." %}</p>
                 </div>
                 <div class="reveal reveal-delay-2 space-y-3">
                     <span class="feature-num text-sm">02</span>
-                    <h3 class="font-semibold text-white">Mehrly drafts a reply</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">In the reviewer's language, in your brand's voice,
-                        referencing your actual business details.</p>
+                    <h3 class="font-semibold text-white">{% trans "Mehrly drafts a reply" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "In the reviewer's language, in your brand's voice, referencing your actual business details." %}</p>
                 </div>
                 <div class="reveal reveal-delay-3 space-y-3">
                     <span class="feature-num text-sm">03</span>
-                    <h3 class="font-semibold text-white">You approve — or don't</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Good reviews come pre-approved for a one-click
-                        Quick reply. Anything 1–3 stars always waits for a human.</p>
+                    <h3 class="font-semibold text-white">{% trans "You approve — or don't" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Good reviews come pre-approved for a one-click Quick reply. Anything 1–3 stars always waits for a human." %}</p>
                 </div>
                 <div class="reveal reveal-delay-3 space-y-3">
                     <span class="feature-num text-sm">04</span>
-                    <h3 class="font-semibold text-white">You post it</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Quick reply copies the text and opens the review on
-                        Google — paste, done. Automatic posting is coming soon.</p>
+                    <h3 class="font-semibold text-white">{% trans "You post it" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Quick reply copies the text and opens the review on Google — paste, done. Automatic posting is coming soon." %}</p>
                 </div>
             </div>
         </section>
@@ -737,10 +733,9 @@
         <!-- GUARDRAIL VISUAL -->
         <section class="max-w-4xl mx-auto px-6 py-8 pb-28 reveal">
             <div class="max-w-xl mb-10 mx-auto text-center">
-                <p class="font-mono text-xs text-amber-400 mb-3">SMART GUARDRAIL</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Your reputation never posts on
-                    autopilot.</h2>
-                <p class="text-slate-400 mt-3">Good reviews move fast. Anything risky always waits for a human.</p>
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "SMART GUARDRAIL" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Your reputation never posts on autopilot." %}</h2>
+                <p class="text-slate-400 mt-3">{% trans "Good reviews move fast. Anything risky always waits for a human." %}</p>
             </div>
 
             <div class="flex items-center justify-center gap-4 mb-10">
@@ -756,21 +751,19 @@
             <div class="bg-[#111A2C] border border-white/10 rounded-2xl p-6 max-w-md mx-auto">
                 <div id="guardGoodState" class="space-y-3">
                     <div class="flex items-center gap-2 text-xs star">★★★★★</div>
-                    <p class="text-sm text-slate-300 italic">"Amazing atmosphere and great staff!"</p>
+                    <p class="text-sm text-slate-300 italic">{% trans '"Amazing atmosphere and great staff!"' %}</p>
                     <div class="flex items-center gap-2 pt-2">
-                        <span class="bg-emerald-500 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Pre-approved
-                            ✓</span>
+                        <span class="bg-emerald-500 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">{% trans "Pre-approved ✓" %}</span>
                     </div>
-                    <p class="text-xs text-slate-500 font-mono pt-1">One click in Quick reply: copy, paste, next</p>
+                    <p class="text-xs text-slate-500 font-mono pt-1">{% trans "One click in Quick reply: copy, paste, next" %}</p>
                 </div>
                 <div id="guardBadState" class="space-y-3 hidden">
                     <div class="flex items-center gap-2 text-xs star">★★</div>
-                    <p class="text-sm text-slate-300 italic">"Disappointed — my order was wrong."</p>
+                    <p class="text-sm text-slate-300 italic">{% trans '"Disappointed — my order was wrong."' %}</p>
                     <div class="flex items-center gap-2 pt-2">
-                        <span class="bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Sent to you for
-                            review</span>
+                        <span class="bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">{% trans "Sent to you for review" %}</span>
                     </div>
-                    <p class="text-xs text-slate-500 font-mono pt-1">Nothing posts until you approve it</p>
+                    <p class="text-xs text-slate-500 font-mono pt-1">{% trans "Nothing posts until you approve it" %}</p>
                 </div>
             </div>
         </section>
@@ -778,9 +771,8 @@
         <!-- FEATURES -->
         <section id="features" class="max-w-6xl mx-auto px-6 py-8 pb-28">
             <div class="max-w-xl mb-16 reveal">
-                <p class="font-mono text-xs text-amber-400 mb-3">FEATURES</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Everything a manager needs,
-                    nothing they don't.</h2>
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "FEATURES" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Everything a manager needs, nothing they don't." %}</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -790,9 +782,8 @@
                         class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
                         <i class="bi bi-translate"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Replies in your guest’s language</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Detects French, English, German, Italian and
-                        Swiss German automatically and replies in kind — no translation tab required.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "Replies in your guest’s language" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Detects French, English, German, Italian and Swiss German automatically and replies in kind — no translation tab required." %}</p>
                 </div>
 
                 <div
@@ -801,9 +792,8 @@
                         class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
                         <i class="bi bi-shield-check"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Smart Guardrail mode</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">4–5 star replies come pre-approved, ready to
-                        post in one click. 1–3 star reviews always route to a manager first.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "Smart Guardrail mode" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "4–5 star replies come pre-approved, ready to post in one click. 1–3 star reviews always route to a manager first." %}</p>
                 </div>
 
                 <div
@@ -812,9 +802,8 @@
                         class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
                         <i class="bi bi-qr-code"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Trackable QR codes</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Print codes for tables and receipts that link
-                        straight to your review prompt, with scan counts.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "Trackable QR codes" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Print codes for tables and receipts that link straight to your review prompt, with scan counts." %}</p>
                 </div>
 
                 <div
@@ -823,9 +812,8 @@
                         class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
                         <i class="bi bi-people"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Staff access, not your login</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Invite a floor manager to approve drafts without
-                        ever sharing your Google password.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "Staff access, not your login" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Invite a floor manager to approve drafts without ever sharing your Google password." %}</p>
                 </div>
 
                 <div
@@ -834,9 +822,8 @@
                         class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
                         <i class="bi bi-bell"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Instant bad-review alerts</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">An email as soon as a 1–2 star review lands,
-                        so nothing sits unanswered for long.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "Instant bad-review alerts" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "An email as soon as a 1–2 star review lands, so nothing sits unanswered for long." %}</p>
                 </div>
 
                 <div
@@ -845,9 +832,8 @@
                         class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
                         <i class="bi bi-cpu"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Knows your business</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Feed it real details — parking, signature dishes,
-                        policies — so replies never sound generic.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "Knows your business" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Feed it real details — parking, signature dishes, policies — so replies never sound generic." %}</p>
                 </div>
             </div>
         </section>
@@ -855,11 +841,9 @@
 
         <section class="max-w-6xl mx-auto px-6 py-8 pb-28 reveal">
             <div class="max-w-xl mb-14 reveal">
-                <p class="font-mono text-xs text-amber-400 mb-3">BEYOND GOOGLE</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">One inbox for every review, from
-                    everywhere.</h2>
-                <p class="text-slate-400 mt-3">Google isn't the only place customers talk about you. Mehrly
-                    pulls reviews in from multiple sources so nothing falls through the cracks.</p>
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "BEYOND GOOGLE" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "One inbox for every review, from everywhere." %}</h2>
+                <p class="text-slate-400 mt-3">{% trans "Google isn't the only place customers talk about you. Mehrly pulls reviews in from multiple sources so nothing falls through the cracks." %}</p>
             </div>
 
             <!-- PASTE THE ANIMATION HERE -->
@@ -899,7 +883,7 @@
                         class="w-16 h-16 rounded-full bg-amber-400/10 border-2 border-amber-400/40 flex items-center justify-center text-2xl inbox-pulse">
                         <i class="bi bi-inbox-fill text-amber-400"></i>
                     </div>
-                    <span class="text-[10px] font-mono text-amber-400 font-bold">Your Inbox</span>
+                    <span class="text-[10px] font-mono text-amber-400 font-bold">{% trans "Your Inbox" %}</span>
                 </div>
             </div>
 
@@ -910,10 +894,8 @@
                         class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
                         <i class="bi bi-globe2"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">TripAdvisor sync</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Connect your TripAdvisor listing alongside
-                        Google Business Profile — reviews from both land in the same dashboard, with the same
-                        AI drafting and Guardrail rules applied automatically.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "TripAdvisor sync" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Connect your TripAdvisor listing alongside Google Business Profile — reviews from both land in the same dashboard, with the same AI drafting and Guardrail rules applied automatically." %}</p>
                 </div>
 
                 <div
@@ -922,10 +904,8 @@
                         class="w-10 h-10 rounded-lg bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">
                         <i class="bi bi-link-45deg"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">Webhook API</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Have reviews coming from your own booking
-                        system, POS, or a custom form? Push them into Mehrly via webhook and get the same
-                        AI drafts, sentiment analysis, and approval flow — no manual re-entry.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "Webhook API" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Have reviews coming from your own booking system, POS, or a custom form? Push them into Mehrly via webhook and get the same AI drafts, sentiment analysis, and approval flow — no manual re-entry." %}</p>
                 </div>
 
                 <div
@@ -934,10 +914,8 @@
                         class="w-10 h-10 rounded-lg bg-emerald-400/10 text-emerald-400 flex items-center justify-center text-lg">
                         <i class="bi bi-diagram-3"></i>
                     </div>
-                    <h3 class="text-base font-bold text-white">One unified feed</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Every source is tagged and searchable in a
-                        single feed, so your team never has to check three different apps to know what customers
-                        are saying.</p>
+                    <h3 class="text-base font-bold text-white">{% trans "One unified feed" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Every source is tagged and searchable in a single feed, so your team never has to check three different apps to know what customers are saying." %}</p>
                 </div>
             </div>
         </section>
@@ -945,47 +923,35 @@
         <!-- WHY NOT JUST CHATGPT -->
         <section class="max-w-4xl mx-auto px-6 py-8 pb-28 reveal">
             <div class="max-w-xl mb-12 mx-auto text-center">
-                <p class="font-mono text-xs text-amber-400 mb-3">A FAIR QUESTION</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">"Why not just paste this into
-                    ChatGPT myself?"</h2>
-                <p class="text-slate-400 mt-3">Honestly — for one review, you could. Here's where it breaks down at
-                    scale.</p>
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "A FAIR QUESTION" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans '"Why not just paste this into ChatGPT myself?"' %}</h2>
+                <p class="text-slate-400 mt-3">{% trans "Honestly — for one review, you could. Here's where it breaks down at scale." %}</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="bg-[#111A2C] border border-white/10 rounded-2xl p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-slate-400 font-mono">COPY-PASTING IT YOURSELF</h3>
+                    <h3 class="text-sm font-bold text-slate-400 font-mono">{% trans "COPY-PASTING IT YOURSELF" %}</h3>
                     <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex gap-2"><span class="text-slate-500">–</span> Check Google manually for new
-                            reviews</li>
-                        <li class="flex gap-2"><span class="text-slate-500">–</span> Copy each review into a chat window
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> {% trans "Check Google manually for new reviews" %}</li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> {% trans "Copy each review into a chat window" %}
                         </li>
-                        <li class="flex gap-2"><span class="text-slate-500">–</span> Re-explain your business every time
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> {% trans "Re-explain your business every time" %}
                         </li>
-                        <li class="flex gap-2"><span class="text-slate-500">–</span> Copy the reply back, paste into
-                            Google</li>
-                        <li class="flex gap-2"><span class="text-slate-500">–</span> No memory of your tone across
-                            replies</li>
-                        <li class="flex gap-2"><span class="text-slate-500">–</span> Nothing stops a bad reply from
-                            going out fast</li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> {% trans "Copy the reply back, paste into Google" %}</li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> {% trans "No memory of your tone across replies" %}</li>
+                        <li class="flex gap-2"><span class="text-slate-500">–</span> {% trans "Nothing stops a bad reply from going out fast" %}</li>
                     </ul>
                 </div>
 
                 <div class="bg-[#111A2C] border border-amber-400/40 rounded-2xl p-6 space-y-4">
                     <h3 class="text-sm font-bold text-amber-400 font-mono">Mehrly</h3>
                     <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Reviews sync automatically, no
-                            checking</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> A draft is ready as soon as a review
-                            syncs</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Remembers your business details
-                            every time</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> One-click copy, then paste on
-                            Google</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Consistent tone across every
-                            reply</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Guardrail always holds risky
-                            replies for review</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Reviews sync automatically, no checking" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "A draft is ready as soon as a review syncs" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Remembers your business details every time" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "One-click copy, then paste on Google" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Consistent tone across every reply" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Guardrail always holds risky replies for review" %}</li>
                     </ul>
                 </div>
             </div>
@@ -994,8 +960,8 @@
         <!-- FAQ -->
         <section id="faq" class="max-w-3xl mx-auto px-6 py-8 pb-28 reveal">
             <div class="max-w-xl mb-12 mx-auto text-center">
-                <p class="font-mono text-xs text-amber-400 mb-3">FAQ</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Questions owners actually ask.
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "FAQ" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Questions owners actually ask." %}
                 </h2>
             </div>
 
@@ -1003,26 +969,22 @@
                 <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleFaq(this)"
                         class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
-                        <span>What if the AI says something wrong or off-brand?</span>
+                        <span>{% trans "What if the AI says something wrong or off-brand?" %}</span>
                         <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
                     </button>
                     <div class="faq-answer hidden px-5 pb-4">
-                        <p class="text-sm text-slate-400 leading-relaxed">Every reply is a draft, not a publish. You (or
-                            a staff member) see it before it goes live and can edit or reject it — nothing 1–3★ ever
-                            posts without a human clicking approve. For pre-approved 4–5★ replies, you set your own tone
-                            and business details up front so drafts stay on-brand.</p>
+                        <p class="text-sm text-slate-400 leading-relaxed">{% trans "Every reply is a draft, not a publish. You (or a staff member) see it before it goes live and can edit or reject it — nothing 1–3★ ever posts without a human clicking approve. For pre-approved 4–5★ replies, you set your own tone and business details up front so drafts stay on-brand." %}</p>
                     </div>
                 </div>
 
                 <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleFaq(this)"
                         class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
-                        <span>Can I edit a reply before it posts?</span>
+                        <span>{% trans "Can I edit a reply before it posts?" %}</span>
                         <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
                     </button>
                     <div class="faq-answer hidden px-5 pb-4">
-                        <p class="text-sm text-slate-400 leading-relaxed">Yes — every draft has an Edit button right
-                            next to Approve & Post. You can rewrite it completely, tweak a line, or approve it as-is.
+                        <p class="text-sm text-slate-400 leading-relaxed">{% trans "Yes — every draft has an Edit button right next to Approve & Post. You can rewrite it completely, tweak a line, or approve it as-is." %}
                         </p>
                     </div>
                 </div>
@@ -1030,12 +992,11 @@
                 <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleFaq(this)"
                         class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
-                        <span>What happens to a bad review?</span>
+                        <span>{% trans "What happens to a bad review?" %}</span>
                         <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
                     </button>
                     <div class="faq-answer hidden px-5 pb-4">
-                        <p class="text-sm text-slate-400 leading-relaxed">Any 1–3★ review always routes to you or a
-                            manager first — it never auto-posts. Log in anytime to see what's waiting for your response.
+                        <p class="text-sm text-slate-400 leading-relaxed">{% trans "Any 1–3★ review always routes to you or a manager first — it never auto-posts. Log in anytime to see what's waiting for your response." %}
                         </p>
                     </div>
                 </div>
@@ -1043,48 +1004,43 @@
                 <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleFaq(this)"
                         class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
-                        <span>Which languages does it actually understand?</span>
+                        <span>{% trans "Which languages does it actually understand?" %}</span>
                         <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
                     </button>
                     <div class="faq-answer hidden px-5 pb-4">
-                        <p class="text-sm text-slate-400 leading-relaxed">French, English, German, Italian and Swiss German — it detects the
-                            reviewer's language automatically and replies in kind, no manual translation step.</p>
+                        <p class="text-sm text-slate-400 leading-relaxed">{% trans "French, English, German, Italian and Swiss German — it detects the reviewer's language automatically and replies in kind, no manual translation step." %}</p>
                     </div>
                 </div>
 
                 <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleFaq(this)"
                         class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
-                        <span>Do I need to share my Google login?</span>
+                        <span>{% trans "Do I need to share my Google login?" %}</span>
                         <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
                     </button>
                     <div class="faq-answer hidden px-5 pb-4">
-                        <p class="text-sm text-slate-400 leading-relaxed">No — you connect your account once via secure
-                            sign-in, and can invite staff to approve drafts without ever handing over your password.</p>
+                        <p class="text-sm text-slate-400 leading-relaxed">{% trans "No — you connect your account once via secure sign-in, and can invite staff to approve drafts without ever handing over your password." %}</p>
                     </div>
                 </div>
 
                 <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleFaq(this)"
                         class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
-                        <span>Can I cancel anytime?</span>
+                        <span>{% trans "Can I cancel anytime?" %}</span>
                         <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
                     </button>
                     <div class="faq-answer hidden px-5 pb-4">
-                        <p class="text-sm text-slate-400 leading-relaxed">Yes, no contract or lock-in — cancel from your
-                            workspace whenever you like.</p>
+                        <p class="text-sm text-slate-400 leading-relaxed">{% trans "Yes, no contract or lock-in — cancel from your workspace whenever you like." %}</p>
                     </div>
                 </div>
                 <div class="bg-[#111A2C] border border-white/10 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleFaq(this)"
                         class="w-full flex items-center justify-between text-left px-5 py-4 text-sm font-semibold text-white">
-                        <span>What happens to my data if I cancel?</span>
+                        <span>{% trans "What happens to my data if I cancel?" %}</span>
                         <span class="faq-icon text-amber-400 text-lg leading-none">+</span>
                     </button>
                     <div class="faq-answer hidden px-5 pb-4">
-                        <p class="text-sm text-slate-400 leading-relaxed">You keep full control of your Google Business
-                            Profile at all times — we only assist with drafting and posting replies. Cancel anytime and
-                            we stop accessing your account immediately; nothing is deleted on Google's side.</p>
+                        <p class="text-sm text-slate-400 leading-relaxed">{% trans "You keep full control of your Google Business Profile at all times — we only assist with drafting and posting replies. Cancel anytime and we stop accessing your account immediately; nothing is deleted on Google's side." %}</p>
                     </div>
                 </div>
             </div>
@@ -1093,10 +1049,10 @@
         <!-- PRICING -->
         <section id="pricing" class="max-w-6xl mx-auto px-6 py-8 pb-28">
             <div class="max-w-xl mb-16 reveal">
-                <p class="font-mono text-xs text-amber-400 mb-3">PRICING</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Simple pricing, per location.
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "PRICING" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Simple pricing, per location." %}
                 </h2>
-                <p class="text-slate-400 mt-3">14-day free trial, no card needed. No setup fees. Cancel anytime. Prices in CHF.</p>
+                <p class="text-slate-400 mt-3">{% trans "14-day free trial, no card needed. No setup fees. Cancel anytime. Prices in CHF." %}</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-6 items-stretch">
@@ -1105,85 +1061,74 @@
                     class="pricing-card bg-[#111A2C] border border-white/10 rounded-2xl p-8 space-y-6 reveal reveal-delay-1">
                     <div>
                         <h3 class="font-semibold text-white text-lg">Starter</h3>
-                        <p class="text-sm text-slate-400 mt-1">One venue, full control</p>
+                        <p class="text-sm text-slate-400 mt-1">{% trans "One venue, full control" %}</p>
                     </div>
                     <div class="font-display text-4xl text-white">CHF 19<span
-                            class="text-base text-slate-500 font-sans">/mo</span></div>
-                    <p class="text-xs text-emerald-400 -mt-4">or CHF 12.42/mo billed yearly — save 35%</p>
+                            class="text-base text-slate-500 font-sans">{% trans "/mo" %}</span></div>
+                    <p class="text-xs text-emerald-400 -mt-4">{% trans "or CHF 12.42/mo billed yearly — save 35%" %}</p>
                     <ul class="space-y-2.5 text-sm text-slate-300">
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> 1 Google Business location</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> AI drafts every review in seconds (FR/EN/DE/IT)</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Quick reply: 4–5★ replies pre-approved, one click to copy &amp; post</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> 1–3★ replies always wait for your approval</li>
-                        <li class="flex gap-2 text-slate-500"><span>◦</span> Auto-posting once Google Business is connected (coming soon)</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Blacklisted-word protection</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Review Simulator sandbox</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "1 Google Business location" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "AI drafts every review in seconds (FR/EN/DE/IT)" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Quick reply: 4–5★ replies pre-approved, one click to copy &amp; post" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "1–3★ replies always wait for your approval" %}</li>
+                        <li class="flex gap-2 text-slate-500"><span>◦</span> {% trans "Auto-posting once Google Business is connected (coming soon)" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Blacklisted-word protection" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Review Simulator sandbox" %}</li>
                     </ul>
                     <a href="{% url 'account_signup' %}"
-                        class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">Start
-                        free trial</a>
+                        class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">{% trans "Start free trial" %}</a>
                 </div>
 
                 <!-- PREMIUM -->
                 <div
                     class="pricing-card pricing-featured bg-[#111A2C] border border-amber-400/40 rounded-2xl p-8 space-y-6 relative reveal reveal-delay-2">
                     <span
-                        class="absolute -top-3 left-8 bg-amber-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">Most
-                        popular</span>
+                        class="absolute -top-3 left-8 bg-amber-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">{% trans "Most popular" %}</span>
                     <div>
                         <h3 class="font-semibold text-white text-lg">Premium</h3>
-                        <p class="text-sm text-slate-400 mt-1">For venues that want it running itself</p>
+                        <p class="text-sm text-slate-400 mt-1">{% trans "For venues that want it running itself" %}</p>
                     </div>
                     <div class="font-display text-4xl text-white">CHF 39<span
-                            class="text-base text-slate-500 font-sans">/mo</span></div>
+                            class="text-base text-slate-500 font-sans">{% trans "/mo" %}</span></div>
                     <ul class="space-y-2.5 text-sm text-slate-300">
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Everything in Starter</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Hands-Free mode (1–3★ pre-approved too)</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> TripAdvisor sync included</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> QR Code Booster + Smart Feedback
-                            Router (Google-policy-safe)</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Competitor benchmarking</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> AI-powered complaint trend
-                            analysis</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Team seats &amp; staff access
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Everything in Starter" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Hands-Free mode (1–3★ pre-approved too)" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "TripAdvisor sync included" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "QR Code Booster + Smart Feedback Router (Google-policy-safe)" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Competitor benchmarking" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "AI-powered complaint trend analysis" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Team seats &amp; staff access" %}
                         </li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Instant negative-review alerts
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Instant negative-review alerts" %}
                         </li>
                     </ul>
                     <a href="{% url 'account_signup' %}"
-                        class="btn-primary block text-center font-bold text-sm px-6 py-3 rounded-lg">Start free
-                        trial</a>
+                        class="btn-primary block text-center font-bold text-sm px-6 py-3 rounded-lg">{% trans "Start free trial" %}</a>
                 </div>
 
                 <!-- FOUNDING PARTNER -->
                 <div
                     class="pricing-card bg-[#111A2C] border border-emerald-400/40 rounded-2xl p-8 space-y-6 relative reveal reveal-delay-3">
                     <span
-                        class="absolute -top-3 left-8 bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">Limited
-                        spots</span>
+                        class="absolute -top-3 left-8 bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">{% trans "Limited spots" %}</span>
                     <div>
-                        <h3 class="font-semibold text-white text-lg">Founding Partner</h3>
-                        <p class="text-sm text-slate-400 mt-1">Full Premium access, free for 1 month</p>
+                        <h3 class="font-semibold text-white text-lg">{% trans "Founding Partner" %}</h3>
+                        <p class="text-sm text-slate-400 mt-1">{% trans "Full Premium access, free for 1 month" %}</p>
                     </div>
                     <div class="font-display text-4xl text-white">CHF 0<span
-                            class="text-base text-slate-500 font-sans">/1st month</span></div>
+                            class="text-base text-slate-500 font-sans">{% trans "/1st month" %}</span></div>
                     <ul class="space-y-2.5 text-sm text-slate-300">
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Everything in Premium, unlocked
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Everything in Premium, unlocked" %}
                         </li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> No card required</li>
-                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> Personal onboarding with the
-                            founder</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "No card required" %}</li>
+                        <li class="flex gap-2"><span class="text-emerald-400">✓</span> {% trans "Personal onboarding with the founder" %}</li>
                     </ul>
-                    <p class="text-[11px] text-slate-500 leading-relaxed">In exchange, we ask for a short LinkedIn
-                        recommendation and permission to feature your business as an early case study.</p>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">{% trans "In exchange, we ask for a short LinkedIn recommendation and permission to feature your business as an early case study." %}</p>
                     <a href="{% url 'request_access_code' %}"
-                        class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">Request
-                        access code</a>
-                    <p class="text-[10px] text-slate-500 text-center">We'll email you a code — sign up, then enter it in
-                        your dashboard to unlock everything.</p>
+                        class="btn-ghost block text-center text-slate-200 font-semibold text-sm px-6 py-3 rounded-lg border border-white/15">{% trans "Request access code" %}</a>
+                    <p class="text-[10px] text-slate-500 text-center">{% trans "We'll email you a code — sign up, then enter it in your dashboard to unlock everything." %}</p>
                     <a href="{% url 'account_signup' %}"
-                        class="block text-center text-[11px] text-amber-400 hover:text-amber-300 transition">Already
-                        have a code? Sign up, then redeem it →</a>
+                        class="block text-center text-[11px] text-amber-400 hover:text-amber-300 transition">{% trans "Already have a code? Sign up, then redeem it →" %}</a>
                 </div>
             </div>
         </section>
@@ -1192,52 +1137,47 @@
         <!-- SETUP PROOF -->
         <section class="max-w-5xl mx-auto px-6 py-8 pb-28 reveal">
             <div class="max-w-xl mb-14 mx-auto text-center">
-                <p class="font-mono text-xs text-amber-400 mb-3">GETTING STARTED</p>
-                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">Ten minutes, start to finish.
+                <p class="font-mono text-xs text-amber-400 mb-3">{% trans "GETTING STARTED" %}</p>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Ten minutes, start to finish." %}
                 </h2>
-                <p class="text-slate-400 mt-3">No developer, no IT ticket — just you and your Google login.</p>
+                <p class="text-slate-400 mt-3">{% trans "No developer, no IT ticket — just you and your Google login." %}</p>
             </div>
 
             <div class="grid md:grid-cols-4 gap-8">
                 <div class="reveal reveal-delay-1 space-y-3">
                     <span class="feature-num text-sm">01</span>
-                    <h3 class="font-semibold text-white">Connect your profile</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Sign up and paste your Google Maps link — Mehrly imports your reviews.
-                        ~2 minutes.</p>
+                    <h3 class="font-semibold text-white">{% trans "Connect your profile" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Sign up and paste your Google Maps link — Mehrly imports your reviews. ~2 minutes." %}</p>
                 </div>
                 <div class="reveal reveal-delay-2 space-y-3">
                     <span class="feature-num text-sm">02</span>
-                    <h3 class="font-semibold text-white">Tell it about your business</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Add your tone, signature dishes, policies — a few
-                        short fields. ~5 minutes.</p>
+                    <h3 class="font-semibold text-white">{% trans "Tell it about your business" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Add your tone, signature dishes, policies — a few short fields. ~5 minutes." %}</p>
                 </div>
                 <div class="reveal reveal-delay-3 space-y-3">
                     <span class="feature-num text-sm">03</span>
-                    <h3 class="font-semibold text-white">Set your Guardrail</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Choose what comes pre-approved and what waits for you.
-                        Defaults are ready if you skip this. ~1 minute.</p>
+                    <h3 class="font-semibold text-white">{% trans "Set your Guardrail" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Choose what comes pre-approved and what waits for you. Defaults are ready if you skip this. ~1 minute." %}</p>
                 </div>
                 <div class="reveal reveal-delay-3 space-y-3">
                     <span class="feature-num text-sm">04</span>
-                    <h3 class="font-semibold text-white">You're live</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Drafts start appearing on your next review — no
-                        waiting period.</p>
+                    <h3 class="font-semibold text-white">{% trans "You're live" %}</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">{% trans "Drafts start appearing on your next review — no waiting period." %}</p>
                 </div>
             </div>
         </section>
 
         <!-- FINAL CTA -->
         <section class="max-w-4xl mx-auto px-6 pb-28 text-center reveal">
-            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white mb-4">Stop leaving reviews on read.
+            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white mb-4">{% trans "Stop leaving reviews on read." %}
             </h2>
-            <p class="text-slate-400 mb-8 max-w-md mx-auto">Set it up in ten minutes. Your first drafts are ready before
-                your coffee is.</p>
+            <p class="text-slate-400 mb-8 max-w-md mx-auto">{% trans "Set it up in ten minutes. Your first drafts are ready before your coffee is." %}</p>
             {% if user.is_authenticated %}
             <a href="{% url 'dashboard' %}"
-                class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">Open Workspace</a>
+                class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">{% trans "Open Workspace" %}</a>
             {% else %}
             <a href="{% url 'account_signup' %}"
-                class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">Start Free Trial</a>
+                class="btn-primary inline-block font-bold text-sm px-8 py-3.5 rounded-lg">{% trans "Start Free Trial" %}</a>
             {% endif %}
         </section>
 
@@ -1246,19 +1186,20 @@
     <footer class="relative z-10 border-t border-white/5 py-10">
         <div
             class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-            <p>© 2026 Mehrly. Replies to Google reviews for restaurants, cafés and hotels.</p>
+            <p>{% trans "© 2026 Mehrly. Replies to Google reviews for restaurants, cafés and hotels." %}</p>
             <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-                <a href="{% url 'privacy_policy' %}" class="hover:text-slate-300 transition">Privacy</a>
-                <a href="{% url 'terms_of_service' %}" class="hover:text-slate-300 transition">Terms</a>
-                <a href="{% url 'refund_policy' %}" class="hover:text-slate-300 transition">Refunds</a>
-                <a href="{% url 'security' %}" class="hover:text-slate-300 transition">Security</a>
+                <a href="{% url 'privacy_policy' %}" class="hover:text-slate-300 transition">{% trans "Privacy" %}</a>
+                <a href="{% url 'terms_of_service' %}" class="hover:text-slate-300 transition">{% trans "Terms" %}</a>
+                <a href="{% url 'refund_policy' %}" class="hover:text-slate-300 transition">{% trans "Refunds" %}</a>
+                <a href="{% url 'security' %}" class="hover:text-slate-300 transition">{% trans "Security" %}</a>
                 <a href="https://www.instagram.com/mehrly.app/" target="_blank" rel="noopener" class="hover:text-slate-300 transition">Instagram</a>
                 <a href="mailto:{{ SUPPORT_EMAIL }}?subject=Mehrly%20Inquiry"
-                    class="hover:text-slate-300 transition">Contact</a>
+                    class="hover:text-slate-300 transition">{% trans "Contact" %}</a>
             </div>
         </div>
     </footer>
 
+    {% trans "Something went wrong." as js_t0 %}{% trans "4–5★ replies are ready to post in one click" as js_t1 %}{% trans "1–3★ always needs your approval" as js_t2 %}{% trans "Network error — please try again." as js_t3 %}{% trans "Pre-approved ✓" as js_t4 %}{% trans "Waiting on manager" as js_t5 %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var items = document.querySelectorAll('.reveal');
@@ -1351,7 +1292,7 @@
                     document.getElementById('demoReplyBox').classList.remove('hidden');
 
                     if (!ok) {
-                        document.getElementById('demoReplyText').textContent = data.error || 'Something went wrong.';
+                        document.getElementById('demoReplyText').textContent = data.error || "{{ js_t0|escapejs }}";
                         return;
                     }
 
@@ -1360,18 +1301,18 @@
                     const actions = document.getElementById('demoActions');
                     if (data.auto_post) {
                         actions.innerHTML = `
-                <span class="bg-emerald-500 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Pre-approved ✓</span>
-                <span class="text-xs text-slate-400 font-mono">4–5★ replies are ready to post in one click</span>`;
+                <span class="bg-emerald-500 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">{% trans "Pre-approved ✓" %}</span>
+                <span class="text-xs text-slate-400 font-mono">{{ js_t1|escapejs }}</span>`;
                     } else {
                         actions.innerHTML = `
-                <span class="bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">Waiting on manager</span>
-                <span class="text-xs text-slate-400 font-mono">1–3★ always needs your approval</span>`;
+                <span class="bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg">{{ js_t5|escapejs }}</span>
+                <span class="text-xs text-slate-400 font-mono">{{ js_t2|escapejs }}</span>`;
                     }
                 })
                 .catch(() => {
                     document.getElementById('demoTyping').classList.add('hidden');
                     document.getElementById('demoReplyBox').classList.remove('hidden');
-                    document.getElementById('demoReplyText').textContent = 'Network error — please try again.';
+                    document.getElementById('demoReplyText').textContent = "{{ js_t3|escapejs }}";
                 });
         }
 

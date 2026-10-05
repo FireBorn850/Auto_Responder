@@ -2223,3 +2223,24 @@ class LandingHonestyTests(TestCase):
             self.assertNotIn(claim, html)
         self.assertIn('German', html)
         self.assertIn('instagram.com/mehrly.app', html)
+
+
+# ---------------------------------------------------------------- French landing page
+
+class FrenchLandingTests(TestCase):
+    def test_french_browser_gets_french_page(self):
+        html = self.client.get(reverse('home'), HTTP_ACCEPT_LANGUAGE='fr-CH,fr;q=0.9').content.decode()
+        self.assertIn('Chaque avis Google reçoit une réponse.', html)
+        self.assertIn('<html lang="fr">', html)
+        self.assertIn('Vous la publiez', html)
+        self.assertNotIn('Every Google review gets a reply.', html)
+
+    def test_english_browser_keeps_english_page(self):
+        html = self.client.get(reverse('home'), HTTP_ACCEPT_LANGUAGE='en-US,en;q=0.9').content.decode()
+        self.assertIn('Every Google review gets a reply.', html)
+        self.assertIn('value="fr"', html)  # the FR switch button
+
+    def test_switch_button_changes_language(self):
+        self.client.post(reverse('set_language'), {'language': 'fr', 'next': '/'})
+        html = self.client.get(reverse('home'), HTTP_ACCEPT_LANGUAGE='en').content.decode()
+        self.assertIn('Chaque avis Google reçoit une réponse.', html)

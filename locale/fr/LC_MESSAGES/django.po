@@ -199,8 +199,8 @@ msgstr "Analyser les thèmes récurrents"
 
 #: .\reviews\templates\reviews\dashboard.html:1324
 msgid ""
-"Click \"Analyze Recurring Themes\" to have AI cluster your 1-3★ reviews into "
-"recurring problems — what is coming up again and again, and what to fix "
+"Click \"Analyze Recurring Themes\" to have AI cluster your 1-3★ reviews into"
+" recurring problems — what is coming up again and again, and what to fix "
 "first."
 msgstr ""
 "Cliquez sur « Analyser les thèmes récurrents » pour que l'IA regroupe vos "
@@ -345,8 +345,8 @@ msgstr "ouvrir Google Business"
 #: .\reviews\templates\reviews\dashboard.html:1533
 msgid "to post it yourself, or click Approve & Post above to retry."
 msgstr ""
-"pour le publier vous-même, ou cliquez sur « Approuver et publier » ci-dessus "
-"pour réessayer."
+"pour le publier vous-même, ou cliquez sur « Approuver et publier » ci-dessus"
+" pour réessayer."
 
 #: .\reviews\templates\reviews\dashboard.html:1541
 msgid "Reply is live on Google — no action needed."
@@ -461,8 +461,8 @@ msgstr "facultatif"
 #: .\reviews\templates\reviews\dashboard.html:1633
 msgid "Leave empty to auto-load sample live customer feedback."
 msgstr ""
-"Laissez vide pour charger automatiquement des exemples de retours clients en "
-"direct."
+"Laissez vide pour charger automatiquement des exemples de retours clients en"
+" direct."
 
 #: .\reviews\templates\reviews\dashboard.html:1640
 msgid "Importing reviews…"
@@ -488,8 +488,8 @@ msgid ""
 "Configure how your AI assistant crafts automated replies to Google Business "
 "Profile reviews."
 msgstr ""
-"Configurez la façon dont votre assistant IA rédige des réponses automatisées "
-"aux avis de votre fiche Google Business Profile."
+"Configurez la façon dont votre assistant IA rédige des réponses automatisées"
+" aux avis de votre fiche Google Business Profile."
 
 msgid "Engine Active"
 msgstr "Moteur actif"
@@ -534,8 +534,8 @@ msgid ""
 "One-click copy to Google — direct auto-posting activates once Google's API "
 "access is approved"
 msgstr ""
-"Copie en un clic vers Google — la publication automatique directe s'activera "
-"une fois l'accès à l'API Google approuvé"
+"Copie en un clic vers Google — la publication automatique directe s'activera"
+" une fois l'accès à l'API Google approuvé"
 
 msgid "Zero manual approval needed"
 msgstr "Aucune approbation manuelle nécessaire"
@@ -656,12 +656,12 @@ msgid "Blacklisted Words"
 msgstr "Mots interdits"
 
 msgid ""
-"Words or phrases the AI must never use in a public reply — competitor names, "
-"informal slang, or anything sensitive to your brand."
+"Words or phrases the AI must never use in a public reply — competitor names,"
+" informal slang, or anything sensitive to your brand."
 msgstr ""
 "Mots ou expressions que l'IA ne doit jamais utiliser dans une réponse "
-"publique — noms de concurrents, argot informel ou tout élément sensible pour "
-"votre marque."
+"publique — noms de concurrents, argot informel ou tout élément sensible pour"
+" votre marque."
 
 msgid "Forbidden Words (comma-separated)"
 msgstr "Mots interdits (séparés par des virgules)"
@@ -749,8 +749,8 @@ msgstr "3★ et plus"
 
 msgid ""
 "The AI never writes the link itself — only a natural, one-sentence mention. "
-"The exact URL is always appended automatically, so it can never be broken or "
-"mistyped."
+"The exact URL is always appended automatically, so it can never be broken or"
+" mistyped."
 msgstr ""
 "L'IA n'écrit jamais le lien elle-même — seulement une mention naturelle en "
 "une phrase. L'URL exacte est toujours ajoutée automatiquement, elle ne peut "
@@ -820,12 +820,12 @@ msgstr "Règles spéciales et contexte"
 
 msgid ""
 "e.g. Always remind unhappy guests that we offer free parking behind the "
-"bakery. Mention our signature homemade sourdough bread when customers praise "
-"our pastries."
+"bakery. Mention our signature homemade sourdough bread when customers praise"
+" our pastries."
 msgstr ""
 "ex. Rappelez toujours aux clients mécontents que nous offrons un parking "
-"gratuit derrière la boulangerie. Mentionnez notre pain au levain fait maison "
-"lorsque les clients complimentent nos pâtisseries."
+"gratuit derrière la boulangerie. Mentionnez notre pain au levain fait maison"
+" lorsque les clients complimentent nos pâtisseries."
 
 msgid "Family-friendly"
 msgstr "Convivial pour les familles"
@@ -834,7 +834,8 @@ msgid "Happy hour"
 msgstr "Happy hour"
 
 msgid ""
-"This context is dynamically fed into Gemini models during response synthesis."
+"This context is dynamically fed into Gemini models during response "
+"synthesis."
 msgstr ""
 "Ce contexte est transmis dynamiquement aux modèles Gemini lors de la "
 "génération des réponses."
@@ -867,10 +868,11 @@ msgid "Advanced Rules Pro"
 msgstr "Règles avancées Pro"
 
 msgid ""
-"Response delay timing unlocks once your Google Business Profile is connected."
+"Response delay timing unlocks once your Google Business Profile is "
+"connected."
 msgstr ""
-"Le délai de réponse se débloque une fois votre fiche Google Business Profile "
-"connectée."
+"Le délai de réponse se débloque une fois votre fiche Google Business Profile"
+" connectée."
 
 msgid "<kbd>Ctrl</kbd>+<kbd>S</kbd> to save"
 msgstr "<kbd>Ctrl</kbd>+<kbd>S</kbd> pour enregistrer"
@@ -883,8 +885,8 @@ msgid ""
 "wasn't that busy. Staff were friendly once we sat down though."
 msgstr ""
 "La nourriture était bonne mais nous avons attendu presque 20 minutes pour "
-"une table alors que ce n'était pas si occupé. Le personnel était sympathique "
-"une fois assis."
+"une table alors que ce n'était pas si occupé. Le personnel était sympathique"
+" une fois assis."
 
 msgid "Generating preview…"
 msgstr "Génération de l'aperçu…"
@@ -951,8 +953,8 @@ msgstr "Prêt pour la production"
 
 msgid ""
 "Print these on table tents, receipts, or stickers — a customer scans, and "
-"lands straight on your Google review box instead of never bothering to leave "
-"one."
+"lands straight on your Google review box instead of never bothering to leave"
+" one."
 msgstr ""
 "Imprimez ceci sur des chevalets de table, tickets de caisse ou autocollants "
 "— un client scanne et arrive directement sur votre encart d'avis Google au "
@@ -983,8 +985,8 @@ msgid ""
 "generate a QR code below, print it, and place it somewhere customers see it "
 "after a good experience."
 msgstr ""
-"générez un code QR ci-dessous, imprimez-le et placez-le là où les clients le "
-"verront après une bonne expérience."
+"générez un code QR ci-dessous, imprimez-le et placez-le là où les clients le"
+" verront après une bonne expérience."
 
 msgid "Private Feedback URL"
 msgstr "URL de feedback privé"
@@ -1001,8 +1003,8 @@ msgstr "Téléverser le logo"
 msgid ""
 "PNG or JPG, square images work best. Existing QR codes update automatically."
 msgstr ""
-"PNG ou JPG, les images carrées fonctionnent le mieux. Les codes QR existants "
-"se mettent à jour automatiquement."
+"PNG ou JPG, les images carrées fonctionnent le mieux. Les codes QR existants"
+" se mettent à jour automatiquement."
 
 msgid "Scan Analytics"
 msgstr "Analyse des scans"
@@ -1041,7 +1043,8 @@ msgid "Create New QR Code"
 msgstr "Créer un nouveau code QR"
 
 msgid ""
-"Configure a target landing page and custom URL slug for your print campaigns."
+"Configure a target landing page and custom URL slug for your print "
+"campaigns."
 msgstr ""
 "Configurez une page de destination et un slug d'URL personnalisé pour vos "
 "campagnes imprimées."
@@ -1093,8 +1096,8 @@ msgid ""
 "If set, customers see a quick \"How was your visit?\" star picker first — "
 "1-3★ comes here instead of Google."
 msgstr ""
-"Si activé, les clients voient d'abord un rapide sélecteur d'étoiles "
-"« Comment était votre visite ? » — les 1-3★ arrivent ici au lieu de Google."
+"Si activé, les clients voient d'abord un rapide sélecteur d'étoiles « "
+"Comment était votre visite ? » — les 1-3★ arrivent ici au lieu de Google."
 
 msgid "Don't have one yet?"
 msgstr "Vous n'en avez pas encore ?"
@@ -1110,8 +1113,8 @@ msgid ""
 "the shareable link here. Or just leave this blank; the gate simply won't be "
 "used."
 msgstr ""
-" — demandez « Qu'est-ce qui n'a pas fonctionné ? » et « Comment pouvons-nous "
-"nous rattraper ? » — puis collez le lien de partage ici. Ou laissez "
+" — demandez « Qu'est-ce qui n'a pas fonctionné ? » et « Comment pouvons-nous"
+" nous rattraper ? » — puis collez le lien de partage ici. Ou laissez "
 "simplement ce champ vide ; le filtre ne sera alors pas utilisé."
 
 msgid "Custom URL Slug"
@@ -1421,11 +1424,11 @@ msgid "Platform Integrations"
 msgstr "Intégrations de plateformes"
 
 msgid ""
-"Manage external review channels and sync live business profile feeds to your "
-"workspace."
+"Manage external review channels and sync live business profile feeds to your"
+" workspace."
 msgstr ""
-"Gérez les canaux d'avis externes et synchronisez les flux en direct de votre "
-"fiche établissement avec votre espace de travail."
+"Gérez les canaux d'avis externes et synchronisez les flux en direct de votre"
+" fiche établissement avec votre espace de travail."
 
 msgid "Core Platforms Connected"
 msgstr "Plateformes principales connectées"
@@ -1461,8 +1464,8 @@ msgid ""
 "Google approves full API access —"
 msgstr ""
 "Lit les avis réels de votre fiche Google Maps et rédige des réponses avec "
-"l'IA Gemini. La publication des réponses est manuelle (un clic, sans changer "
-"d'onglet) jusqu'à ce que Google approuve l'accès complet à l'API —"
+"l'IA Gemini. La publication des réponses est manuelle (un clic, sans changer"
+" d'onglet) jusqu'à ce que Google approuve l'accès complet à l'API —"
 
 msgid "see AI & Tone Settings"
 msgstr "voir les paramètres IA et de ton"
@@ -1575,8 +1578,8 @@ msgid ""
 "dashboard."
 msgstr ""
 "Lit les avis réels de voyageurs de votre fiche TripAdvisor, tout comme pour "
-"Google — rédigés par Gemini et affichés juste à côté de vos avis Google dans "
-"le tableau de bord."
+"Google — rédigés par Gemini et affichés juste à côté de vos avis Google dans"
+" le tableau de bord."
 
 msgid "Synced Reviews"
 msgstr "Avis synchronisés"
@@ -1594,8 +1597,8 @@ msgstr "Voir la fiche sur TripAdvisor"
 
 msgid "Enter your business name above and click Sync Now."
 msgstr ""
-"Saisissez le nom de votre établissement ci-dessus et cliquez sur "
-"« Synchroniser maintenant »."
+"Saisissez le nom de votre établissement ci-dessus et cliquez sur « "
+"Synchroniser maintenant »."
 
 msgid "Trustpilot"
 msgstr "Trustpilot"
@@ -1633,21 +1636,22 @@ msgid ""
 "Salesforce, HubSpot, Zendesk, Mews, Cloudbeds, or anything else that can "
 "send an HTTP request. Connect directly, or route through"
 msgstr ""
-"Synchronisez Mehrly avec votre CRM, votre service d'assistance ou "
-"votre système de gestion immobilière — Salesforce, HubSpot, Zendesk, Mews, "
-"Cloudbeds, ou tout autre outil capable d'envoyer une requête HTTP. Connectez-"
-"vous directement, ou passez par"
+"Synchronisez Mehrly avec votre CRM, votre service d'assistance ou votre "
+"système de gestion immobilière — Salesforce, HubSpot, Zendesk, Mews, "
+"Cloudbeds, ou tout autre outil capable d'envoyer une requête HTTP. "
+"Connectez-vous directement, ou passez par"
 
 msgid "for a no-code setup. POST a review as JSON to your"
 msgstr ""
-"pour une configuration sans code. Envoyez un avis en JSON via POST vers votre"
+"pour une configuration sans code. Envoyez un avis en JSON via POST vers "
+"votre"
 
 msgid "unique, secret URL"
 msgstr "URL unique et secrète"
 
 msgid ""
-"below and it's picked up for AI drafting like any synced review. Anyone with "
-"this URL can create reviews under this business —"
+"below and it's picked up for AI drafting like any synced review. Anyone with"
+" this URL can create reviews under this business —"
 msgstr ""
 "ci-dessous, et il sera pris en compte pour la rédaction IA comme n'importe "
 "quel avis synchronisé. Toute personne possédant cette URL peut créer des "
@@ -1713,8 +1717,8 @@ msgstr "Vous utilisez déjà"
 
 msgid ""
 "? You can pipe reviews from thousands of apps — Salesforce, HubSpot, "
-"Zendesk, Mews, Cloudbeds, a Google Form, anything — straight into "
-"Mehrly, with zero code."
+"Zendesk, Mews, Cloudbeds, a Google Form, anything — straight into Mehrly, "
+"with zero code."
 msgstr ""
 " ? Vous pouvez transférer des avis depuis des milliers d'applications — "
 "Salesforce, HubSpot, Zendesk, Mews, Cloudbeds, un formulaire Google, "
@@ -1778,8 +1782,8 @@ msgstr ""
 
 msgid "No sync attempts yet — trigger a sync above and it'll show up here."
 msgstr ""
-"Aucune tentative de synchronisation pour le moment — lancez-en une ci-dessus "
-"et elle apparaîtra ici."
+"Aucune tentative de synchronisation pour le moment — lancez-en une ci-dessus"
+" et elle apparaîtra ici."
 
 msgid "Sending…"
 msgstr "Envoi en cours…"
@@ -1976,6 +1980,817 @@ msgstr "sur"
 
 msgid "Comment"
 msgstr "Commentaire"
+
+#: reviews/templates/reviews/landing.html
+msgid "Try it"
+msgstr "Essayer"
+
+#: reviews/templates/reviews/landing.html
+msgid "How it works"
+msgstr "Comment ça marche"
+
+#: reviews/templates/reviews/landing.html
+msgid "Features"
+msgstr "Fonctionnalités"
+
+#: reviews/templates/reviews/landing.html
+msgid "FAQ"
+msgstr "FAQ"
+
+#: reviews/templates/reviews/landing.html
+msgid "Pricing"
+msgstr "Tarifs"
+
+#: reviews/templates/reviews/landing.html
+msgid "Open Workspace &rarr;"
+msgstr "Ouvrir mon espace &rarr;"
+
+#: reviews/templates/reviews/landing.html
+msgid "Open Workspace"
+msgstr "Ouvrir mon espace"
+
+#: reviews/templates/reviews/landing.html
+msgid "Built for restaurants &amp; cafés · FR · EN · DE · IT"
+msgstr "Pour restaurants &amp; cafés · FR · EN · DE · IT"
+
+#: reviews/templates/reviews/landing.html
+msgid "Every Google review gets a reply."
+msgstr "Chaque avis Google reçoit une réponse."
+
+#: reviews/templates/reviews/landing.html
+msgid "You never write one."
+msgstr "Sans que vous l’écriviez."
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Mehrly drafts a personal, on-brand reply to every new review — in your "
+"guest’s language. Good reviews come pre-approved: copy, paste, next — about "
+"5 seconds each. Bad ones always wait for you."
+msgstr ""
+"Mehrly rédige une réponse personnalisée, dans votre style, à chaque nouvel "
+"avis — dans la langue de votre client. Les bons avis arrivent pré-approuvés "
+": copier, coller, suivant — environ 5 secondes chacun. Les mauvais vous "
+"attendent toujours."
+
+#: reviews/templates/reviews/landing.html
+msgid "Sign In with Google"
+msgstr "Se connecter avec Google"
+
+#: reviews/templates/reviews/landing.html
+msgid "No credit card required"
+msgstr "Sans carte bancaire"
+
+#: reviews/templates/reviews/landing.html
+msgid "Cancel anytime"
+msgstr "Résiliable à tout moment"
+
+#: reviews/templates/reviews/landing.html
+msgid "Geneva Bistro · Google Reviews"
+msgstr "Bistrot de Genève · Avis Google"
+
+#: reviews/templates/reviews/landing.html
+msgid "● live"
+msgstr "● en direct"
+
+#: reviews/templates/reviews/landing.html
+msgid "\"Amazing atmosphere and great staff! Best espresso in town.\""
+msgstr ""
+"« Ambiance incroyable et équipe adorable ! Le meilleur espresso de la ville."
+" »"
+
+#: reviews/templates/reviews/landing.html
+msgid "Mehrly is drafting a reply"
+msgstr "Mehrly rédige une réponse"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"\"Thank you, Michael! We’re thrilled the espresso hit the mark — hope to see"
+" you again soon at Geneva Bistro.\""
+msgstr ""
+"« Merci beaucoup, Michael ! Ravis que notre espresso vous ait plu — à très "
+"bientôt au Bistrot de Genève. »"
+
+#: reviews/templates/reviews/landing.html
+msgid "Approve &amp; Post"
+msgstr "Valider"
+
+#: reviews/templates/reviews/landing.html
+msgid "Edit"
+msgstr "Modifier"
+
+#: reviews/templates/reviews/landing.html
+msgid "TRY IT YOURSELF"
+msgstr "ESSAYEZ VOUS-MÊME"
+
+#: reviews/templates/reviews/landing.html
+msgid "No signup. Just click a review."
+msgstr "Sans inscription. Cliquez simplement sur un avis."
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Pick a sample review below and watch Mehrly draft the reply. Real drafts on "
+"your account are typically ready in about 15 seconds."
+msgstr ""
+"Choisissez un avis ci-dessous et regardez Mehrly rédiger la réponse. Sur "
+"votre compte, une vraie réponse est généralement prête en 15 secondes "
+"environ."
+
+#: reviews/templates/reviews/landing.html
+msgid "Click a review above to see Mehrly respond →"
+msgstr "Cliquez sur un avis ci-dessus pour voir la réponse de Mehrly →"
+
+#: reviews/templates/reviews/landing.html
+msgid "Sample Venue · Google Reviews"
+msgstr "Établissement exemple · Avis Google"
+
+#: reviews/templates/reviews/landing.html
+msgid "BUILT FOR VENUES LIKE THESE"
+msgstr "CONÇU POUR DES ÉTABLISSEMENTS COMME"
+
+#: reviews/templates/reviews/landing.html
+msgid "Cafés"
+msgstr "Cafés"
+
+#: reviews/templates/reviews/landing.html
+msgid "Restaurants"
+msgstr "Restaurants"
+
+#: reviews/templates/reviews/landing.html
+msgid "Boutique hotels"
+msgstr "Hôtels de charme"
+
+#: reviews/templates/reviews/landing.html
+msgid "Salons"
+msgstr "Salons de coiffure"
+
+#: reviews/templates/reviews/landing.html
+msgid "Wine bars"
+msgstr "Bars à vin"
+
+#: reviews/templates/reviews/landing.html
+msgid "Retail shops"
+msgstr "Boutiques"
+
+#: reviews/templates/reviews/landing.html
+msgid "HOW IT WORKS"
+msgstr "COMMENT ÇA MARCHE"
+
+#: reviews/templates/reviews/landing.html
+msgid "Four steps, and only one needs you."
+msgstr "Quatre étapes, une seule a besoin de vous."
+
+#: reviews/templates/reviews/landing.html
+msgid "Review arrives"
+msgstr "Un avis arrive"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Synced automatically from Google on the schedule you choose — no manual "
+"checking."
+msgstr ""
+"Synchronisé automatiquement depuis Google, au rythme que vous choisissez — "
+"plus besoin de vérifier."
+
+#: reviews/templates/reviews/landing.html
+msgid "Mehrly drafts a reply"
+msgstr "Mehrly rédige la réponse"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"In the reviewer's language, in your brand's voice, referencing your actual "
+"business details."
+msgstr ""
+"Dans la langue du client, avec votre ton, en citant les vrais détails de "
+"votre établissement."
+
+#: reviews/templates/reviews/landing.html
+msgid "You approve — or don't"
+msgstr "Vous validez — ou non"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Good reviews come pre-approved for a one-click Quick reply. Anything 1–3 "
+"stars always waits for a human."
+msgstr ""
+"Les bons avis arrivent pré-approuvés pour une réponse rapide en un clic. "
+"Tout avis de 1 à 3 étoiles attend toujours un humain."
+
+#: reviews/templates/reviews/landing.html
+msgid "You post it"
+msgstr "Vous la publiez"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Quick reply copies the text and opens the review on Google — paste, done. "
+"Automatic posting is coming soon."
+msgstr ""
+"La réponse rapide copie le texte et ouvre l’avis sur Google — collez, c’est "
+"fait. La publication automatique arrive bientôt."
+
+#: reviews/templates/reviews/landing.html
+msgid "SMART GUARDRAIL"
+msgstr "GARDE-FOU INTELLIGENT"
+
+#: reviews/templates/reviews/landing.html
+msgid "Your reputation never posts on autopilot."
+msgstr "Votre réputation n’est jamais en pilote automatique."
+
+#: reviews/templates/reviews/landing.html
+msgid "Good reviews move fast. Anything risky always waits for a human."
+msgstr ""
+"Les bons avis vont vite. Tout ce qui est délicat attend toujours un humain."
+
+#: reviews/templates/reviews/landing.html
+msgid "\"Amazing atmosphere and great staff!\""
+msgstr "« Ambiance incroyable et équipe adorable ! »"
+
+#: reviews/templates/reviews/landing.html
+msgid "Pre-approved ✓"
+msgstr "Pré-approuvé ✓"
+
+#: reviews/templates/reviews/landing.html
+msgid "One click in Quick reply: copy, paste, next"
+msgstr "Un clic en réponse rapide : copier, coller, suivant"
+
+#: reviews/templates/reviews/landing.html
+msgid "\"Disappointed — my order was wrong.\""
+msgstr "« Déçu — ma commande était fausse. »"
+
+#: reviews/templates/reviews/landing.html
+msgid "Sent to you for review"
+msgstr "Envoyé pour validation"
+
+#: reviews/templates/reviews/landing.html
+msgid "Nothing posts until you approve it"
+msgstr "Rien n’est publié sans votre accord"
+
+#: reviews/templates/reviews/landing.html
+msgid "FEATURES"
+msgstr "FONCTIONNALITÉS"
+
+#: reviews/templates/reviews/landing.html
+msgid "Everything a manager needs, nothing they don't."
+msgstr "Tout ce dont un gérant a besoin, rien de superflu."
+
+#: reviews/templates/reviews/landing.html
+msgid "Replies in your guest’s language"
+msgstr "Des réponses dans la langue du client"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Detects French, English, German, Italian and Swiss German automatically and "
+"replies in kind — no translation tab required."
+msgstr ""
+"Détecte automatiquement le français, l’anglais, l’allemand, l’italien et le "
+"suisse allemand, et répond dans la même langue — sans outil de traduction."
+
+#: reviews/templates/reviews/landing.html
+msgid "Smart Guardrail mode"
+msgstr "Mode Garde-fou"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"4–5 star replies come pre-approved, ready to post in one click. 1–3 star "
+"reviews always route to a manager first."
+msgstr ""
+"Les réponses aux avis 4–5 étoiles arrivent pré-approuvées, prêtes en un "
+"clic. Les avis 1–3 étoiles passent toujours d’abord par un responsable."
+
+#: reviews/templates/reviews/landing.html
+msgid "Trackable QR codes"
+msgstr "QR codes avec suivi"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Print codes for tables and receipts that link straight to your review "
+"prompt, with scan counts."
+msgstr ""
+"Imprimez des codes pour vos tables et tickets, qui mènent directement à "
+"votre page d’avis — avec le nombre de scans."
+
+#: reviews/templates/reviews/landing.html
+msgid "Staff access, not your login"
+msgstr "Accès équipe, sans partager vos identifiants"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Invite a floor manager to approve drafts without ever sharing your Google "
+"password."
+msgstr ""
+"Invitez un responsable de salle à valider les réponses sans jamais partager "
+"votre mot de passe Google."
+
+#: reviews/templates/reviews/landing.html
+msgid "Instant bad-review alerts"
+msgstr "Alertes avis négatifs"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"An email as soon as a 1–2 star review lands, so nothing sits unanswered for "
+"long."
+msgstr ""
+"Un e-mail dès qu’un avis 1–2 étoiles arrive, pour que rien ne reste "
+"longtemps sans réponse."
+
+#: reviews/templates/reviews/landing.html
+msgid "Knows your business"
+msgstr "Connaît votre établissement"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Feed it real details — parking, signature dishes, policies — so replies "
+"never sound generic."
+msgstr ""
+"Donnez-lui les vrais détails — parking, plats signature, règles — pour des "
+"réponses jamais génériques."
+
+#: reviews/templates/reviews/landing.html
+msgid "BEYOND GOOGLE"
+msgstr "AU-DELÀ DE GOOGLE"
+
+#: reviews/templates/reviews/landing.html
+msgid "One inbox for every review, from everywhere."
+msgstr "Une seule boîte pour tous vos avis, d’où qu’ils viennent."
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Google isn't the only place customers talk about you. Mehrly pulls reviews "
+"in from multiple sources so nothing falls through the cracks."
+msgstr ""
+"Vos clients ne parlent pas de vous que sur Google. Mehrly réunit les avis de"
+" plusieurs sources pour que rien ne vous échappe."
+
+#: reviews/templates/reviews/landing.html
+msgid "Your Inbox"
+msgstr "Votre boîte"
+
+#: reviews/templates/reviews/landing.html
+msgid "TripAdvisor sync"
+msgstr "Synchronisation TripAdvisor"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Connect your TripAdvisor listing alongside Google Business Profile — reviews"
+" from both land in the same dashboard, with the same AI drafting and "
+"Guardrail rules applied automatically."
+msgstr ""
+"Ajoutez votre fiche TripAdvisor à côté de Google — les avis des deux "
+"arrivent dans le même tableau de bord, avec les mêmes réponses IA et les "
+"mêmes règles de garde-fou."
+
+#: reviews/templates/reviews/landing.html
+msgid "Webhook API"
+msgstr "API Webhook"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Have reviews coming from your own booking system, POS, or a custom form? "
+"Push them into Mehrly via webhook and get the same AI drafts, sentiment "
+"analysis, and approval flow — no manual re-entry."
+msgstr ""
+"Des avis viennent de votre système de réservation, de votre caisse ou d’un "
+"formulaire ? Envoyez-les à Mehrly par webhook et profitez des mêmes réponses"
+" IA, de l’analyse de sentiment et de la validation — sans ressaisie."
+
+#: reviews/templates/reviews/landing.html
+msgid "One unified feed"
+msgstr "Un fil unique"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Every source is tagged and searchable in a single feed, so your team never "
+"has to check three different apps to know what customers are saying."
+msgstr ""
+"Chaque source est étiquetée et consultable dans un seul fil : votre équipe "
+"n’a plus besoin de vérifier trois applications pour savoir ce que disent les"
+" clients."
+
+#: reviews/templates/reviews/landing.html
+msgid "A FAIR QUESTION"
+msgstr "UNE BONNE QUESTION"
+
+#: reviews/templates/reviews/landing.html
+msgid "\"Why not just paste this into ChatGPT myself?\""
+msgstr "« Pourquoi ne pas simplement utiliser ChatGPT moi-même ? »"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Honestly — for one review, you could. Here's where it breaks down at scale."
+msgstr ""
+"Pour un seul avis, c’est possible. Voici pourquoi ça ne tient pas sur la "
+"durée."
+
+#: reviews/templates/reviews/landing.html
+msgid "COPY-PASTING IT YOURSELF"
+msgstr "LE FAIRE SOI-MÊME"
+
+#: reviews/templates/reviews/landing.html
+msgid "Check Google manually for new reviews"
+msgstr "Vérifier Google à la main pour les nouveaux avis"
+
+#: reviews/templates/reviews/landing.html
+msgid "Copy each review into a chat window"
+msgstr "Copier chaque avis dans une fenêtre de chat"
+
+#: reviews/templates/reviews/landing.html
+msgid "Re-explain your business every time"
+msgstr "Réexpliquer votre établissement à chaque fois"
+
+#: reviews/templates/reviews/landing.html
+msgid "Copy the reply back, paste into Google"
+msgstr "Recopier la réponse et la coller dans Google"
+
+#: reviews/templates/reviews/landing.html
+msgid "No memory of your tone across replies"
+msgstr "Aucune mémoire de votre ton d’une réponse à l’autre"
+
+#: reviews/templates/reviews/landing.html
+msgid "Nothing stops a bad reply from going out fast"
+msgstr "Rien n’empêche une mauvaise réponse de partir trop vite"
+
+#: reviews/templates/reviews/landing.html
+msgid "Reviews sync automatically, no checking"
+msgstr "Les avis se synchronisent tout seuls"
+
+#: reviews/templates/reviews/landing.html
+msgid "A draft is ready as soon as a review syncs"
+msgstr "Une réponse est prête dès qu’un avis arrive"
+
+#: reviews/templates/reviews/landing.html
+msgid "Remembers your business details every time"
+msgstr "Se souvient toujours des détails de votre établissement"
+
+#: reviews/templates/reviews/landing.html
+msgid "One-click copy, then paste on Google"
+msgstr "Copie en un clic, puis collage sur Google"
+
+#: reviews/templates/reviews/landing.html
+msgid "Consistent tone across every reply"
+msgstr "Un ton cohérent dans chaque réponse"
+
+#: reviews/templates/reviews/landing.html
+msgid "Guardrail always holds risky replies for review"
+msgstr "Le garde-fou retient toujours les réponses délicates"
+
+#: reviews/templates/reviews/landing.html
+msgid "Questions owners actually ask."
+msgstr "Les questions que posent vraiment les patrons."
+
+#: reviews/templates/reviews/landing.html
+msgid "What if the AI says something wrong or off-brand?"
+msgstr "Et si l’IA écrit quelque chose de faux ou qui ne me ressemble pas ?"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Every reply is a draft, not a publish. You (or a staff member) see it before"
+" it goes live and can edit or reject it — nothing 1–3★ ever posts without a "
+"human clicking approve. For pre-approved 4–5★ replies, you set your own tone"
+" and business details up front so drafts stay on-brand."
+msgstr ""
+"Chaque réponse est un brouillon, pas une publication. Vous (ou un membre de "
+"l’équipe) la voyez avant qu’elle soit en ligne et pouvez la modifier ou la "
+"refuser — aucun avis 1–3★ n’est jamais publié sans qu’un humain valide. Pour"
+" les réponses 4–5★ pré-approuvées, vous définissez d’avance votre ton et vos"
+" informations pour qu’elles vous ressemblent."
+
+#: reviews/templates/reviews/landing.html
+msgid "Can I edit a reply before it posts?"
+msgstr "Puis-je modifier une réponse avant de la publier ?"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Yes — every draft has an Edit button right next to Approve & Post. You can "
+"rewrite it completely, tweak a line, or approve it as-is."
+msgstr ""
+"Oui — chaque brouillon peut être modifié avant validation. Vous pouvez tout "
+"réécrire, changer une phrase ou la valider telle quelle."
+
+#: reviews/templates/reviews/landing.html
+msgid "What happens to a bad review?"
+msgstr "Que se passe-t-il avec un mauvais avis ?"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Any 1–3★ review always routes to you or a manager first — it never auto-"
+"posts. Log in anytime to see what's waiting for your response."
+msgstr ""
+"Tout avis 1–3★ passe toujours d’abord par vous ou un responsable — il n’est "
+"jamais publié automatiquement. Connectez-vous quand vous voulez pour voir ce"
+" qui attend votre réponse."
+
+#: reviews/templates/reviews/landing.html
+msgid "Which languages does it actually understand?"
+msgstr "Quelles langues comprend-il vraiment ?"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"French, English, German, Italian and Swiss German — it detects the "
+"reviewer's language automatically and replies in kind, no manual translation"
+" step."
+msgstr ""
+"Français, anglais, allemand, italien et suisse allemand — il détecte la "
+"langue du client et répond dans la même langue, sans traduction manuelle."
+
+#: reviews/templates/reviews/landing.html
+msgid "Do I need to share my Google login?"
+msgstr "Dois-je partager mes identifiants Google ?"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"No — you connect your account once via secure sign-in, and can invite staff "
+"to approve drafts without ever handing over your password."
+msgstr ""
+"Non — vous vous connectez de façon sécurisée, et vous pouvez inviter votre "
+"équipe à valider les réponses sans jamais donner votre mot de passe."
+
+#: reviews/templates/reviews/landing.html
+msgid "Can I cancel anytime?"
+msgstr "Puis-je résilier à tout moment ?"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Yes, no contract or lock-in — cancel from your workspace whenever you like."
+msgstr ""
+"Oui, sans contrat ni engagement — résiliez depuis votre espace quand vous "
+"voulez."
+
+#: reviews/templates/reviews/landing.html
+msgid "What happens to my data if I cancel?"
+msgstr "Que deviennent mes données si je résilie ?"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"You keep full control of your Google Business Profile at all times — we only"
+" assist with drafting and posting replies. Cancel anytime and we stop "
+"accessing your account immediately; nothing is deleted on Google's side."
+msgstr ""
+"Vous gardez le contrôle total de votre fiche Google — nous aidons seulement "
+"à rédiger et publier les réponses. Si vous résiliez, nous cessons "
+"immédiatement d’accéder à votre compte ; rien n’est supprimé côté Google."
+
+#: reviews/templates/reviews/landing.html
+msgid "PRICING"
+msgstr "TARIFS"
+
+#: reviews/templates/reviews/landing.html
+msgid "Simple pricing, per location."
+msgstr "Des prix simples, par établissement."
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"14-day free trial, no card needed. No setup fees. Cancel anytime. Prices in "
+"CHF."
+msgstr ""
+"14 jours d’essai gratuit, sans carte. Sans frais d’installation. Résiliable "
+"à tout moment. Prix en CHF."
+
+#: reviews/templates/reviews/landing.html
+msgid "One venue, full control"
+msgstr "Un établissement, contrôle total"
+
+#: reviews/templates/reviews/landing.html
+msgid "/mo"
+msgstr "/mois"
+
+#: reviews/templates/reviews/landing.html
+msgid "or CHF 12.42/mo billed yearly — save 35%"
+msgstr "ou CHF 12.42/mois en facturation annuelle — 35 % d’économie"
+
+#: reviews/templates/reviews/landing.html
+msgid "1 Google Business location"
+msgstr "1 établissement Google"
+
+#: reviews/templates/reviews/landing.html
+msgid "AI drafts every review in seconds (FR/EN/DE/IT)"
+msgstr "Réponse IA à chaque avis en quelques secondes (FR/EN/DE/IT)"
+
+#: reviews/templates/reviews/landing.html
+msgid "Quick reply: 4–5★ replies pre-approved, one click to copy &amp; post"
+msgstr ""
+"Réponse rapide : réponses 4–5★ pré-approuvées, un clic pour copier &amp; "
+"publier"
+
+#: reviews/templates/reviews/landing.html
+msgid "1–3★ replies always wait for your approval"
+msgstr "Les réponses 1–3★ attendent toujours votre accord"
+
+#: reviews/templates/reviews/landing.html
+msgid "Auto-posting once Google Business is connected (coming soon)"
+msgstr "Publication automatique une fois Google connecté (bientôt)"
+
+#: reviews/templates/reviews/landing.html
+msgid "Blacklisted-word protection"
+msgstr "Protection par mots interdits"
+
+#: reviews/templates/reviews/landing.html
+msgid "Review Simulator sandbox"
+msgstr "Simulateur d’avis"
+
+#: reviews/templates/reviews/landing.html
+msgid "Start free trial"
+msgstr "Essai gratuit"
+
+#: reviews/templates/reviews/landing.html
+msgid "Most popular"
+msgstr "Le plus choisi"
+
+#: reviews/templates/reviews/landing.html
+msgid "For venues that want it running itself"
+msgstr "Pour les établissements qui veulent que tout tourne seul"
+
+#: reviews/templates/reviews/landing.html
+msgid "Everything in Starter"
+msgstr "Tout Starter, plus"
+
+#: reviews/templates/reviews/landing.html
+msgid "Hands-Free mode (1–3★ pre-approved too)"
+msgstr "Mode mains libres (1–3★ aussi pré-approuvés)"
+
+#: reviews/templates/reviews/landing.html
+msgid "TripAdvisor sync included"
+msgstr "Synchronisation TripAdvisor incluse"
+
+#: reviews/templates/reviews/landing.html
+msgid "QR Code Booster + Smart Feedback Router (Google-policy-safe)"
+msgstr "QR codes + routage des retours (conforme aux règles Google)"
+
+#: reviews/templates/reviews/landing.html
+msgid "Competitor benchmarking"
+msgstr "Comparaison avec vos concurrents"
+
+#: reviews/templates/reviews/landing.html
+msgid "AI-powered complaint trend analysis"
+msgstr "Analyse IA des plaintes récurrentes"
+
+#: reviews/templates/reviews/landing.html
+msgid "Team seats &amp; staff access"
+msgstr "Accès équipe &amp; collaborateurs"
+
+#: reviews/templates/reviews/landing.html
+msgid "Instant negative-review alerts"
+msgstr "Alertes immédiates sur les avis négatifs"
+
+#: reviews/templates/reviews/landing.html
+msgid "Limited spots"
+msgstr "Places limitées"
+
+#: reviews/templates/reviews/landing.html
+msgid "Founding Partner"
+msgstr "Partenaire fondateur"
+
+#: reviews/templates/reviews/landing.html
+msgid "Full Premium access, free for 1 month"
+msgstr "Accès Premium complet, gratuit pendant 1 mois"
+
+#: reviews/templates/reviews/landing.html
+msgid "/1st month"
+msgstr "/1er mois"
+
+#: reviews/templates/reviews/landing.html
+msgid "Everything in Premium, unlocked"
+msgstr "Tout Premium, débloqué"
+
+#: reviews/templates/reviews/landing.html
+msgid "No card required"
+msgstr "Sans carte bancaire"
+
+#: reviews/templates/reviews/landing.html
+msgid "Personal onboarding with the founder"
+msgstr "Mise en route personnelle avec le fondateur"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"In exchange, we ask for a short LinkedIn recommendation and permission to "
+"feature your business as an early case study."
+msgstr ""
+"En échange, nous vous demandons un court témoignage et l’autorisation de "
+"présenter votre établissement comme étude de cas."
+
+#: reviews/templates/reviews/landing.html
+msgid "Request access code"
+msgstr "Demander un code d’accès"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"We'll email you a code — sign up, then enter it in your dashboard to unlock "
+"everything."
+msgstr ""
+"Nous vous envoyons un code par e-mail — inscrivez-vous, puis saisissez-le "
+"dans votre tableau de bord pour tout débloquer."
+
+#: reviews/templates/reviews/landing.html
+msgid "Already have a code? Sign up, then redeem it →"
+msgstr "Vous avez déjà un code ? Inscrivez-vous, puis utilisez-le →"
+
+#: reviews/templates/reviews/landing.html
+msgid "GETTING STARTED"
+msgstr "DÉMARRER"
+
+#: reviews/templates/reviews/landing.html
+msgid "Ten minutes, start to finish."
+msgstr "Dix minutes, du début à la fin."
+
+#: reviews/templates/reviews/landing.html
+msgid "No developer, no IT ticket — just you and your Google login."
+msgstr "Pas de développeur, pas d’informaticien — juste vous et votre compte."
+
+#: reviews/templates/reviews/landing.html
+msgid "Connect your profile"
+msgstr "Ajoutez votre établissement"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Sign up and paste your Google Maps link — Mehrly imports your reviews. ~2 "
+"minutes."
+msgstr ""
+"Inscrivez-vous et collez votre lien Google Maps — Mehrly importe vos avis. "
+"~2 minutes."
+
+#: reviews/templates/reviews/landing.html
+msgid "Tell it about your business"
+msgstr "Présentez votre établissement"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Add your tone, signature dishes, policies — a few short fields. ~5 minutes."
+msgstr ""
+"Votre ton, vos plats signature, vos règles — quelques champs courts. ~5 "
+"minutes."
+
+#: reviews/templates/reviews/landing.html
+msgid "Set your Guardrail"
+msgstr "Réglez votre garde-fou"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Choose what comes pre-approved and what waits for you. Defaults are ready if"
+" you skip this. ~1 minute."
+msgstr ""
+"Choisissez ce qui est pré-approuvé et ce qui vous attend. Des réglages par "
+"défaut sont prêts si vous passez cette étape. ~1 minute."
+
+#: reviews/templates/reviews/landing.html
+msgid "You're live"
+msgstr "C’est parti"
+
+#: reviews/templates/reviews/landing.html
+msgid "Drafts start appearing on your next review — no waiting period."
+msgstr "Les réponses arrivent dès votre prochain avis — sans délai."
+
+#: reviews/templates/reviews/landing.html
+msgid "Stop leaving reviews on read."
+msgstr "Ne laissez plus vos avis sans réponse."
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Set it up in ten minutes. Your first drafts are ready before your coffee is."
+msgstr ""
+"Dix minutes pour démarrer. Vos premières réponses sont prêtes avant votre "
+"café."
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"© 2026 Mehrly. Replies to Google reviews for restaurants, cafés and hotels."
+msgstr ""
+"© 2026 Mehrly. Réponses aux avis Google pour restaurants, cafés et hôtels."
+
+#: reviews/templates/reviews/landing.html
+msgid "Refunds"
+msgstr "Remboursements"
+
+#: reviews/templates/reviews/landing.html
+msgid "Contact"
+msgstr "Contact"
+
+#: reviews/templates/reviews/landing.html
+msgid "Mehrly | AI replies to your Google reviews — for restaurants & cafés"
+msgstr "Mehrly | Réponses IA à vos avis Google — pour restaurants & cafés"
+
+#: reviews/templates/reviews/landing.html
+msgid ""
+"Mehrly drafts a personal reply to every Google review — in French, English, "
+"German or Italian. Good reviews are ready in one click; bad ones always wait"
+" for you. Built for restaurants and cafés."
+msgstr ""
+"Mehrly rédige une réponse personnalisée à chaque avis Google — en français, "
+"anglais, allemand ou italien. Les bons avis sont prêts en un clic ; les "
+"mauvais vous attendent toujours. Pour restaurants et cafés."
+
+#: reviews/templates/reviews/landing.html
+msgid "4–5★ replies are ready to post in one click"
+msgstr "Les réponses 4–5★ sont prêtes en un clic"
+
+#: reviews/templates/reviews/landing.html
+msgid "1–3★ always needs your approval"
+msgstr "Les avis 1–3★ attendent toujours votre accord"
+
+#: reviews/templates/reviews/landing.html
+msgid "Network error — please try again."
+msgstr "Erreur réseau — veuillez réessayer."
+
+#: reviews/templates/reviews/landing.html
+msgid "Waiting on manager"
+msgstr "En attente du responsable"
 
 #~ msgid "Draft copied to clipboard."
 #~ msgstr "Brouillon copié dans le presse-papiers."
