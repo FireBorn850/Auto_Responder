@@ -2182,3 +2182,32 @@ class DeadCodeGoneTests(TestCase):
             if path.name == 'tests.py' or 'migrations' in path.parts:
                 continue
             self.assertNotIn('print(', path.read_text(encoding='utf-8'), str(path))
+
+
+# ---------------------------------------------------------------- Simulator for sales demos
+
+class SimulatorDemoTests(TestCase):
+    def setUp(self):
+        self.owner, self.profile = make_owner()
+        self.client.force_login(self.owner)
+
+    def simulate(self, **extra):
+        data = {'reviewer_name': 'Sandra R.', 'rating': 1, 'comment': 'Plat froid et 45 minutes d’attente.',
+                'language': 'fr', 'business_name': 'Chez Sunny'}
+        data.update(extra)
+        with fake_sentiment(), fake_draft() as gen:
+            self.client.post(reverse('add_review'), data)
+        return gen
+
+    def test_typed_business_name_is_used(self):
+        gen = self.simulate()
+        self.assertEqual(gen.call_args.kwargs['business_name'], 'Chez Sunny')
+        self.assertEqual(Review.objects.get(is_simulated=True).business_name, 'Chez Sunny')
+
+    def test_empty_business_name_falls_back_to_profile(self):
+        gen = self.simulate(business_name='')
+        self.assertEqual(gen.call_args.kwargs['business_name'], self.profile.business_name)
+
+    def test_owner_login_email_never_goes_into_a_public_reply(self):
+        gen = self.simulate()
+        self.assertEqual(gen.call_args.kwargs['contact_email'], '')

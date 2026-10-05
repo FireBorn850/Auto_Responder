@@ -1791,7 +1791,8 @@ def _add_review_impl(request):
         rating=rating,
         comment=comment,
         detected_language=language,
-        business_name=profile.business_name,
+        # The simulator lets you type any business name (e.g. a restaurant you're about to visit).
+        business_name=(request.POST.get('business_name') or '').strip()[:255] or profile.business_name,
         status='pending',
         is_simulated=True,
     )
