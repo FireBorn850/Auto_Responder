@@ -2295,3 +2295,15 @@ class SeoFilesTests(TestCase):
         types = {node['@type'] for node in data['@graph']}
         self.assertEqual(types, {'Organization', 'SoftwareApplication', 'FAQPage'})
         self.assertIn('<link rel="canonical" href="https://mehrly.com/">', html)
+
+
+class FaviconTests(TestCase):
+    def test_root_favicon_is_served(self):
+        r = self.client.get('/favicon.ico')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r['Content-Type'], 'image/x-icon')
+
+    def test_public_pages_declare_the_icon(self):
+        for name in ('home', 'privacy_policy', 'terms_of_service'):
+            html = self.client.get(reverse(name)).content.decode()
+            self.assertIn('rel="icon" href="/favicon.ico"', html, name)

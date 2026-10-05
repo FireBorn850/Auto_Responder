@@ -96,3 +96,14 @@ Independent restaurants, cafés, bars, hotels and shops that get Google reviews 
 def llms_txt(request):
     text = LLMS_TXT.format(site=_site(), email=settings.SUPPORT_EMAIL)
     return HttpResponse(text, content_type='text/plain; charset=utf-8')
+
+
+@cache_control(max_age=604800, public=True)
+def favicon_ico(request):
+    """Google and browsers ask for /favicon.ico at the site root; serve the Mehrly icon there."""
+    from django.contrib.staticfiles import finders
+    from django.http import FileResponse, Http404
+    path = finders.find('images/favicon.ico')
+    if not path:
+        raise Http404
+    return FileResponse(open(path, 'rb'), content_type='image/x-icon')
