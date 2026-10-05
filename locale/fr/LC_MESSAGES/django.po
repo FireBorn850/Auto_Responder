@@ -2553,8 +2553,8 @@ msgid "/mo"
 msgstr "/mois"
 
 #: reviews/templates/reviews/landing.html
-msgid "or CHF 12.42/mo billed yearly — save 35%"
-msgstr "ou CHF 12.42/mois en facturation annuelle — 35 % d’économie"
+msgid "or CHF 12.42/mo billed yearly — save 35%%"
+msgstr "ou CHF 12.42/mois en facturation annuelle — 35 %% d’économie"
 
 #: reviews/templates/reviews/landing.html
 msgid "1 Google Business location"

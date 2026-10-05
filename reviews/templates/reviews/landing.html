@@ -138,6 +138,14 @@
             transform: translateY(0);
         }
 
+        /* Phones: show content straight away (no half-faded sections while scrolling),
+           and never let anything push the page sideways. */
+        @media (max-width: 767px) {
+            .reveal, .reveal.in { opacity: 1 !important; transform: none !important; transition: none !important; }
+            html, body { overflow-x: hidden; }
+            h1 { word-break: normal; overflow-wrap: break-word; }
+        }
+
         .reveal-delay-1 {
             transition-delay: .08s;
         }
@@ -437,11 +445,11 @@
 
     <!-- NAV -->
     <header class="relative z-20 border-b border-white/5 bg-[#0B1220]/85 backdrop-blur-md sticky top-0">
-        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 md:h-20 flex items-center justify-between gap-2">
             {% load static %}
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 shrink-0">
                 <div class="rounded-xl p-1.5 flex items-center" style="background: #F7F5F0;">
-                    <img src="{% static 'images/mehrly-logo.png' %}" alt="Mehrly.AI" class="h-8 w-auto" />
+                    <img src="{% static 'images/mehrly-logo.png' %}" alt="Mehrly" class="h-6 md:h-8 w-auto max-w-none" />
                 </div>
             </div>
 
@@ -453,7 +461,7 @@
                 <a href="#pricing" class="nav-link hover:text-white transition">{% trans "Pricing" %}</a>
             </nav>
 
-            <button type="button" class="icon-btn md:hidden" onclick="toggleMobileMenu()" title="Menu"
+            <button type="button" class="icon-btn md:hidden order-last shrink-0" onclick="toggleMobileMenu()" title="Menu"
                 id="mobileMenuBtn">
                 <svg id="hamburgerIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
@@ -468,9 +476,9 @@
                 </svg>
             </button>
 
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-3">
-                    <button type="button" class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+            <div class="flex items-center gap-2 md:gap-3 ml-auto md:ml-0">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <button type="button" class="icon-btn hidden md:inline-flex" onclick="toggleTheme()" title="Toggle theme">
                         <svg id="themeIconMoon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
@@ -494,16 +502,16 @@
                             class="icon-btn text-xs font-bold" title="{% if LANG == 'fr' %}English{% else %}Français{% endif %}">{% if LANG == 'fr' %}EN{% else %}FR{% endif %}</button>
                     </form>
                     {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
+                    <a href="{% url 'dashboard' %}" class="btn-primary font-semibold text-xs px-3 md:px-5 py-2.5 rounded-lg whitespace-nowrap">
                         {% trans "Open Workspace &rarr;" %}
                     </a>
                     {% else %}
                     <a href="{% url 'account_login' %}"
-                        class="nav-link text-xs font-semibold text-slate-300 hover:text-white transition px-3 py-2">
+                        class="nav-link hidden md:inline text-xs font-semibold text-slate-300 hover:text-white transition px-3 py-2">
                         {% trans "Sign In" %}
                     </a>
                     <a href="{% url 'account_signup' %}"
-                        class="btn-primary font-semibold text-xs px-5 py-2.5 rounded-lg">
+                        class="btn-primary font-semibold text-xs px-3 md:px-5 py-2.5 rounded-lg whitespace-nowrap">
                         {% trans "Start Free Trial" %}
                     </a>
                     {% endif %}
@@ -523,7 +531,10 @@
                     class="py-3 border-b border-white/5 hover:text-white transition">{% trans "Features" %}</a>
                 <a href="#faq" onclick="closeMobileMenu()"
                     class="py-3 border-b border-white/5 hover:text-white transition">{% trans "FAQ" %}</a>
-                <a href="#pricing" onclick="closeMobileMenu()" class="py-3 hover:text-white transition">{% trans "Pricing" %}</a>
+                <a href="#pricing" onclick="closeMobileMenu()" class="py-3 border-b border-white/5 hover:text-white transition">{% trans "Pricing" %}</a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'account_login' %}" class="py-3 font-semibold text-white">{% trans "Sign In" %}</a>
+                {% endif %}
             </nav>
         </div>
     </header>
@@ -531,7 +542,7 @@
     <main class="relative z-10">
         {% if show_partner_offer %}
         <!-- PARTNER OFFER (same offer as on Instagram; turn off with PARTNER_OFFER_BANNER=0) -->
-        <div class="max-w-6xl mx-auto px-6 pt-6">
+        <div class="max-w-6xl mx-auto px-5 sm:px-6 pt-4 md:pt-6">
             <a href="#founding-partner"
                 class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-slate-200 hover:bg-emerald-400/15 transition">
                 <span class="font-bold text-emerald-300">{% trans "Restaurants in Geneva: 1 month free" %}</span>
@@ -542,7 +553,7 @@
         {% endif %}
 
         <!-- HERO -->
-        <section class="max-w-6xl mx-auto px-6 pt-20 pb-24 grid md:grid-cols-2 gap-16 items-center">
+        <section class="max-w-6xl mx-auto px-5 sm:px-6 pt-8 md:pt-20 pb-14 md:pb-24 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
             <div class="space-y-7 reveal in">
                 <div
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 font-mono">
@@ -623,7 +634,7 @@
         </section>
 
         <!-- LIVE DEMO -->
-        <section id="demo" class="max-w-6xl mx-auto px-6 py-24 reveal">
+        <section id="demo" class="max-w-6xl mx-auto px-5 sm:px-6 py-14 md:py-24 reveal">
             <div class="max-w-xl mb-12 mx-auto text-center">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "TRY IT YOURSELF" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "No signup. Just click a review." %}
@@ -710,7 +721,7 @@
         </section>
 
         <!-- HOW IT WORKS -->
-        <section id="how" class="max-w-6xl mx-auto px-6 py-28">
+        <section id="how" class="max-w-6xl mx-auto px-5 sm:px-6 py-14 md:py-28">
             <div class="max-w-xl mb-16 reveal">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "HOW IT WORKS" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Four steps, and only one needs you." %}</h2>
@@ -742,7 +753,7 @@
 
 
         <!-- GUARDRAIL VISUAL -->
-        <section class="max-w-4xl mx-auto px-6 py-8 pb-28 reveal">
+        <section class="max-w-4xl mx-auto px-5 sm:px-6 py-4 md:py-8 pb-14 md:pb-28 reveal">
             <div class="max-w-xl mb-10 mx-auto text-center">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "SMART GUARDRAIL" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Your reputation never posts on autopilot." %}</h2>
@@ -780,7 +791,7 @@
         </section>
 
         <!-- FEATURES -->
-        <section id="features" class="max-w-6xl mx-auto px-6 py-8 pb-28">
+        <section id="features" class="max-w-6xl mx-auto px-5 sm:px-6 py-4 md:py-8 pb-14 md:pb-28">
             <div class="max-w-xl mb-16 reveal">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "FEATURES" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Everything a manager needs, nothing they don't." %}</h2>
@@ -850,7 +861,7 @@
         </section>
 
 
-        <section class="max-w-6xl mx-auto px-6 py-8 pb-28 reveal">
+        <section class="max-w-6xl mx-auto px-5 sm:px-6 py-4 md:py-8 pb-14 md:pb-28 reveal">
             <div class="max-w-xl mb-14 reveal">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "BEYOND GOOGLE" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "One inbox for every review, from everywhere." %}</h2>
@@ -932,7 +943,7 @@
         </section>
 
         <!-- WHY NOT JUST CHATGPT -->
-        <section class="max-w-4xl mx-auto px-6 py-8 pb-28 reveal">
+        <section class="max-w-4xl mx-auto px-5 sm:px-6 py-4 md:py-8 pb-14 md:pb-28 reveal">
             <div class="max-w-xl mb-12 mx-auto text-center">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "A FAIR QUESTION" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans '"Why not just paste this into ChatGPT myself?"' %}</h2>
@@ -969,7 +980,7 @@
         </section>
 
         <!-- FAQ -->
-        <section id="faq" class="max-w-3xl mx-auto px-6 py-8 pb-28 reveal">
+        <section id="faq" class="max-w-3xl mx-auto px-5 sm:px-6 py-4 md:py-8 pb-14 md:pb-28 reveal">
             <div class="max-w-xl mb-12 mx-auto text-center">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "FAQ" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Questions owners actually ask." %}
@@ -1058,7 +1069,7 @@
         </section>
 
         <!-- PRICING -->
-        <section id="pricing" class="max-w-6xl mx-auto px-6 py-8 pb-28">
+        <section id="pricing" class="max-w-6xl mx-auto px-5 sm:px-6 py-4 md:py-8 pb-14 md:pb-28">
             <div class="max-w-xl mb-16 reveal">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "PRICING" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Simple pricing, per location." %}
@@ -1146,7 +1157,7 @@
 
 
         <!-- SETUP PROOF -->
-        <section class="max-w-5xl mx-auto px-6 py-8 pb-28 reveal">
+        <section class="max-w-5xl mx-auto px-5 sm:px-6 py-4 md:py-8 pb-14 md:pb-28 reveal">
             <div class="max-w-xl mb-14 mx-auto text-center">
                 <p class="font-mono text-xs text-amber-400 mb-3">{% trans "GETTING STARTED" %}</p>
                 <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">{% trans "Ten minutes, start to finish." %}
@@ -1179,7 +1190,7 @@
         </section>
 
         <!-- FINAL CTA -->
-        <section class="max-w-4xl mx-auto px-6 pb-28 text-center reveal">
+        <section class="max-w-4xl mx-auto px-5 sm:px-6 pb-14 md:pb-28 text-center reveal">
             <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white mb-4">{% trans "Stop leaving reviews on read." %}
             </h2>
             <p class="text-slate-400 mb-8 max-w-md mx-auto">{% trans "Set it up in ten minutes. Your first drafts are ready before your coffee is." %}</p>
