@@ -11,6 +11,8 @@ from django.views.decorators.cache import cache_control
 
 PUBLIC_PAGES = [  # (url name, priority)
     ('home', '1.0'),
+    ('free_reply_tool', '0.8'),
+    ('free_reply_tool_fr', '0.8'),
     ('getting_started', '0.6'),
     ('request_access_code', '0.5'),
     ('terms_of_service', '0.3'),
@@ -81,6 +83,7 @@ Independent restaurants, cafés, bars, hotels and shops that get Google reviews 
 
 ## Links
 - Website: {site}/
+- Free AI review reply generator (no sign-up): {site}/free-review-reply-generator/ (French: {site}/repondre-avis-google/)
 - Getting started: {site}/getting-started/
 - Founding Partner access code: {site}/request-access/
 - Terms: {site}/terms-of-service/

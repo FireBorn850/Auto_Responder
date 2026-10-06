@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import views_free_tool
 from . import views_api  # Import API views
 from . import views_gbp
 
@@ -25,6 +26,8 @@ urlpatterns = [
     path('terms-of-service/', views.terms_of_service_view, name='terms_of_service'),
     path('refund-policy/', views.refund_policy_view, name='refund_policy'),
     path('security/', views.security_view, name='security'),
+    path('free-review-reply-generator/', views_free_tool.free_reply_tool_view, {'lang': 'en'}, name='free_reply_tool'),
+    path('repondre-avis-google/', views_free_tool.free_reply_tool_view, {'lang': 'fr'}, name='free_reply_tool_fr'),
     path('getting-started/', views.getting_started_view, name='getting_started'),
     path('google-business/connect/', views_gbp.gbp_connect_view, name='gbp_connect'),
     path('google-business/callback/', views_gbp.gbp_callback_view, name='gbp_callback'),

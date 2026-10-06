@@ -1,0 +1,144 @@
+{% load static %}<!DOCTYPE html>
+<html lang="{{ page_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.title }}</title>
+    <meta name="description" content="{{ t.description }}">
+    <link rel="canonical" href="https://mehrly.com{{ request.path }}">
+    <link rel="alternate" hreflang="en" href="https://mehrly.com{{ alt_en }}">
+    <link rel="alternate" hreflang="fr" href="https://mehrly.com{{ alt_fr }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ t.title }}">
+    <meta property="og:description" content="{{ t.description }}">
+    <meta property="og:url" content="https://mehrly.com{{ request.path }}">
+    <meta property="og:image" content="https://mehrly.com{% static 'images/og-image.png' %}">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/favicon-192.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {"@type": "WebApplication", "name": "{{ t.h1|escapejs }}", "url": "https://mehrly.com{{ request.path }}",
+         "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "inLanguage": "{{ page_lang }}",
+         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "CHF"},
+         "publisher": {"@type": "Organization", "name": "Mehrly", "url": "https://mehrly.com/"}},
+        {"@type": "FAQPage", "mainEntity": [{% for q, a in t.faq %}
+          {"@type": "Question", "name": "{{ q|escapejs }}", "acceptedAnswer": {"@type": "Answer", "text": "{{ a|escapejs }}"}}{% if not forloop.last %},{% endif %}{% endfor %}
+        ]}
+      ]
+    }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0B1220; color: #F7F5F0; }
+        .font-display { font-family: 'Fraunces', serif; }
+        .field { width: 100%; background: #111A2C; border: 1px solid rgba(255,255,255,.12); border-radius: .75rem; padding: .75rem 1rem; color: #F7F5F0; font-size: 16px; }
+        .field:focus { outline: none; border-color: #E8A83C; }
+        label { display: block; font-size: .8rem; font-weight: 600; color: #cbd5e1; margin-bottom: .35rem; }
+        .star-btn { font-size: 1.6rem; color: #475569; cursor: pointer; background: none; border: 0; padding: 0 .1rem; }
+        .star-btn.on { color: #E8A83C; }
+        .btn { background: #E8A83C; color: #0B1220; font-weight: 700; border-radius: .75rem; padding: .85rem 1.5rem; }
+        .btn:disabled { opacity: .6; }
+    </style>
+</head>
+<body class="antialiased">
+<div class="max-w-2xl mx-auto px-5 py-8 sm:py-14">
+    <div class="flex items-center justify-between mb-8">
+        <a href="{% url 'home' %}" class="flex items-center gap-2">
+            <span class="rounded-xl p-1.5" style="background:#F7F5F0"><img src="{% static 'images/mehrly-logo.png' %}" alt="Mehrly" class="h-6 w-auto"></span>
+        </a>
+        <a href="{{ t.other_lang.1 }}" class="text-xs font-semibold text-slate-400 hover:text-amber-400">{{ t.other_lang.0 }}</a>
+    </div>
+
+    <h1 class="font-display text-3xl sm:text-4xl font-semibold leading-tight">{{ t.h1 }}</h1>
+    <p class="text-slate-400 mt-3 leading-relaxed">{{ t.intro }}</p>
+
+    <form id="toolForm" class="mt-8 space-y-4 bg-white/5 border border-white/10 rounded-2xl p-5">
+        {% csrf_token %}
+        <div class="grid sm:grid-cols-2 gap-4">
+            <div><label for="business_name">{{ t.business }}</label>
+                <input class="field" id="business_name" name="business_name" maxlength="80" placeholder="{{ t.business_ph }}"></div>
+            <div><label for="reviewer_name">{{ t.reviewer }}</label>
+                <input class="field" id="reviewer_name" name="reviewer_name" maxlength="60" placeholder="{{ t.reviewer_ph }}"></div>
+        </div>
+        <div>
+            <label>{{ t.rating }}</label>
+            <div id="stars">{% for i in "12345" %}<button type="button" class="star-btn" data-v="{{ i }}">★</button>{% endfor %}</div>
+            <input type="hidden" name="rating" id="rating" value="5">
+        </div>
+        <div><label for="comment">{{ t.review }}</label>
+            <textarea class="field" id="comment" name="comment" rows="5" maxlength="1500" required placeholder="{{ t.review_ph }}"></textarea></div>
+        <div><label for="tone">{{ t.tone }}</label>
+            <select class="field" id="tone" name="tone">
+                <option value="friendly">{{ t.tone_friendly }}</option>
+                <option value="professional">{{ t.tone_professional }}</option>
+            </select></div>
+        <div class="flex flex-wrap items-center gap-3">
+            <button type="submit" class="btn" id="goBtn">{{ t.button }}</button>
+            <span class="text-xs text-slate-500">{{ t.limit_note }}</span>
+        </div>
+    </form>
+
+    <div id="out" class="hidden mt-6 bg-amber-400/10 border border-amber-400/30 rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">{{ t.result }}</span>
+            <button type="button" id="copyBtn" class="text-xs font-semibold text-slate-200 border border-white/20 rounded-lg px-3 py-1.5">{{ t.copy }}</button>
+        </div>
+        <p id="reply" class="leading-relaxed whitespace-pre-line"></p>
+    </div>
+    <p id="err" class="hidden mt-6 text-sm text-rose-300"></p>
+
+    <div class="mt-10 rounded-2xl p-6 border border-emerald-400/30 bg-emerald-400/10">
+        <h2 class="font-display text-xl font-semibold">{{ t.cta_h }}</h2>
+        <p class="text-slate-300 mt-2 text-sm leading-relaxed">{{ t.cta_p }}</p>
+        <a href="{% url 'account_signup' %}" class="btn inline-block mt-4 text-sm">{{ t.cta_btn }}</a>
+    </div>
+
+    <h2 class="font-display text-2xl font-semibold mt-12 mb-4">{{ t.faq_h }}</h2>
+    <div class="space-y-4">
+        {% for q, a in t.faq %}
+        <div class="border-b border-white/10 pb-4"><h3 class="font-semibold">{{ q }}</h3><p class="text-slate-400 text-sm mt-1 leading-relaxed">{{ a }}</p></div>
+        {% endfor %}
+    </div>
+
+    <footer class="mt-12 text-xs text-slate-500 flex flex-wrap gap-x-5 gap-y-2">
+        <a href="{% url 'home' %}">mehrly.com</a>
+        <a href="{% url 'privacy_policy' %}">Privacy</a>
+        <a href="{% url 'terms_of_service' %}">Terms</a>
+    </footer>
+</div>
+<script>
+(function () {
+    var stars = document.querySelectorAll('.star-btn'), rating = document.getElementById('rating');
+    function paint(v) { stars.forEach(function (s) { s.classList.toggle('on', +s.dataset.v <= v); }); rating.value = v; }
+    stars.forEach(function (s) { s.addEventListener('click', function () { paint(+s.dataset.v); }); });
+    paint(5);
+    var form = document.getElementById('toolForm'), btn = document.getElementById('goBtn');
+    var out = document.getElementById('out'), reply = document.getElementById('reply'), err = document.getElementById('err');
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        btn.disabled = true; btn.textContent = "{{ t.working|escapejs }}";
+        out.classList.add('hidden'); err.classList.add('hidden');
+        fetch(window.location.pathname, { method: 'POST', body: new FormData(form) })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d.reply) { reply.textContent = d.reply; out.classList.remove('hidden'); }
+                else { err.textContent = d.error || "{{ t.err_generic|escapejs }}"; err.classList.remove('hidden'); }
+            })
+            .catch(function () { err.textContent = "{{ t.err_generic|escapejs }}"; err.classList.remove('hidden'); })
+            .finally(function () { btn.disabled = false; btn.textContent = "{{ t.button|escapejs }}"; });
+    });
+    document.getElementById('copyBtn').addEventListener('click', function () {
+        navigator.clipboard.writeText(reply.textContent).then(function () {
+            var b = document.getElementById('copyBtn'); b.textContent = "{{ t.copied|escapejs }}";
+            setTimeout(function () { b.textContent = "{{ t.copy|escapejs }}"; }, 1500);
+        });
+    });
+})();
+</script>
+</body>
+</html>

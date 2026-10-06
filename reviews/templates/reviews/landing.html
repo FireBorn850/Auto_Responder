@@ -1318,6 +1318,7 @@
                 <a href="{% url 'terms_of_service' %}" class="hover:text-slate-300 transition">{% trans "Terms" %}</a>
                 <a href="{% url 'refund_policy' %}" class="hover:text-slate-300 transition">{% trans "Refunds" %}</a>
                 <a href="{% url 'security' %}" class="hover:text-slate-300 transition">{% trans "Security" %}</a>
+                <a href="{% if LANG == 'fr' %}{% url 'free_reply_tool_fr' %}{% else %}{% url 'free_reply_tool' %}{% endif %}" class="hover:text-slate-300 transition">{% trans "Free reply generator" %}</a>
                 <a href="https://www.instagram.com/mehrly.app/" target="_blank" rel="noopener" class="hover:text-slate-300 transition">Instagram</a>
                 <a href="mailto:{{ SUPPORT_EMAIL }}?subject=Mehrly%20Inquiry"
                     class="hover:text-slate-300 transition">{% trans "Contact" %}</a>

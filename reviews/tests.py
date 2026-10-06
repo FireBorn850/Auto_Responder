@@ -2307,3 +2307,54 @@ class FaviconTests(TestCase):
         for name in ('home', 'privacy_policy', 'terms_of_service'):
             html = self.client.get(reverse(name)).content.decode()
             self.assertIn('rel="icon" href="/favicon.ico"', html, name)
+
+
+# ---------------------------------------------------------------- Free public reply tool
+
+class FreeReplyToolTests(TestCase):
+    def post(self, url='/free-review-reply-generator/', **data):
+        payload = {'comment': 'Lovely dinner, friendly staff and great pasta.', 'rating': '5'}
+        payload.update(data)
+        return self.client.post(url, payload)
+
+    def test_pages_load_in_both_languages(self):
+        en = self.client.get('/free-review-reply-generator/').content.decode()
+        fr = self.client.get('/repondre-avis-google/').content.decode()
+        self.assertIn('<html lang="en">', en)
+        self.assertIn('<html lang="fr">', fr)
+        self.assertIn('Répondre à un avis Google', fr)
+        self.assertIn('hreflang="fr"', en)
+
+    def test_generates_a_reply(self):
+        from reviews import views_free_tool
+        with mock.patch.object(views_free_tool, 'generate_review_draft', return_value='Thank you!') as gen:
+            r = self.post()
+        self.assertEqual(r.json()['reply'], 'Thank you!')
+        self.assertEqual(gen.call_args.kwargs['business_name'], 'our place')
+
+    def test_daily_limit_per_visitor(self):
+        from reviews import views_free_tool
+        with mock.patch.object(views_free_tool, 'generate_review_draft', return_value='Thanks') as gen:
+            codes = [self.post().status_code for _ in range(views_free_tool.PER_VISITOR_PER_DAY + 1)]
+        self.assertEqual(codes[-1], 429)
+        self.assertEqual(gen.call_count, views_free_tool.PER_VISITOR_PER_DAY)
+
+    def test_site_wide_cap(self):
+        from reviews import views_free_tool
+        with mock.patch.object(views_free_tool, 'SITE_PER_DAY', 1), \
+                mock.patch.object(views_free_tool, 'generate_review_draft', return_value='Thanks') as gen:
+            self.post()
+            r = self.post(REMOTE_ADDR='10.0.0.9')
+        self.assertEqual(r.status_code, 429)
+        self.assertEqual(gen.call_count, 1)
+
+    def test_empty_or_fake_reviews_cost_nothing(self):
+        from reviews import views_free_tool
+        with mock.patch.object(views_free_tool, 'generate_review_draft') as gen:
+            self.assertEqual(self.post(comment='').status_code, 400)
+            self.assertEqual(self.post(comment='kjhgfdsqwrtzpxcvbnm').status_code, 400)
+        gen.assert_not_called()
+
+    def test_listed_in_sitemap_and_footer(self):
+        self.assertIn('/repondre-avis-google/', self.client.get('/sitemap.xml').content.decode())
+        self.assertIn('/free-review-reply-generator/', self.client.get(reverse('home')).content.decode())

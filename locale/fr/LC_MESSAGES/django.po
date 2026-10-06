@@ -2801,6 +2801,9 @@ msgstr "Programme partenaires fondateurs · 5 places · sans carte"
 msgid "See the offer →"
 msgstr "Voir l’offre →"
 
+msgid "Free reply generator"
+msgstr "Générateur de réponses gratuit"
+
 #~ msgid "Draft copied to clipboard."
 #~ msgstr "Brouillon copié dans le presse-papiers."
 
